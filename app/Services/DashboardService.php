@@ -21,15 +21,18 @@ class DashboardService
             ->orderBy('date')
             ->pluck('total', 'date');
 
-        return $dates->map(function (Carbon $date) use ($sales) {
-            $formatted = $date->format('Y-m-d');
+        return $dates
+            ->map(function (Carbon $date) use ($sales) {
+                $formatted = $date->format('Y-m-d');
 
-            return [
-                'date' => $formatted,
-                'label' => $date->shortDayName,
-                'total' => (float) ($sales[$formatted] ?? 0),
-            ];
-        })->all();
+                return [
+                    'date' => $formatted,
+                    'label' => $date->shortDayName,
+                    'total' => (float) ($sales[$formatted] ?? 0),
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     public function todaySummary(): array
@@ -95,4 +98,3 @@ class DashboardService
         ];
     }
 }
-
