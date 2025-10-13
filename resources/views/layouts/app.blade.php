@@ -89,6 +89,7 @@
             margin-left: 0;
         }
     </style>
+    @stack('styles')
 </head>
 <body class="bg-slate-100 font-[Inter] text-slate-800">
     <div class="min-h-screen flex">
@@ -197,6 +198,9 @@
                     <button id="sidebar-toggle" class="hidden md:inline-flex items-center justify-center p-2 rounded-md border border-slate-200 text-slate-600 transition hover:bg-slate-100" aria-label="Toggle sidebar" title="Sembunyikan sidebar">
                         <span id="sidebar-toggle-icon">◀</span>
                     </button>
+                    <button id="fullscreen-toggle" class="hidden md:inline-flex items-center justify-center p-2 rounded-md border border-slate-200 text-slate-600 transition hover:bg-slate-100" aria-label="Aktifkan layar penuh" title="Aktifkan layar penuh">
+                        <span id="fullscreen-toggle-icon">⛶</span>
+                    </button>
                     <div>
                         <h1 class="text-xl font-semibold text-slate-800">@yield('title', 'Kasir')</h1>
                         <p class="text-sm text-slate-500">@yield('subtitle', 'Kelola operasional kasir secara mudah')</p>
@@ -297,8 +301,12 @@
             const $body = $('body');
             const $sidebarToggle = $('#sidebar-toggle');
             const $toggleIcon = $('#sidebar-toggle-icon');
+            const $fullscreenToggle = $('#fullscreen-toggle');
+            const $fullscreenIcon = $('#fullscreen-toggle-icon');
             const storageKey = 'sidebarCollapsed';
+            const fullscreenKey = 'fullscreenEnabled';
             const transactionsCreatePath = @json(parse_url(route('transactions.create'), PHP_URL_PATH));
+            let fullscreenPreference = false;
             const getPathname = (href) => {
                 try {
                     return new URL(href, window.location.origin).pathname;
@@ -345,6 +353,134 @@
                 const collapsed = !$body.hasClass('sidebar-collapsed');
                 applySidebarState(collapsed);
             });
+            const fullscreenSupported = () => document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled;
+            const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+            const enterFullscreen = () => {
+                const el = document.documentElement;
+                if (el.requestFullscreen) {
+                    return el.requestFullscreen();
+                }
+                if (el.webkitRequestFullscreen) {
+                    return el.webkitRequestFullscreen();
+                }
+                if (el.mozRequestFullScreen) {
+                    return el.mozRequestFullScreen();
+                }
+                if (el.msRequestFullscreen) {
+                    return el.msRequestFullscreen();
+                }
+            };
+            const exitFullscreen = () => {
+                if (document.exitFullscreen) {
+                    return document.exitFullscreen();
+                }
+                if (document.webkitExitFullscreen) {
+                    return document.webkitExitFullscreen();
+                }
+                if (document.mozCancelFullScreen) {
+                    return document.mozCancelFullScreen();
+                }
+                if (document.msExitFullscreen) {
+                    return document.msExitFullscreen();
+                }
+            };
+            const updateFullscreenButton = () => {
+                const active = Boolean(fullscreenElement());
+                $fullscreenIcon.text(active ? '🗗' : '⛶');
+                const label = active ? 'Keluar layar penuh' : 'Aktifkan layar penuh';
+                $fullscreenToggle.attr('aria-label', label).attr('title', label);
+            };
+            const persistFullscreenPreference = () => {
+                try {
+                    localStorage.setItem(fullscreenKey, fullscreenPreference ? '1' : '0');
+                } catch (error) {
+                    console.warn('Tidak dapat menyimpan preferensi fullscreen', error);
+                }
+            };
+            const savedFullscreen = (() => {
+                try {
+                    return localStorage.getItem(fullscreenKey);
+                } catch (error) {
+                    return null;
+                }
+            })();
+            fullscreenPreference = savedFullscreen === '1';
+            const setupFullscreenRestoreOnGesture = () => {
+                let restored = false;
+                const handler = () => {
+                    if (restored) {
+                        return;
+                    }
+                    restored = true;
+                    $(document).off('click.fullscreenRestore', handler);
+                    $(document).off('keydown.fullscreenRestore', handler);
+                    const result = enterFullscreen();
+                    if (result && typeof result.then === 'function') {
+                        result.then(() => {
+                            updateFullscreenButton();
+                        }).catch(() => {
+                            updateFullscreenButton();
+                        });
+                    } else {
+                        updateFullscreenButton();
+                    }
+                };
+                $(document).on('click.fullscreenRestore', handler);
+                $(document).on('keydown.fullscreenRestore', handler);
+            };
+            if (fullscreenSupported()) {
+                updateFullscreenButton();
+                $fullscreenToggle.on('click', function () {
+                    if (fullscreenElement()) {
+                        fullscreenPreference = false;
+                        persistFullscreenPreference();
+                        exitFullscreen();
+                    } else {
+                        fullscreenPreference = true;
+                        persistFullscreenPreference();
+                        const result = enterFullscreen();
+                        if (result && typeof result.then === 'function') {
+                            result.catch(() => {
+                                updateFullscreenButton();
+                            });
+                        }
+                    }
+                });
+                ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event => {
+                    document.addEventListener(event, () => {
+                        if (!fullscreenElement() && document.visibilityState === 'visible') {
+                            fullscreenPreference = false;
+                            persistFullscreenPreference();
+                        }
+                        updateFullscreenButton();
+                    });
+                });
+                $(document).on('keydown.fullscreenPreference', function (event) {
+                    if (event.key === 'Escape' && fullscreenElement()) {
+                        fullscreenPreference = false;
+                        persistFullscreenPreference();
+                    }
+                });
+                window.addEventListener('beforeunload', () => {
+                    persistFullscreenPreference();
+                });
+                if (fullscreenPreference && !fullscreenElement()) {
+                    setTimeout(() => {
+                        const attempt = enterFullscreen();
+                        if (attempt && typeof attempt.then === 'function') {
+                            attempt.then(() => {
+                                updateFullscreenButton();
+                            }).catch(() => {
+                                setupFullscreenRestoreOnGesture();
+                            });
+                        } else {
+                            setupFullscreenRestoreOnGesture();
+                        }
+                    }, 120);
+                }
+            } else {
+                $fullscreenToggle.addClass('md:hidden').attr('aria-hidden', 'true');
+            }
             $('.nav-link').each(function () {
                 const current = window.location.pathname;
                 const hrefPath = getPathname($(this).attr('href'));
@@ -369,3 +505,14 @@
     @stack('scripts')
 </body>
 </html>
+            const updateFullscreenButton = () => {
+                const active = Boolean(fullscreenElement());
+                $fullscreenIcon.text(active ? '🗗' : '⛶');
+                const label = active ? 'Keluar layar penuh' : 'Aktifkan layar penuh';
+                $fullscreenToggle.attr('aria-label', label).attr('title', label);
+                try {
+                    localStorage.setItem(fullscreenKey, active ? '1' : '0');
+                } catch (error) {
+                    console.warn('Tidak dapat menyimpan status fullscreen', error);
+                }
+            };

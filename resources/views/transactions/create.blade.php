@@ -3,6 +3,37 @@
 @section('title', 'Transaksi Baru')
 @section('subtitle', 'Proses penjualan dengan pemindaian barcode dan perhitungan otomatis')
 
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <style>
+        .select2-container .select2-selection--single {
+            height: auto;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgb(226 232 240);
+            display: flex;
+            align-items: center;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: rgb(51 65 85);
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            padding: 0;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            right: 0.75rem;
+        }
+        .select2-dropdown {
+            border-radius: 0.75rem;
+            border: 1px solid rgb(226 232 240);
+        }
+        .select2-results__option {
+            font-size: 0.875rem;
+        }
+    </style>
+@endpush
+
 @section('content')
     <form action="{{ route('transactions.store') }}" method="POST" id="transaction-form">
         @csrf
@@ -134,6 +165,7 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         const productsData = @json($products);
         const cart = [];
@@ -235,11 +267,16 @@
 
         $(function () {
             const $barcodeInput = $('#barcode-input');
+            const $productSelect = $('#product-select').select2({
+                placeholder: '-- Pilih Produk --',
+                allowClear: true,
+                width: 'resolve'
+            });
             $barcodeInput.trigger('focus');
             setTimeout(() => $barcodeInput.trigger('focus'), 200);
 
             $('#add-product').on('click', function () {
-                const productId = $('#product-select').val();
+                const productId = $productSelect.val();
                 if (!productId) {
                     alert('Pilih produk terlebih dahulu.');
                     return;
@@ -247,7 +284,7 @@
                 const product = productsData.find(p => p.id == productId);
                 if (product) {
                     addProductToCart(product);
-                    $('#product-select').val('');
+                    $productSelect.val(null).trigger('change');
                 }
             });
 
