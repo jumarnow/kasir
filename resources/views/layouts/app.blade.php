@@ -120,6 +120,13 @@
                     <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
                         {{ $roleLabel ?: 'Kasir' }}
                     </span>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
+                            <span>🚪</span>
+                            <span>Logout</span>
+                        </button>
+                    </form>
                 </div>
             </header>
             <main class="px-5 py-6">
@@ -168,6 +175,12 @@
                 <a href="{{ route('roles.index') }}" class="mobile-nav-link">Role &amp; Izin</a>
                 <a href="{{ route('reports.sales') }}" class="mobile-nav-link">Laporan Penjualan</a>
                 <a href="{{ route('reports.profit') }}" class="mobile-nav-link">Laporan Profit</a>
+                <form method="POST" action="{{ route('logout') }}" class="pt-3 border-t border-slate-200">
+                    @csrf
+                    <button type="submit" class="mobile-nav-link text-center bg-red-50 border-red-200 text-red-600 hover:bg-red-100">
+                        Logout
+                    </button>
+                </form>
             </div>
         </div>
     </div>
