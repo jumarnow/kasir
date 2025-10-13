@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-        <form method="GET" action="{{ route('reports.profit') }}" class="grid gap-4 lg:grid-cols-4">
+        <form method="GET" action="{{ route('reports.profit') }}" class="grid gap-4 lg:grid-cols-5">
             <div>
                 <label class="text-xs uppercase text-slate-500">Tanggal Mulai</label>
                 <input type="date" name="start_date" value="{{ $filters['start_date'] ?? $report['range']['start'] }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
@@ -20,6 +20,15 @@
                     <option value="day" @selected(($filters['group_by'] ?? $report['range']['group_by']) === 'day')>Harian</option>
                     <option value="week" @selected(($filters['group_by'] ?? $report['range']['group_by']) === 'week')>Mingguan</option>
                     <option value="month" @selected(($filters['group_by'] ?? $report['range']['group_by']) === 'month')>Bulanan</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-xs uppercase text-slate-500">Kasir</label>
+                <select name="user_id" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                    <option value="">Semua Kasir</option>
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}" @selected(($filters['user_id'] ?? '') == $user->id)>{{ $user->name }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="flex items-end">
@@ -52,6 +61,16 @@
                 <h2 class="text-lg font-semibold text-slate-800">Grafik Profit</h2>
                 <p class="text-sm text-slate-500">Profit bersih dibandingkan penjualan</p>
             </div>
+            @if (!empty($filters['user_id']))
+                @php
+                    $selectedUser = $users->firstWhere('id', (int) $filters['user_id']);
+                @endphp
+                @if ($selectedUser)
+                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600">
+                        Kasir: {{ $selectedUser->name }}
+                    </span>
+                @endif
+            @endif
         </div>
         <div class="mt-6">
             <canvas id="profitReportChart" height="140"></canvas>
@@ -80,6 +99,39 @@
             @empty
                 <tr>
                     <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Tidak ada data untuk periode ini.</td>
+                </tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-slate-200 overflow-hidden">
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-lg font-semibold text-slate-800">Performa Kasir</h2>
+                <p class="text-sm text-slate-500">Total profit per kasir pada periode ini</p>
+            </div>
+        </div>
+        <table class="mt-4 w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <tr>
+                <th class="px-4 py-3">Kasir</th>
+                <th class="px-4 py-3 text-right">Transaksi</th>
+                <th class="px-4 py-3 text-right">Penjualan</th>
+                <th class="px-4 py-3 text-right">Profit</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+            @forelse ($report['cashiers'] as $cashier)
+                <tr>
+                    <td class="px-4 py-3 font-medium text-slate-700">{{ $cashier['name'] }}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">{{ $cashier['transactions'] }}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($cashier['sales'], 0, ',', '.') }}</td>
+                    <td class="px-4 py-3 text-right text-emerald-600">Rp {{ number_format($cashier['profit'], 0, ',', '.') }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Belum ada transaksi pada periode ini.</td>
                 </tr>
             @endforelse
             </tbody>

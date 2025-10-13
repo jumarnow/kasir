@@ -7,18 +7,25 @@ use Carbon\Carbon;
 
 class ReportService
 {
-    public function aggregate(?string $startDate, ?string $endDate, string $groupBy = 'day'): array
+    public function aggregate(?string $startDate, ?string $endDate, string $groupBy = 'day', ?int $userId = null): array
     {
         $start = $startDate ? Carbon::parse($startDate) : Carbon::now()->subDays(30);
         $end = $endDate ? Carbon::parse($endDate) : Carbon::now();
 
         [$format, $labelResolver] = $this->groupingFormat($groupBy);
 
-        $records = Transaction::selectRaw("DATE_FORMAT(created_at, '{$format}') as period_key")
+        $baseQuery = Transaction::query()
+            ->whereBetween('created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()]);
+
+        if ($userId) {
+            $baseQuery->where('user_id', $userId);
+        }
+
+        $records = (clone $baseQuery)
+            ->selectRaw("DATE_FORMAT(created_at, '{$format}') as period_key")
             ->selectRaw('SUM(total) as sales_total')
             ->selectRaw('SUM(profit) as profit_total')
             ->selectRaw('COUNT(*) as transactions_count')
-            ->whereBetween('created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
             ->groupBy('period_key')
             ->orderBy('period_key')
             ->get();
@@ -35,6 +42,26 @@ class ReportService
             ];
         });
 
+        $cashiers = (clone $baseQuery)
+            ->join('users', 'users.id', '=', 'transactions.user_id')
+            ->selectRaw('transactions.user_id')
+            ->selectRaw('users.name as user_name')
+            ->selectRaw('SUM(transactions.total) as sales_total')
+            ->selectRaw('SUM(transactions.profit) as profit_total')
+            ->selectRaw('COUNT(*) as transactions_count')
+            ->groupBy('transactions.user_id', 'users.name')
+            ->orderByDesc('sales_total')
+            ->get()
+            ->map(static function ($record) {
+                return [
+                    'user_id' => (int) $record->user_id,
+                    'name' => $record->user_name,
+                    'sales' => (float) $record->sales_total,
+                    'profit' => (float) $record->profit_total,
+                    'transactions' => (int) $record->transactions_count,
+                ];
+            });
+
         return [
             'range' => [
                 'start' => $start->toDateString(),
@@ -47,8 +74,10 @@ class ReportService
                 'transactions' => (int) $data->sum('transactions'),
             ],
             'data' => $data->values()->all(),
+            'cashiers' => $cashiers->values()->all(),
         ];
     }
+
 
     protected function groupingFormat(string $groupBy): array
     {
@@ -74,4 +103,3 @@ class ReportService
         };
     }
 }
-
