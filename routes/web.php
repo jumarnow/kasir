@@ -29,3 +29,7 @@ Route::resource('users', UserController::class)->except('show');
 
 Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
 Route::get('reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
