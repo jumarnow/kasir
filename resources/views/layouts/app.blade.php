@@ -501,18 +501,19 @@
                 $('#mobile-nav').addClass('hidden');
             });
         });
+
+            // const updateFullscreenButton = () => {
+            //     const active = Boolean(fullscreenElement());
+            //     $fullscreenIcon.text(active ? '🗗' : '⛶');
+            //     const label = active ? 'Keluar layar penuh' : 'Aktifkan layar penuh';
+            //     $fullscreenToggle.attr('aria-label', label).attr('title', label);
+            //     try {
+            //         localStorage.setItem(fullscreenKey, active ? '1' : '0');
+            //     } catch (error) {
+            //         console.warn('Tidak dapat menyimpan status fullscreen', error);
+            //     }
+            // };
     </script>
     @stack('scripts')
 </body>
 </html>
-            const updateFullscreenButton = () => {
-                const active = Boolean(fullscreenElement());
-                $fullscreenIcon.text(active ? '🗗' : '⛶');
-                const label = active ? 'Keluar layar penuh' : 'Aktifkan layar penuh';
-                $fullscreenToggle.attr('aria-label', label).attr('title', label);
-                try {
-                    localStorage.setItem(fullscreenKey, active ? '1' : '0');
-                } catch (error) {
-                    console.warn('Tidak dapat menyimpan status fullscreen', error);
-                }
-            };
