@@ -15,16 +15,16 @@ class ReportService
         [$format, $labelResolver] = $this->groupingFormat($groupBy);
 
         $baseQuery = Transaction::query()
-            ->whereBetween('created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()]);
+            ->whereBetween('transactions.created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()]);
 
         if ($userId) {
             $baseQuery->where('user_id', $userId);
         }
 
         $records = (clone $baseQuery)
-            ->selectRaw("DATE_FORMAT(created_at, '{$format}') as period_key")
-            ->selectRaw('SUM(total) as sales_total')
-            ->selectRaw('SUM(profit) as profit_total')
+            ->selectRaw("DATE_FORMAT(transactions.created_at, '{$format}') as period_key")
+            ->selectRaw('SUM(transactions.total) as sales_total')
+            ->selectRaw('SUM(transactions.profit) as profit_total')
             ->selectRaw('COUNT(*) as transactions_count')
             ->groupBy('period_key')
             ->orderBy('period_key')
