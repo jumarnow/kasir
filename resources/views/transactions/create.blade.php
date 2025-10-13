@@ -37,7 +37,7 @@
                         <div class="flex flex-col gap-3 md:flex-row">
                             <div class="relative">
                                 <label class="text-xs uppercase text-slate-500">Barcode / SKU</label>
-                                <input type="text" id="barcode-input" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Scan barcode...">
+                                <input type="text" id="barcode-input" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Scan barcode..." autofocus>
                                 <span class="absolute inset-y-0 right-3 top-6 flex items-center text-slate-400">📷</span>
                             </div>
                             <div class="flex items-end gap-2">
@@ -234,6 +234,10 @@
         }
 
         $(function () {
+            const $barcodeInput = $('#barcode-input');
+            $barcodeInput.trigger('focus');
+            setTimeout(() => $barcodeInput.trigger('focus'), 200);
+
             $('#add-product').on('click', function () {
                 const productId = $('#product-select').val();
                 if (!productId) {
