@@ -55,7 +55,8 @@ class Transaction extends Model
         $sequence = 1;
 
         if ($latestNumber && str_starts_with($latestNumber, 'INV-' . $prefix)) {
-            $sequence = (int) Str::of($latestNumber)->afterLast('-') + 1;
+            $latestSequence = Str::afterLast($latestNumber, '-');
+            $sequence = ((int) $latestSequence) + 1;
         }
 
         return sprintf('INV-%s-%04d', $prefix, $sequence);
