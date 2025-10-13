@@ -27,6 +27,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
+        unset($data['roles']);
 
         $user = User::create($data);
         $user->roles()->sync($request->input('roles', []));
@@ -39,12 +40,13 @@ class UserController extends Controller
         $roles = Role::orderBy('display_name')->pluck('display_name', 'id');
         $user->load('roles');
 
-        return view('users.edit', compact('user', 'roles'));
+        return view('users.create', compact('user', 'roles'));
     }
 
     public function update(UserRequest $request, User $user)
     {
         $data = $request->validated();
+        unset($data['roles']);
 
         if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
@@ -69,4 +71,3 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil dihapus.');
     }
 }
-

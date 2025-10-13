@@ -29,6 +29,7 @@ class DemoDataSeeder extends Seeder
                 ['email' => 'admin@kasir.test'],
                 [
                     'name' => 'Administrator',
+                    'username' => 'admin',
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                 ]
@@ -38,10 +39,15 @@ class DemoDataSeeder extends Seeder
                 $admin->roles()->syncWithoutDetaching([$adminRole->id]);
             }
 
+            if ($admin->username !== 'admin') {
+                $admin->forceFill(['username' => 'admin'])->save();
+            }
+
             $cashier = User::firstOrCreate(
                 ['email' => 'kasir@kasir.test'],
                 [
                     'name' => 'Kasir Toko',
+                    'username' => 'kasir',
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                 ]
@@ -49,6 +55,10 @@ class DemoDataSeeder extends Seeder
 
             if ($cashierRole) {
                 $cashier->roles()->syncWithoutDetaching([$cashierRole->id]);
+            }
+
+            if ($cashier->username !== 'kasir') {
+                $cashier->forceFill(['username' => 'kasir'])->save();
             }
 
             $categories = collect([
@@ -166,4 +176,3 @@ class DemoDataSeeder extends Seeder
         });
     }
 }
-

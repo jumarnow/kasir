@@ -8,6 +8,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -30,6 +31,6 @@ Route::resource('users', UserController::class)->except('show');
 Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
 Route::get('reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
 
-Auth::routes();
+Auth::routes(['register' => false]);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

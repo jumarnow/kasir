@@ -29,7 +29,7 @@
                     <tr>
                         <td class="px-6 py-4">
                             <p class="font-semibold text-slate-800">{{ $user->name }}</p>
-                            <p class="text-xs text-slate-400">ID: {{ $user->id }}</p>
+                            <p class="text-xs text-slate-400">Username: {{ $user->username }}</p>
                         </td>
                         <td class="px-6 py-4 text-slate-600">{{ $user->email }}</td>
                         <td class="px-6 py-4">
