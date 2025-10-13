@@ -120,31 +120,12 @@
                             <span>Kembalian</span>
                             <span id="summary-change" class="font-semibold text-slate-700">Rp 0</span>
                         </div>
-                    </div>
-                </div>
-                <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-semibold text-slate-800">Tips Kasir</h2>
-                    <ul class="mt-4 space-y-2 text-sm text-slate-600">
-                        <li class="flex items-start gap-2">
-                            <span class="mt-1 text-indigo-500">•</span>
-                            Pastikan jumlah bayar ≥ total transaksi sebelum menyimpan.
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="mt-1 text-indigo-500">•</span>
-                            Gunakan barcode untuk mempercepat input produk.
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="mt-1 text-indigo-500">•</span>
-                            Tambahkan catatan agar kasir lain dapat melihat detail penjualan.
-                        </li>
-                    </ul>
+
                     <div class="mt-6 flex flex-col gap-3">
                         <button type="submit" class="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400">
                             Simpan & Cetak Invoice
                         </button>
-                        <a href="{{ route('transactions.index') }}" class="text-center text-sm text-slate-500 hover:text-slate-700">
-                            Batalkan transaksi
-                        </a>
+                    </div>
                     </div>
                 </div>
             </div>
