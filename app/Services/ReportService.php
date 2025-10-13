@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Transaction;
+use Carbon\Carbon;
+
+class ReportService
+{
+    public function aggregate(?string $startDate, ?string $endDate, string $groupBy = 'day'): array
+    {
+        $start = $startDate ? Carbon::parse($startDate) : Carbon::now()->subDays(30);
+        $end = $endDate ? Carbon::parse($endDate) : Carbon::now();
+
+        [$format, $labelResolver] = $this->groupingFormat($groupBy);
+
+        $records = Transaction::selectRaw("DATE_FORMAT(created_at, '{$format}') as period_key")
+            ->selectRaw('SUM(total) as sales_total')
+            ->selectRaw('SUM(profit) as profit_total')
+            ->selectRaw('COUNT(*) as transactions_count')
+            ->whereBetween('created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
+            ->groupBy('period_key')
+            ->orderBy('period_key')
+            ->get();
+
+        $data = $records->map(function ($record) use ($groupBy, $labelResolver) {
+            $label = $labelResolver($record->period_key);
+
+            return [
+                'period' => $record->period_key,
+                'label' => $label,
+                'sales' => (float) $record->sales_total,
+                'profit' => (float) $record->profit_total,
+                'transactions' => (int) $record->transactions_count,
+            ];
+        });
+
+        return [
+            'range' => [
+                'start' => $start->toDateString(),
+                'end' => $end->toDateString(),
+                'group_by' => $groupBy,
+            ],
+            'summary' => [
+                'sales' => (float) $data->sum('sales'),
+                'profit' => (float) $data->sum('profit'),
+                'transactions' => (int) $data->sum('transactions'),
+            ],
+            'data' => $data->values()->all(),
+        ];
+    }
+
+    protected function groupingFormat(string $groupBy): array
+    {
+        return match ($groupBy) {
+            'week' => [
+                '%x-%v',
+                function (string $period) {
+                    [$year, $week] = explode('-', $period);
+                    $start = Carbon::now()->setISODate((int) $year, (int) $week)->startOfWeek();
+                    $end = $start->copy()->endOfWeek();
+
+                    return $start->format('d M') . ' - ' . $end->format('d M');
+                },
+            ],
+            'month' => [
+                '%Y-%m',
+                fn (string $period) => Carbon::createFromFormat('Y-m', $period)->format('M Y'),
+            ],
+            default => [
+                '%Y-%m-%d',
+                fn (string $period) => Carbon::createFromFormat('Y-m-d', $period)->format('d M'),
+            ],
+        };
+    }
+}
+
