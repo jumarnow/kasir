@@ -107,24 +107,3 @@
         </div>
     </div>
 @endsection
-
-@if (session('print_invoice'))
-    @push('scripts')
-        <script>
-            window.addEventListener('load', function () {
-                try {
-                    sessionStorage.removeItem('kasirInvoicePrintRequested');
-                } catch (error) {
-                    // ignore storage failures
-                }
-
-                const printWindow = window.open('', 'invoice-print', 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes');
-
-                if (printWindow) {
-                    printWindow.location.replace('{{ route('transactions.invoice', $transaction) }}');
-                    printWindow.focus();
-                }
-            });
-        </script>
-    @endpush
-@endif

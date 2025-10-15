@@ -49,9 +49,10 @@ class TransactionController extends Controller
 
         $transaction = $this->transactionService->create($user, $request->validated());
 
-        return redirect()->route('transactions.show', $transaction)
+        return redirect()->route('transactions.create')
             ->with('success', 'Transaksi berhasil dibuat.')
-            ->with('print_invoice', $shouldPrintInvoice);
+            ->with('print_invoice', $shouldPrintInvoice)
+            ->with('printed_transaction_id', $transaction->id);
     }
 
     public function show(Transaction $transaction)

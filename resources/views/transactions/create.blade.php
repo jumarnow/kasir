@@ -34,6 +34,32 @@
     </style>
 @endpush
 
+@if (session('print_invoice') && session('printed_transaction_id'))
+    @push('scripts')
+        <script>
+            window.addEventListener('load', function () {
+                if (sessionStorage.getItem('kasirInvoicePrintRequested') !== '1') {
+                    return;
+                }
+
+                try {
+                    sessionStorage.removeItem('kasirInvoicePrintRequested');
+                } catch (error) {
+                    // ignore storage errors
+                }
+
+                const features = 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes';
+                const invoiceWindow = window.open('', 'invoice-print', features);
+
+                if (invoiceWindow) {
+                    invoiceWindow.location.replace('{{ route('transactions.invoice', ['transaction' => session('printed_transaction_id')]) }}');
+                    invoiceWindow.focus();
+                }
+            });
+        </script>
+    @endpush
+@endif
+
 @section('content')
     <form action="{{ route('transactions.store') }}" method="POST" id="transaction-form">
         @csrf
