@@ -1,0 +1,377 @@
+{
+    "info": {
+        "name": "Kasir API",
+        "_postman_id": "c13cb03a-f6dc-4f91-9396-d7375bf0a6cd",
+        "description": "Kumpulan request untuk menguji API kasir (login hingga transaksi) pada aplikasi mobile.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "product_id",
+            "value": "1",
+            "type": "string"
+        },
+        {
+            "key": "customer_id",
+            "value": "1",
+            "type": "string"
+        },
+        {
+            "key": "transaction_id",
+            "value": "1",
+            "type": "string"
+        },
+        {
+            "key": "barcode",
+            "value": "1234567890123",
+            "type": "string"
+        },
+        {
+            "key": "search",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "per_page",
+            "value": "20",
+            "type": "string"
+        },
+        {
+            "key": "start_date",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "end_date",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"kasir\",\n    \"password\": \"secret123\",\n    \"device_name\": \"mobile-app\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "login"
+                            ]
+                        },
+                        "description": "Login kasir untuk mendapatkan token Sanctum."
+                    },
+                    "response": [],
+                    "auth": {
+                        "type": "noauth"
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/logout",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "logout"
+                            ]
+                        },
+                        "description": "Menghapus token akses aktif."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Profil Pengguna",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/me",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "me"
+                            ]
+                        },
+                        "description": "Mengambil data pengguna yang sedang login."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Products",
+            "item": [
+                {
+                    "name": "List Products",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/products?per_page={{per_page}}&q={{search}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "{{per_page}}"
+                                },
+                                {
+                                    "key": "q",
+                                    "value": "{{search}}"
+                                }
+                            ]
+                        },
+                        "description": "Daftar produk aktif dengan opsi pencarian dan paginasi."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show Product",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/products/{{product_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "{{product_id}}"
+                            ]
+                        },
+                        "description": "Detail produk berdasarkan ID."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lookup Product By Barcode",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/products/lookup?barcode={{barcode}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "lookup"
+                            ],
+                            "query": [
+                                {
+                                    "key": "barcode",
+                                    "value": "{{barcode}}"
+                                }
+                            ]
+                        },
+                        "description": "Cari produk menggunakan barcode atau SKU."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Customers",
+            "item": [
+                {
+                    "name": "List Customers",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/customers?per_page={{per_page}}&q={{search}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customers"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "{{per_page}}"
+                                },
+                                {
+                                    "key": "q",
+                                    "value": "{{search}}"
+                                }
+                            ]
+                        },
+                        "description": "Daftar pelanggan aktif dengan pencarian."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show Customer",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/customers/{{customer_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customers",
+                                "{{customer_id}}"
+                            ]
+                        },
+                        "description": "Detail pelanggan berdasarkan ID."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Transactions",
+            "item": [
+                {
+                    "name": "List Transactions",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/transactions?start_date={{start_date}}&end_date={{end_date}}&q={{search}}&per_page={{per_page}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "transactions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "start_date",
+                                    "value": "{{start_date}}"
+                                },
+                                {
+                                    "key": "end_date",
+                                    "value": "{{end_date}}"
+                                },
+                                {
+                                    "key": "q",
+                                    "value": "{{search}}"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "{{per_page}}"
+                                }
+                            ]
+                        },
+                        "description": "Daftar transaksi terbaru dengan filter tanggal dan pencarian invoice."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show Transaction",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "transactions",
+                                "{{transaction_id}}"
+                            ]
+                        },
+                        "description": "Detail transaksi beserta item dan relasi."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Transaction",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"customer_id\": {{customer_id}},\n    \"items\": [\n        {\n            \"product_id\": {{product_id}},\n            \"quantity\": 1,\n            \"price\": 15000\n        }\n    ],\n    \"amount_paid\": 15000,\n    \"discount_amount\": 0,\n    \"discount_percent\": 0,\n    \"payment_method\": \"cash\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/transactions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "transactions"
+                            ]
+                        },
+                        "description": "Membuat transaksi baru dan otomatis mengurangi stok."
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ]
+}
