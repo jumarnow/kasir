@@ -66,10 +66,17 @@
         <input type="hidden" name="print_invoice" id="print-invoice" value="0">
         <div class="grid gap-6 lg:grid-cols-3">
             <div class="lg:col-span-2 space-y-6">
-                <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-semibold text-slate-800">Detail Pelanggan</h2>
-                    <p class="text-sm text-slate-500">Optional, kosongkan jika pelanggan umum</p>
-                    <div class="mt-4 grid gap-4 md:grid-cols-2">
+                <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-semibold text-slate-800">Detail Pelanggan</h2>
+                            <p class="text-xs text-slate-500">Optional, kosongkan jika pelanggan umum</p>
+                        </div>
+                        <button type="button" id="customer-section-toggle" class="text-xs font-medium text-indigo-600 hover:text-indigo-500">
+                            Tampilkan
+                        </button>
+                    </div>
+                    <div id="customer-section-body" class="mt-4 grid gap-4 md:grid-cols-2 hidden">
                         <div>
                             <label class="text-xs uppercase text-slate-500">Pelanggan</label>
                             <select name="customer_id" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
@@ -410,6 +417,21 @@
 
             $barcodeInput.trigger('focus');
             setTimeout(() => $barcodeInput.trigger('focus'), 200);
+
+            const $customerToggle = $('#customer-section-toggle');
+            const $customerBody = $('#customer-section-body');
+            let customerSectionCollapsed = true;
+
+            $customerToggle.on('click', function () {
+                customerSectionCollapsed = !customerSectionCollapsed;
+                if (customerSectionCollapsed) {
+                    $customerBody.slideUp(150);
+                    $customerToggle.text('Tampilkan');
+                } else {
+                    $customerBody.slideDown(150);
+                    $customerToggle.text('Sembunyikan');
+                }
+            });
 
             $addProductButton.on('click', function () {
                 const productId = $productSelect.val();
