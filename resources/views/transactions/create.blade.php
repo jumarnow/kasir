@@ -37,6 +37,7 @@
 @section('content')
     <form action="{{ route('transactions.store') }}" method="POST" id="transaction-form">
         @csrf
+        <input type="hidden" name="print_invoice" id="print-invoice" value="0">
         <div class="grid gap-6 lg:grid-cols-3">
             <div class="lg:col-span-2 space-y-6">
                 <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
@@ -154,7 +155,7 @@
 
                     <div class="mt-6 flex flex-col gap-3">
                         <button type="submit" id="transaction-submit" class="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50" disabled>
-                            Simpan & Cetak Invoice
+                            Simpan Transaksi
                         </button>
                     </div>
                     </div>
@@ -162,6 +163,29 @@
             </div>
         </div>
     </form>
+
+    <div id="print-confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800">Cetak invoice?</h3>
+                    <p class="mt-1 text-sm text-slate-500">Transaksi akan disimpan terlebih dahulu. Lanjutkan ke cetak invoice dengan printer thermal?</p>
+                </div>
+                <button type="button" id="print-modal-close" class="text-slate-400 hover:text-slate-600">
+                    <span class="sr-only">Tutup</span>
+                    &times;
+                </button>
+            </div>
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row-reverse sm:justify-end">
+                <button type="button" id="print-modal-confirm" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400">
+                    Cetak Invoice
+                </button>
+                <button type="button" id="print-modal-skip" class="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                    Simpan Saja
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -169,12 +193,40 @@
     <script>
         const productsData = @json($products);
         const cart = [];
+        const printWindowFeatures = 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes';
         let $addProductButton;
         let $submitButton;
         let $productSelect;
+        let $printInvoiceInput;
+        let $printModal;
+        let $printModalConfirm;
+        let $printModalSkip;
+        let $printModalClose;
+        let printChoiceConfirmed = false;
+        let pendingSubmitForm = null;
+        let preOpenedPrintWindow = null;
 
         function formatCurrency(value) {
             return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+        }
+
+        function parseCurrency(value) {
+            if (value === null || value === undefined) {
+                return 0;
+            }
+
+            if (typeof value !== 'string') {
+                value = String(value);
+            }
+
+            const normalized = value
+                .replace(/[^\d,.-]/g, '')
+                .replace(/\.(?=\d{3}(?:[\.,]|$))/g, '')
+                .replace(',', '.');
+
+            const parsed = parseFloat(normalized);
+
+            return Number.isFinite(parsed) ? parsed : 0;
         }
 
         function renderCart() {
@@ -242,17 +294,13 @@
         function calculateSummary() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const discountPercent = parseFloat($('#discount-percent').val()) || 0;
-            const discountAmountInput = parseFloat($('#discount-amount').val()) || 0;
+            const discountAmountInput = parseCurrency($('#discount-amount').val());
             const discountFromPercent = subtotal * (discountPercent / 100);
             const totalDiscount = Math.min(subtotal, discountAmountInput + discountFromPercent);
             const total = Math.max(subtotal - totalDiscount, 0);
-            var amountPaid = parseFloat(($('#amount-paid').val() || '0').replace(/[^0-9]/g, '')) || 0;
+            const amountPaid = parseCurrency($('#amount-paid').val());
             const change = Math.max(amountPaid - total, 0);
             return { subtotal, totalDiscount, total, amountPaid, change };
-        }
-
-        function removeNonNumber(value) {
-            return value.replace(/[^0-9]/g, '');
         }
 
         function updateSummary() {
@@ -263,6 +311,24 @@
             $('#summary-total').text(formatCurrency(total));
             $('#summary-change').text(formatCurrency(change));
             updateSubmitButton(total, amountPaid);
+        }
+
+        function showPrintModal() {
+            if (!$printModal) {
+                return;
+            }
+
+            $printModal.removeClass('hidden').addClass('flex');
+            $('body').addClass('overflow-hidden');
+        }
+
+        function hidePrintModal() {
+            if (!$printModal) {
+                return;
+            }
+
+            $printModal.addClass('hidden').removeClass('flex');
+            $('body').removeClass('overflow-hidden');
         }
 
         function addProductToCart(product) {
@@ -295,10 +361,16 @@
             $productSelect = $('#product-select').select2({
                 placeholder: '-- Pilih Produk --',
                 allowClear: true,
-                width: 'resolve'
+                width: 'resolve',
             });
             $addProductButton = $('#add-product');
             $submitButton = $('#transaction-submit');
+            $printInvoiceInput = $('#print-invoice');
+            $printModal = $('#print-confirm-modal');
+            $printModalConfirm = $('#print-modal-confirm');
+            $printModalSkip = $('#print-modal-skip');
+            $printModalClose = $('#print-modal-close');
+
             const toggleAddButton = () => {
                 const hasSelection = Boolean($productSelect.val());
                 $addProductButton.prop('disabled', !hasSelection);
@@ -365,23 +437,95 @@
                 renderCart();
             });
 
-            $('#discount-percent, #discount-amount, #amount-paid').on('input', updateSummary);
+            $(document).on('input', '#discount-percent, #discount-amount, #amount-paid', function () {
+                const raf = window.requestAnimationFrame || function (cb) { return setTimeout(cb, 0); };
+                raf(updateSummary);
+            });
 
-            $('#transaction-form').on('submit', function () {
+            $printModalConfirm.on('click', function () {
+                if ($printInvoiceInput) {
+                    $printInvoiceInput.val('1');
+                }
+                printChoiceConfirmed = true;
+                hidePrintModal();
+                try {
+                    sessionStorage.setItem('kasirInvoicePrintRequested', '1');
+                } catch (error) {
+                    // ignore storage failures
+                }
+                if (!preOpenedPrintWindow || preOpenedPrintWindow.closed) {
+                    preOpenedPrintWindow = window.open('', 'invoice-print', printWindowFeatures);
+                } else {
+                    preOpenedPrintWindow.focus();
+                }
+                if (preOpenedPrintWindow) {
+                    preOpenedPrintWindow.document.title = 'Invoice';
+                    preOpenedPrintWindow.document.body.innerHTML = '<div style="font-family: sans-serif; padding: 16px; font-size: 14px;">Menunggu invoice...</div>';
+                }
+                if (pendingSubmitForm) {
+                    $(pendingSubmitForm).trigger('submit');
+                }
+            });
+
+            $printModalSkip.on('click', function () {
+                if ($printInvoiceInput) {
+                    $printInvoiceInput.val('0');
+                }
+                printChoiceConfirmed = true;
+                hidePrintModal();
+                try {
+                    sessionStorage.removeItem('kasirInvoicePrintRequested');
+                } catch (error) {
+                    // ignore storage failures
+                }
+                if (pendingSubmitForm) {
+                    $(pendingSubmitForm).trigger('submit');
+                }
+            });
+
+            $printModalClose.on('click', hidePrintModal);
+
+            $printModal.on('click', function (event) {
+                if (event.target === this) {
+                    hidePrintModal();
+                }
+            });
+
+            $(document).on('keydown', function (event) {
+                if (event.key === 'Escape' && !$printModal.hasClass('hidden')) {
+                    hidePrintModal();
+                }
+            });
+
+            $('#transaction-form').on('submit', function (event) {
+                const form = this;
                 const { total, amountPaid } = calculateSummary();
 
                 if (cart.length === 0) {
                     alert('Tambahkan minimal satu produk.');
+                    event.preventDefault();
                     return false;
                 }
                 if (total > 0 && amountPaid <= 0) {
                     alert('Masukkan jumlah pembayaran.');
+                    event.preventDefault();
                     return false;
                 }
                 if (amountPaid < total) {
                     alert('Jumlah pembayaran kurang dari total.');
+                    event.preventDefault();
                     return false;
                 }
+
+                if (!printChoiceConfirmed) {
+                    event.preventDefault();
+                    pendingSubmitForm = form;
+                    showPrintModal();
+                    return false;
+                }
+
+                printChoiceConfirmed = false;
+                pendingSubmitForm = null;
 
                 updateSummary();
                 return true;

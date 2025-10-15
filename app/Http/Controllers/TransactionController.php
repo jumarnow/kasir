@@ -44,12 +44,14 @@ class TransactionController extends Controller
 
     public function store(StoreTransactionRequest $request)
     {
+        $shouldPrintInvoice = $request->boolean('print_invoice');
         $user = $request->user() ?? auth()->user() ?? \App\Models\User::firstOrFail();
 
         $transaction = $this->transactionService->create($user, $request->validated());
 
         return redirect()->route('transactions.show', $transaction)
-            ->with('success', 'Transaksi berhasil dibuat.');
+            ->with('success', 'Transaksi berhasil dibuat.')
+            ->with('print_invoice', $shouldPrintInvoice);
     }
 
     public function show(Transaction $transaction)
