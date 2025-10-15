@@ -39,8 +39,9 @@ class StoreTransactionRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'discount_amount' => $this->input('discount_amount', 0),
-            'discount_percent' => $this->input('discount_percent', 0),
+            'discount_amount' => toNumeric($this->input('discount_amount', 0)),
+            'discount_percent' => toNumeric($this->input('discount_percent', 0)),
+            'amount_paid' => toNumeric($this->input('amount_paid', 0)),
         ]);
     }
 }

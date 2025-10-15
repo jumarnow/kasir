@@ -83,7 +83,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <button type="button" id="add-product" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                                <button type="button" id="add-product" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50" disabled>
                                     Tambah
                                 </button>
                             </div>
@@ -124,7 +124,7 @@
                             </div>
                             <div>
                                 <label class="text-xs uppercase text-slate-500">Diskon (Rp)</label>
-                                <input type="number" min="0" step="100" name="discount_amount" id="discount-amount" value="{{ old('discount_amount', 0) }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                <input type="text" name="discount_amount" id="discount-amount" value="{{ old('discount_amount', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-sm text-slate-500">
@@ -145,7 +145,7 @@
                         </div>
                         <div>
                             <label class="text-xs uppercase text-slate-500">Jumlah Bayar (Rp)</label>
-                            <input type="number" min="0" step="100" name="amount_paid" id="amount-paid" value="{{ old('amount_paid', 0) }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                            <input type="text" name="amount_paid" id="amount-paid" value="{{ old('amount_paid', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                         </div>
                         <div class="flex items-center justify-between text-sm text-slate-500">
                             <span>Kembalian</span>
@@ -153,7 +153,7 @@
                         </div>
 
                     <div class="mt-6 flex flex-col gap-3">
-                        <button type="submit" class="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400">
+                        <button type="submit" id="transaction-submit" class="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50" disabled>
                             Simpan & Cetak Invoice
                         </button>
                     </div>
@@ -169,6 +169,9 @@
     <script>
         const productsData = @json($products);
         const cart = [];
+        let $addProductButton;
+        let $submitButton;
+        let $productSelect;
 
         function formatCurrency(value) {
             return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
@@ -224,20 +227,42 @@
             updateSummary();
         }
 
-        function updateSummary() {
+        function updateSubmitButton(total, amountPaid) {
+            if (!$submitButton) {
+                return;
+            }
+
+            const hasPayment = amountPaid > 0 || total === 0;
+            const isPaymentSufficient = amountPaid >= total;
+            const canSubmit = cart.length > 0 && hasPayment && isPaymentSufficient;
+
+            $submitButton.prop('disabled', !canSubmit);
+        }
+
+        function calculateSummary() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const discountPercent = parseFloat($('#discount-percent').val()) || 0;
             const discountAmountInput = parseFloat($('#discount-amount').val()) || 0;
             const discountFromPercent = subtotal * (discountPercent / 100);
             const totalDiscount = Math.min(subtotal, discountAmountInput + discountFromPercent);
             const total = Math.max(subtotal - totalDiscount, 0);
-            const amountPaid = parseFloat($('#amount-paid').val()) || 0;
+            var amountPaid = parseFloat(($('#amount-paid').val() || '0').replace(/[^0-9]/g, '')) || 0;
             const change = Math.max(amountPaid - total, 0);
+            return { subtotal, totalDiscount, total, amountPaid, change };
+        }
+
+        function removeNonNumber(value) {
+            return value.replace(/[^0-9]/g, '');
+        }
+
+        function updateSummary() {
+            const { subtotal, totalDiscount, total, amountPaid, change } = calculateSummary();
 
             $('#summary-subtotal').text(formatCurrency(subtotal));
             $('#summary-discount').text(formatCurrency(totalDiscount));
             $('#summary-total').text(formatCurrency(total));
             $('#summary-change').text(formatCurrency(change));
+            updateSubmitButton(total, amountPaid);
         }
 
         function addProductToCart(product) {
@@ -267,15 +292,28 @@
 
         $(function () {
             const $barcodeInput = $('#barcode-input');
-            const $productSelect = $('#product-select').select2({
+            $productSelect = $('#product-select').select2({
                 placeholder: '-- Pilih Produk --',
                 allowClear: true,
                 width: 'resolve'
             });
+            $addProductButton = $('#add-product');
+            $submitButton = $('#transaction-submit');
+            const toggleAddButton = () => {
+                const hasSelection = Boolean($productSelect.val());
+                $addProductButton.prop('disabled', !hasSelection);
+            };
+
+            toggleAddButton();
+            updateSummary();
+
+            $productSelect.on('change', toggleAddButton);
+            $productSelect.on('select2:clear', toggleAddButton);
+
             $barcodeInput.trigger('focus');
             setTimeout(() => $barcodeInput.trigger('focus'), 200);
 
-            $('#add-product').on('click', function () {
+            $addProductButton.on('click', function () {
                 const productId = $productSelect.val();
                 if (!productId) {
                     alert('Pilih produk terlebih dahulu.');
@@ -285,6 +323,7 @@
                 if (product) {
                     addProductToCart(product);
                     $productSelect.val(null).trigger('change');
+                    toggleAddButton();
                 }
             });
 
@@ -329,10 +368,21 @@
             $('#discount-percent, #discount-amount, #amount-paid').on('input', updateSummary);
 
             $('#transaction-form').on('submit', function () {
+                const { total, amountPaid } = calculateSummary();
+
                 if (cart.length === 0) {
                     alert('Tambahkan minimal satu produk.');
                     return false;
                 }
+                if (total > 0 && amountPaid <= 0) {
+                    alert('Masukkan jumlah pembayaran.');
+                    return false;
+                }
+                if (amountPaid < total) {
+                    alert('Jumlah pembayaran kurang dari total.');
+                    return false;
+                }
+
                 updateSummary();
                 return true;
             });

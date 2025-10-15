@@ -501,18 +501,16 @@
                 $('#mobile-nav').addClass('hidden');
             });
         });
+    </script>
 
-            // const updateFullscreenButton = () => {
-            //     const active = Boolean(fullscreenElement());
-            //     $fullscreenIcon.text(active ? '🗗' : '⛶');
-            //     const label = active ? 'Keluar layar penuh' : 'Aktifkan layar penuh';
-            //     $fullscreenToggle.attr('aria-label', label).attr('title', label);
-            //     try {
-            //         localStorage.setItem(fullscreenKey, active ? '1' : '0');
-            //     } catch (error) {
-            //         console.warn('Tidak dapat menyimpan status fullscreen', error);
-            //     }
-            // };
+    <script>
+        $(document).on('input', '.currency-input', function() {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if (value) {
+                value = new Intl.NumberFormat('id-ID', { style: 'decimal', minimumFractionDigits: 0 }).format(Number(value));
+            }
+            this.value = value;
+        });
     </script>
     @stack('scripts')
 </body>
