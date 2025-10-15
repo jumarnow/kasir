@@ -19,7 +19,7 @@ class RoleController extends Controller
     {
         $permissions = Permission::orderBy('display_name')->get();
 
-        return view('roles.create', compact('permissions'));
+        return view('roles.form', compact('permissions'));
     }
 
     public function store(RoleRequest $request)
@@ -35,7 +35,7 @@ class RoleController extends Controller
         $permissions = Permission::orderBy('display_name')->get();
         $role->load('permissions');
 
-        return view('roles.edit', compact('role', 'permissions'));
+        return view('roles.form', compact('role', 'permissions'));
     }
 
     public function update(RoleRequest $request, Role $role)
@@ -57,4 +57,3 @@ class RoleController extends Controller
         return redirect()->route('roles.index')->with('success', 'Role berhasil dihapus.');
     }
 }
-

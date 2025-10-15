@@ -27,7 +27,7 @@ class ProductController extends Controller
     {
         $categories = Category::orderBy('name')->pluck('name', 'id');
 
-        return view('products.create', compact('categories'));
+        return view('products.form', compact('categories'));
     }
 
     public function store(ProductRequest $request)
@@ -46,7 +46,7 @@ class ProductController extends Controller
     {
         $categories = Category::orderBy('name')->pluck('name', 'id');
 
-        return view('products.edit', compact('product', 'categories'));
+        return view('products.form', compact('product', 'categories'));
     }
 
     public function update(ProductRequest $request, Product $product)
@@ -75,4 +75,3 @@ class ProductController extends Controller
         return view('products.barcode', compact('product'));
     }
 }
-

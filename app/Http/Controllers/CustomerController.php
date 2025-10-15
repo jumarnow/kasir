@@ -28,7 +28,7 @@ class CustomerController extends Controller
 
     public function create()
     {
-        return view('customers.create');
+        return view('customers.form');
     }
 
     public function store(CustomerRequest $request)
@@ -40,7 +40,7 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer)
     {
-        return view('customers.edit', compact('customer'));
+        return view('customers.form', compact('customer'));
     }
 
     public function update(CustomerRequest $request, Customer $customer)
@@ -61,4 +61,3 @@ class CustomerController extends Controller
         return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil dihapus.');
     }
 }
-

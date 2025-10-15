@@ -16,7 +16,7 @@ class CategoryController extends Controller
 
     public function create()
     {
-        return view('categories.create');
+        return view('categories.form');
     }
 
     public function store(CategoryRequest $request)
@@ -29,7 +29,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        return view('categories.edit', compact('category'));
+        return view('categories.form', compact('category'));
     }
 
     public function update(CategoryRequest $request, Category $category)

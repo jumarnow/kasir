@@ -20,7 +20,7 @@ class UserController extends Controller
     {
         $roles = Role::orderBy('display_name')->pluck('display_name', 'id');
 
-        return view('users.create', compact('roles'));
+        return view('users.form', compact('roles'));
     }
 
     public function store(UserRequest $request)
@@ -40,7 +40,7 @@ class UserController extends Controller
         $roles = Role::orderBy('display_name')->pluck('display_name', 'id');
         $user->load('roles');
 
-        return view('users.create', compact('user', 'roles'));
+        return view('users.form', compact('user', 'roles'));
     }
 
     public function update(UserRequest $request, User $user)
