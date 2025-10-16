@@ -38,7 +38,8 @@ class ProductController extends Controller
     public function store(ProductRequest $request)
     {
         $payload = $request->validated();
-        $payload['cost_price'] = $payload['cost_price'] ?? $payload['price'];
+        $payload['price'] = toNumeric($payload['price']);
+        $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
         $payload['stock'] = $payload['stock'] ?? 0;
         $payload['stock_alert'] = $payload['stock_alert'] ?? 0;
 
@@ -57,7 +58,8 @@ class ProductController extends Controller
     public function update(ProductRequest $request, Product $product)
     {
         $payload = $request->validated();
-        $payload['cost_price'] = $payload['cost_price'] ?? $payload['price'];
+        $payload['price'] = toNumeric($payload['price']);
+        $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
 
         $product->update($payload);
 

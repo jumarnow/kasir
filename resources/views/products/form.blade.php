@@ -67,24 +67,22 @@
                     <div>
                         <label class="text-sm font-medium text-slate-600">Harga Jual</label>
                         <input
-                            type="number"
+                            type="text"
                             min="0"
-                            step="0.01"
                             name="price"
-                            value="{{ old('price', $isEdit ? $product->price : '') }}"
-                            class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            value="{{ old('price', $isEdit ? formatNumber($product->price) : '') }}"
+                            class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                             required
                         >
                     </div>
                     <div>
                         <label class="text-sm font-medium text-slate-600">Harga Modal</label>
                         <input
-                            type="number"
+                            type="text"
                             min="0"
-                            step="0.01"
                             name="cost_price"
-                            value="{{ old('cost_price', $isEdit ? $product->cost_price : '') }}"
-                            class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            value="{{ old('cost_price', $isEdit ? formatNumber($product->cost_price) : '') }}"
+                            class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                         >
                         <p class="mt-1 text-xs text-slate-400">Kosongkan jika sama dengan harga jual.</p>
                     </div>
