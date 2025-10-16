@@ -9,9 +9,22 @@
             <h2 class="text-lg font-semibold text-slate-800">Daftar Produk</h2>
             <p class="text-sm text-slate-500">Kelola harga, stok, barcode dan kategori</p>
         </div>
-        <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
-            + Produk Baru
-        </a>
+        <div class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+            <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-sm">
+                @csrf
+                <label for="import_file" class="flex items-center gap-2 cursor-pointer text-slate-600">
+                    <span class="hidden sm:inline font-semibold text-slate-700">Import Excel</span>
+                    <input id="import_file" type="file" name="import_file" accept=".xlsx,.xls" onchange="this.form.submit()" class="hidden" required>
+                    <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-100">Pilih File</span>
+                </label>
+            </form>
+            <a href="{{ route('products.import.template') }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm hover:border-indigo-200 hover:text-indigo-600">
+                Template Import
+            </a>
+            <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                + Produk Baru
+            </a>
+        </div>
     </div>
 
     <form method="GET" action="{{ route('products.index') }}" class="mt-6">
@@ -25,6 +38,10 @@
             </button>
         </div>
     </form>
+
+    <div class="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-xs text-indigo-700">
+        Import akan membuat atau memperbarui produk berdasarkan kolom <span class="font-semibold">SKU</span>. Pastikan kolom wajib terisi: <span class="font-semibold">nama, sku, satuan, harga_jual</span>. Gunakan template untuk contoh format lengkap.
+    </div>
 
     <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-slate-200 text-sm">

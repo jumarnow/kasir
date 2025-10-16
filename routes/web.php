@@ -19,6 +19,8 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:manage_dashboard');
 
     Route::middleware('permission:manage_products')->group(function () {
+        Route::get('products/import/template', [ProductController::class, 'downloadTemplate'])->name('products.import.template');
+        Route::post('products/import', [ProductController::class, 'import'])->name('products.import');
         Route::get('products/{product}/barcode', [ProductController::class, 'barcode'])->name('products.barcode');
         Route::resource('products', ProductController::class)->except('show');
     });

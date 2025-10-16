@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ProductTemplateExport;
+use App\Http\Requests\ProductImportRequest;
 use App\Http\Requests\ProductRequest;
+use App\Imports\ProductsImport;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
@@ -73,5 +78,31 @@ class ProductController extends Controller
     public function barcode(Product $product)
     {
         return view('products.barcode', compact('product'));
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new ProductTemplateExport(), 'template-import-produk.xlsx');
+    }
+
+    public function import(ProductImportRequest $request)
+    {
+        $import = new ProductsImport();
+
+        try {
+            $import->import($request->file('import_file'));
+        } catch (ValidationException $exception) {
+            $messages = collect($exception->errors())->flatten()->all();
+
+            return back()->withErrors($messages);
+        } catch (\Throwable $exception) {
+            return back()->withErrors(['import_file' => $exception->getMessage()]);
+        }
+
+        $summary = $import->summary();
+
+        return redirect()
+            ->route('products.index')
+            ->with('success', "Import produk berhasil. {$summary['created']} data baru, {$summary['updated']} diperbarui.");
     }
 }
