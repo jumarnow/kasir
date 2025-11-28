@@ -37,7 +37,7 @@ class TransactionController extends Controller
         $products = Product::where('is_active', true)
             ->orderBy('name')
             ->take(50)
-            ->get(['id', 'name', 'sku', 'barcode', 'price', 'stock']);
+            ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock']);
 
         return view('transactions.create', compact('customers', 'products'));
     }
@@ -89,6 +89,8 @@ class TransactionController extends Controller
             'sku' => $product->sku,
             'barcode' => $product->barcode,
             'price' => (float) $product->price,
+            'price_2' => (float) ($product->price_2 ?? 0),
+            'price_3' => (float) ($product->price_3 ?? 0),
             'stock' => (int) $product->stock,
             'cost_price' => (float) $product->cost_price,
         ]);

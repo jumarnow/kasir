@@ -101,7 +101,7 @@
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="text-sm font-medium text-slate-600">Harga Jual</label>
+                        <label class="text-sm font-medium text-slate-600">Harga Jual 1</label>
                         <input
                             type="text"
                             min="0"
@@ -110,6 +110,28 @@
                             class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                             required
                         >
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-medium text-slate-600">Harga Jual 2 <span class="text-slate-400 text-xs">(opsional)</span></label>
+                            <input
+                                type="text"
+                                min="0"
+                                name="price_2"
+                                value="{{ old('price_2', $isEdit ? formatNumber($product->price_2) : '') }}"
+                                class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            >
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-slate-600">Harga Jual 3 <span class="text-slate-400 text-xs">(opsional)</span></label>
+                            <input
+                                type="text"
+                                min="0"
+                                name="price_3"
+                                value="{{ old('price_3', $isEdit ? formatNumber($product->price_3) : '') }}"
+                                class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            >
+                        </div>
                     </div>
                     <div>
                         <label class="text-sm font-medium text-slate-600">Harga Modal</label>

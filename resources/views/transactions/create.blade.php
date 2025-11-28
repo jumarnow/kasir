@@ -111,7 +111,12 @@
                                     <select id="product-select" class="mt-1 w-60 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                         <option value="">-- Pilih Produk --</option>
                                         @foreach ($products as $product)
-                                            <option value="{{ $product->id }}" data-price="{{ $product->price }}" data-cost="{{ $product->cost_price ?? $product->price }}" data-stock="{{ $product->stock }}">
+                                            <option value="{{ $product->id }}" 
+                                                data-price="{{ $product->price }}" 
+                                                data-price-2="{{ $product->price_2 ?? 0 }}"
+                                                data-price-3="{{ $product->price_3 ?? 0 }}"
+                                                data-cost="{{ $product->cost_price ?? $product->price }}" 
+                                                data-stock="{{ $product->stock }}">
                                                 {{ $product->name }} (Stok: {{ $product->stock }})
                                             </option>
                                         @endforeach
@@ -129,8 +134,8 @@
                             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
                                 <tr>
                                     <th class="px-4 py-3 text-left">Produk</th>
+                                    <th class="px-4 py-3 text-center">Harga</th>
                                     <th class="px-4 py-3 text-center">Qty</th>
-                                    <th class="px-4 py-3 text-right">Harga</th>
                                     <th class="px-4 py-3 text-right">Subtotal</th>
                                     <th class="px-4 py-3 text-right"></th>
                                 </tr>
@@ -277,6 +282,15 @@
 
             cart.forEach((item, index) => {
                 const subtotal = item.quantity * item.price;
+                
+                // Build price options
+                let priceOptions = `<option value="${item.price_1}">${formatCurrency(item.price_1)}</option>`;
+                if (item.price_2 > 0) {
+                    priceOptions += `<option value="${item.price_2}">${formatCurrency(item.price_2)}</option>`;
+                }
+                if (item.price_3 > 0) {
+                    priceOptions += `<option value="${item.price_3}">${formatCurrency(item.price_3)}</option>`;
+                }
 
                 const row = $(`
                     <tr>
@@ -285,10 +299,12 @@
                             <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm" data-index="${index}" value="${item.quantity}">
+                            <select class="price-select w-32 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">
+                                ${priceOptions}
+                            </select>
                         </td>
-                        <td class="px-4 py-3 text-right text-slate-600">
-                            ${formatCurrency(item.price)}
+                        <td class="px-4 py-3 text-center">
+                            <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm" data-index="${index}" value="${item.quantity}">
                         </td>
                         <td class="px-4 py-3 text-right font-semibold text-slate-700">
                             ${formatCurrency(subtotal)}
@@ -298,13 +314,16 @@
                         </td>
                     </tr>
                 `);
+                
+                // Set selected price
+                row.find('.price-select').val(item.price);
 
                 tbody.append(row);
 
                 inputsWrapper.append(`
                     <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
                     <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}" class="item-quantity" data-index="${index}">
-                    <input type="hidden" name="items[${index}][price]" value="${item.price}">
+                    <input type="hidden" name="items[${index}][price]" value="${item.price}" class="item-price" data-index="${index}">
                     <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
                 `);
             });
@@ -381,6 +400,9 @@
                     id: product.id,
                     name: product.name,
                     price: Number(product.price),
+                    price_1: Number(product.price),
+                    price_2: Number(product.price_2 || 0),
+                    price_3: Number(product.price_3 || 0),
                     cost_price: Number(product.cost_price ?? product.price),
                     stock: product.stock,
                     quantity: 1,
@@ -476,6 +498,13 @@
                     return;
                 }
                 cart[index].quantity = quantity;
+                renderCart();
+            });
+
+            $('#cart-items').on('change', '.price-select', function () {
+                const index = $(this).data('index');
+                const price = Number($(this).val());
+                cart[index].price = price;
                 renderCart();
             });
 

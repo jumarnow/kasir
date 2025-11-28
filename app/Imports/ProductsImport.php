@@ -46,7 +46,9 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'category_name' => ['nullable', 'string', 'max:190'],
                     'unit' => ['required', 'string', 'max:30'],
                     'price' => ['required', 'numeric', 'min:0'],
-                    'cost_price' => ['nullable', 'numeric', 'min:0', 'lte:price'],
+                    'price_2' => ['nullable', 'numeric', 'min:0'],
+                    'price_3' => ['nullable', 'numeric', 'min:0'],
+                    'cost_price' => ['nullable', 'numeric', 'min:0'],
                     'stock' => ['nullable', 'integer', 'min:0'],
                     'stock_alert' => ['nullable', 'integer', 'min:0'],
                     'description' => ['nullable', 'string'],
@@ -57,7 +59,9 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'barcode' => "baris {$rowNumber} kolom barcode",
                     'category_name' => "baris {$rowNumber} kolom kategori",
                     'unit' => "baris {$rowNumber} kolom satuan",
-                    'price' => "baris {$rowNumber} kolom harga_jual",
+                    'price' => "baris {$rowNumber} kolom harga_jual_1",
+                    'price_2' => "baris {$rowNumber} kolom harga_jual_2",
+                    'price_3' => "baris {$rowNumber} kolom harga_jual_3",
                     'cost_price' => "baris {$rowNumber} kolom harga_modal",
                     'stock' => "baris {$rowNumber} kolom stok",
                     'stock_alert' => "baris {$rowNumber} kolom stok_minimum",
@@ -101,6 +105,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'barcode',
                     'unit',
                     'price',
+                    'price_2',
+                    'price_3',
                     'cost_price',
                     'stock',
                     'stock_alert',
@@ -111,7 +117,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 $productPayload['category_id'] = $categoryId;
                 $productPayload['cost_price'] = $productPayload['cost_price'] ?? $productPayload['price'];
                 $productPayload['stock'] = $productPayload['stock'] ?? 0;
-                $productPayload['stock_alert'] = $productPayload['stock_alert'] ?? 0;
+                $productPayload['stock_alert'] = $productPayload['stock_alert'] ?? 5;
 
                 if ($product) {
                     $product->update($productPayload);
@@ -156,13 +162,10 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             return [strtolower(trim((string) $key)) => $value];
         });
 
-        $price = $this->toNumber($row->get('harga_jual'));
+        $price = $this->toNumber($row->get('harga_jual_1') ?? $row->get('harga_jual'));
+        $price2 = $this->toNumber($row->get('harga_jual_2'));
+        $price3 = $this->toNumber($row->get('harga_jual_3'));
         $costPrice = $this->toNumber($row->get('harga_modal'));
-
-        // cost price cannot exceed price and defaults to price when empty
-        if ($costPrice !== null && $price !== null && $costPrice > $price) {
-            $costPrice = $price;
-        }
 
         return [
             'name' => $this->trimValue($row->get('nama')),
@@ -171,6 +174,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             'category_name' => $this->trimValue($row->get('kategori')),
             'unit' => $this->trimValue($row->get('satuan')),
             'price' => $price,
+            'price_2' => $price2,
+            'price_3' => $price3,
             'cost_price' => $costPrice,
             'stock' => $this->toInteger($row->get('stok')),
             'stock_alert' => $this->toInteger($row->get('stok_minimum')),

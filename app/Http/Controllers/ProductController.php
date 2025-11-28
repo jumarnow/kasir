@@ -40,9 +40,11 @@ class ProductController extends Controller
     {
         $payload = $request->validated();
         $payload['price'] = toNumeric($payload['price']);
+        $payload['price_2'] = !empty($payload['price_2']) ? toNumeric($payload['price_2']) : null;
+        $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
         $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
         $payload['stock'] = $payload['stock'] ?? 0;
-        $payload['stock_alert'] = $payload['stock_alert'] ?? 0;
+        $payload['stock_alert'] = $payload['stock_alert'] ?? 5;
 
         Product::create($payload);
 
@@ -60,6 +62,8 @@ class ProductController extends Controller
     {
         $payload = $request->validated();
         $payload['price'] = toNumeric($payload['price']);
+        $payload['price_2'] = !empty($payload['price_2']) ? toNumeric($payload['price_2']) : null;
+        $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
         $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
 
         $product->update($payload);
