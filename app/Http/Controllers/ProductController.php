@@ -9,6 +9,7 @@ use App\Imports\ProductsImport;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -106,5 +107,32 @@ class ProductController extends Controller
         return redirect()
             ->route('products.index')
             ->with('success', "Import produk berhasil. {$summary['created']} data baru, {$summary['updated']} diperbarui.");
+    }
+
+    public function ocr(Request $request)
+    {
+        $request->validate([
+            'produk' => 'required|image|max:10240', // max 10MB
+        ]);
+
+        try {
+            $response = Http::attach(
+                'produk',
+                file_get_contents($request->file('produk')->getRealPath()),
+                $request->file('produk')->getClientOriginalName()
+            )->post('https://main-n8n-new.wd1ea4.easypanel.host/webhook/9fe89b91-9e4a-451d-8845-03a998b83ffc');
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'message' => 'Gagal memproses gambar. Silakan coba lagi.',
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
