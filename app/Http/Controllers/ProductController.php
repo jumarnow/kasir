@@ -124,7 +124,7 @@ class ProductController extends Controller
                 'produk',
                 file_get_contents($request->file('produk')->getRealPath()),
                 $request->file('produk')->getClientOriginalName()
-            )->post('https://main-n8n-new.wd1ea4.easypanel.host/webhook/9fe89b91-9e4a-451d-8845-03a998b83ffc');
+            )->post('https://main-n8n-new.wd1ea4.easypanel.host/webhook/151a2bfa-5932-45a2-a83d-ebd3f226b77a');
 
             if ($response->successful()) {
                 return response()->json($response->json());
