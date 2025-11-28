@@ -27,7 +27,7 @@ class ProductRequest extends FormRequest
         return [
             'category_id' => ['nullable', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:190'],
-            'sku' => ['required', 'string', 'max:50', Rule::unique('products')->ignore($productId)],
+            'sku' => ['nullable', 'string', 'max:50', Rule::unique('products')->ignore($productId)],
             'barcode' => ['nullable', 'string', 'max:50', Rule::unique('products')->ignore($productId)],
             'unit' => ['required', 'string', 'max:30'],
             'price' => ['required', 'numeric', 'min:0'],

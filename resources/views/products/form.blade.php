@@ -53,7 +53,7 @@
                         <p id="ocr-status" class="mt-1 text-xs text-slate-400"></p>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-slate-600">Kategori</label>
+                        <label class="text-sm font-medium text-slate-600">Kategori <span class="text-slate-400 text-xs">(opsional)</span></label>
                         <select
                             name="category_id"
                             class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
@@ -65,13 +65,12 @@
                         </select>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-slate-600">SKU</label>
+                        <label class="text-sm font-medium text-slate-600">SKU <span class="text-slate-400 text-xs">(opsional)</span></label>
                         <input
                             type="text"
                             name="sku"
                             value="{{ old('sku', $isEdit ? $product->sku : '') }}"
                             class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm uppercase focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                            required
                         >
                     </div>
                     <div>
@@ -140,7 +139,7 @@
                                 type="number"
                                 min="0"
                                 name="stock_alert"
-                                value="{{ old('stock_alert', $isEdit ? $product->stock_alert : 0) }}"
+                                value="{{ old('stock_alert', $isEdit ? $product->stock_alert : 5) }}"
                                 class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                             >
                         </div>
@@ -159,7 +158,7 @@
             </div>
 
             <div>
-                <label class="text-sm font-medium text-slate-600">Deskripsi</label>
+                <label class="text-sm font-medium text-slate-600">Deskripsi <span class="text-slate-400 text-xs">(opsional)</span></label>
                 <textarea name="description" rows="4" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">{{ old('description', $isEdit ? $product->description : '') }}</textarea>
             </div>
 
