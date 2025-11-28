@@ -219,11 +219,18 @@
             <div class="p-4">
                 <div class="relative">
                     <div id="barcode-reader" class="w-full rounded-lg overflow-hidden"></div>
-                    <button type="button" id="switch-barcode-camera" class="absolute top-3 right-3 rounded-lg bg-white/90 backdrop-blur-sm p-2.5 shadow-lg hover:bg-white transition-colors">
-                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                    </button>
+                    <div class="absolute top-3 right-3 flex gap-2">
+                        <button type="button" id="toggle-barcode-flash" class="rounded-lg bg-white/90 backdrop-blur-sm p-2.5 shadow-lg hover:bg-white transition-colors">
+                            <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </button>
+                        <button type="button" id="switch-barcode-camera" class="rounded-lg bg-white/90 backdrop-blur-sm p-2.5 shadow-lg hover:bg-white transition-colors">
+                            <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <p class="mt-3 text-sm text-slate-600 text-center">Arahkan kamera ke barcode produk</p>
             </div>
@@ -245,11 +252,18 @@
                 <div class="relative">
                     <video id="ocr-video" class="w-full rounded-lg" autoplay playsinline></video>
                     <canvas id="ocr-canvas" class="hidden"></canvas>
-                    <button type="button" id="switch-ocr-camera" class="absolute top-3 right-3 rounded-lg bg-white/90 backdrop-blur-sm p-2.5 shadow-lg hover:bg-white transition-colors">
-                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                    </button>
+                    <div class="absolute top-3 right-3 flex gap-2">
+                        <button type="button" id="toggle-ocr-flash" class="rounded-lg bg-white/90 backdrop-blur-sm p-2.5 shadow-lg hover:bg-white transition-colors">
+                            <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </button>
+                        <button type="button" id="switch-ocr-camera" class="rounded-lg bg-white/90 backdrop-blur-sm p-2.5 shadow-lg hover:bg-white transition-colors">
+                            <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="mt-4 flex flex-col gap-3">
                     <button type="button" id="capture-ocr" class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 transition-colors">
@@ -277,8 +291,10 @@
             const ocrCanvas = document.getElementById('ocr-canvas');
             const captureOcrButton = document.getElementById('capture-ocr');
             const switchOcrCameraButton = document.getElementById('switch-ocr-camera');
+            const toggleOcrFlashButton = document.getElementById('toggle-ocr-flash');
             let ocrStream = null;
             let currentFacingMode = 'environment'; // Default ke kamera belakang
+            let ocrFlashEnabled = false;
 
             ocrButton.addEventListener('click', function() {
                 ocrCameraModal.classList.remove('hidden');
@@ -296,6 +312,34 @@
                 if (ocrStream) {
                     stopOcrCameraStream();
                     startOcrCamera();
+                }
+            });
+
+            toggleOcrFlashButton.addEventListener('click', async function() {
+                if (ocrStream) {
+                    const track = ocrStream.getVideoTracks()[0];
+                    const capabilities = track.getCapabilities();
+                    
+                    if (capabilities.torch) {
+                        ocrFlashEnabled = !ocrFlashEnabled;
+                        try {
+                            await track.applyConstraints({
+                                advanced: [{ torch: ocrFlashEnabled }]
+                            });
+                            // Update button visual state
+                            if (ocrFlashEnabled) {
+                                toggleOcrFlashButton.classList.add('bg-yellow-100');
+                                toggleOcrFlashButton.classList.remove('bg-white/90');
+                            } else {
+                                toggleOcrFlashButton.classList.remove('bg-yellow-100');
+                                toggleOcrFlashButton.classList.add('bg-white/90');
+                            }
+                        } catch (err) {
+                            console.error('Error toggling flash:', err);
+                        }
+                    } else {
+                        console.log('Flash not supported on this device');
+                    }
                 }
             });
 
@@ -330,6 +374,9 @@
                 stopOcrCameraStream();
                 ocrCameraModal.classList.add('hidden');
                 currentFacingMode = 'environment'; // Reset to default
+                ocrFlashEnabled = false; // Reset flash state
+                toggleOcrFlashButton.classList.remove('bg-yellow-100');
+                toggleOcrFlashButton.classList.add('bg-white/90');
             }
 
             captureOcrButton.addEventListener('click', async function() {
@@ -383,9 +430,12 @@
             const scannerModal = document.getElementById('barcode-scanner-modal');
             const closeScannerButton = document.getElementById('close-scanner');
             const switchBarcodeCameraButton = document.getElementById('switch-barcode-camera');
+            const toggleBarcodeFlashButton = document.getElementById('toggle-barcode-flash');
             let html5QrCode = null;
             let availableCameras = [];
             let currentCameraIndex = 0;
+            let barcodeFlashEnabled = false;
+            let barcodeStream = null;
 
             scanBarcodeButton.addEventListener('click', function() {
                 scannerModal.classList.remove('hidden');
@@ -401,6 +451,34 @@
                     // Switch to next camera
                     currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
                     restartBarcodeScanner();
+                }
+            });
+
+            toggleBarcodeFlashButton.addEventListener('click', async function() {
+                if (barcodeStream) {
+                    const track = barcodeStream.getVideoTracks()[0];
+                    const capabilities = track.getCapabilities();
+                    
+                    if (capabilities.torch) {
+                        barcodeFlashEnabled = !barcodeFlashEnabled;
+                        try {
+                            await track.applyConstraints({
+                                advanced: [{ torch: barcodeFlashEnabled }]
+                            });
+                            // Update button visual state
+                            if (barcodeFlashEnabled) {
+                                toggleBarcodeFlashButton.classList.add('bg-yellow-100');
+                                toggleBarcodeFlashButton.classList.remove('bg-white/90');
+                            } else {
+                                toggleBarcodeFlashButton.classList.remove('bg-yellow-100');
+                                toggleBarcodeFlashButton.classList.add('bg-white/90');
+                            }
+                        } catch (err) {
+                            console.error('Error toggling flash:', err);
+                        }
+                    } else {
+                        console.log('Flash not supported on this device');
+                    }
                 }
             });
 
@@ -456,7 +534,13 @@
                     config,
                     onScanSuccess,
                     onScanFailure
-                ).catch(err => {
+                ).then(() => {
+                    // Get the video stream for flash control
+                    const videoElement = document.getElementById('barcode-reader').querySelector('video');
+                    if (videoElement && videoElement.srcObject) {
+                        barcodeStream = videoElement.srcObject;
+                    }
+                }).catch(err => {
                     console.error('Error starting scanner with camera ID:', err);
                     barcodeStatus.textContent = 'Gagal mengakses kamera. Pastikan izin kamera diaktifkan.';
                     barcodeStatus.className = 'mt-1 text-xs text-red-500';
@@ -483,7 +567,13 @@
                     config,
                     onScanSuccess,
                     onScanFailure
-                ).catch(err => {
+                ).then(() => {
+                    // Get the video stream for flash control
+                    const videoElement = document.getElementById('barcode-reader').querySelector('video');
+                    if (videoElement && videoElement.srcObject) {
+                        barcodeStream = videoElement.srcObject;
+                    }
+                }).catch(err => {
                     console.error('Error starting scanner with facingMode:', err);
                     barcodeStatus.textContent = 'Gagal mengakses kamera. Pastikan izin kamera diaktifkan.';
                     barcodeStatus.className = 'mt-1 text-xs text-red-500';
@@ -496,7 +586,12 @@
                     html5QrCode.stop().then(() => {
                         html5QrCode.clear();
                         html5QrCode = null;
+                        barcodeStream = null;
                         scannerModal.classList.add('hidden');
+                        // Reset flash state
+                        barcodeFlashEnabled = false;
+                        toggleBarcodeFlashButton.classList.remove('bg-yellow-100');
+                        toggleBarcodeFlashButton.classList.add('bg-white/90');
                     }).catch(err => {
                         console.error('Error stopping scanner:', err);
                         scannerModal.classList.add('hidden');
