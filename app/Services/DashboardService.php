@@ -72,7 +72,7 @@ class DashboardService
     public function lowStockProducts(int $limit = 5): array
     {
         return Product::select('id', 'name', 'sku', 'stock', 'stock_alert')
-            ->orderByRaw('CASE WHEN stock_alert > 0 THEN stock - stock_alert ELSE stock END ASC')
+            ->orderByRaw('CASE WHEN stock_alert > 0 THEN GREATEST(0, CAST(stock AS SIGNED) - CAST(stock_alert AS SIGNED)) ELSE stock END ASC')
             ->limit($limit)
             ->get()
             ->map(static function ($product) {
