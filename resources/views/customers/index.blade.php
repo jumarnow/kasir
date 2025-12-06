@@ -33,6 +33,7 @@
                     <th class="px-6 py-4">Pelanggan</th>
                     <th class="px-6 py-4">Kontak</th>
                     <th class="px-6 py-4">Alamat</th>
+                    <th class="px-6 py-4">Tier Harga</th>
                     <th class="px-6 py-4">Status</th>
                     <th class="px-6 py-4 text-right">Aksi</th>
                 </tr>
@@ -52,6 +53,16 @@
                             <p>{{ $customer->address ?? '—' }}</p>
                             <p class="text-xs text-slate-500">{{ $customer->city }} {{ $customer->state }} {{ $customer->postal_code }}</p>
                         </td>
+                        <td class="px-6 py-4 text-slate-600">
+                            @if ($customer->price_tier == 1)
+                                Harga Jual 1 (Regular)
+                            @elseif ($customer->price_tier == 2)
+                                Harga Jual 2 (Grosir)
+                            @elseif ($customer->price_tier == 3)
+                                Harga Jual 3 (Distributor)
+                            @else
+                                —
+                            @endif
                         <td class="px-6 py-4">
                             <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $customer->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200 text-slate-600' }}">
                                 {{ $customer->is_active ? 'Aktif' : 'Nonaktif' }}

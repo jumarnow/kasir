@@ -33,7 +33,7 @@ class TransactionController extends Controller
 
     public function create()
     {
-        $customers = Customer::orderBy('name')->get(['id', 'name']);
+        $customers = Customer::orderBy('name')->get(['id', 'name', 'price_tier']);
         $products = Product::where('is_active', true)
             ->orderBy('name')
             ->take(50)

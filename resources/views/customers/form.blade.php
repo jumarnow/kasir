@@ -61,6 +61,23 @@
                     >
                     <span class="text-sm text-slate-600">Pelanggan aktif</span>
                 </div>
+                <div>
+                    <label class="text-sm font-medium text-slate-600">Tier Harga</label>
+                    <select
+                        name="price_tier"
+                        class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                    >
+                        <option value="1" {{ old('price_tier', $isEdit ? $customer->price_tier : 1) == 1 ? 'selected' : '' }}>
+                            Harga Jual 1 (Regular)
+                        </option>
+                        <option value="2" {{ old('price_tier', $isEdit ? $customer->price_tier : 1) == 2 ? 'selected' : '' }}>
+                            Harga Jual 2 (Grosir)
+                        </option>
+                        <option value="3" {{ old('price_tier', $isEdit ? $customer->price_tier : 1) == 3 ? 'selected' : '' }}>
+                            Harga Jual 3 (Distributor)
+                        </option>
+                    </select>
+                </div>
             </div>
             <div class="space-y-4">
                 <div>

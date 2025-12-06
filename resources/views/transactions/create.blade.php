@@ -79,10 +79,10 @@
                     <div id="customer-section-body" class="mt-4 grid gap-4 md:grid-cols-2 hidden">
                         <div>
                             <label class="text-xs uppercase text-slate-500">Pelanggan</label>
-                            <select name="customer_id" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                                <option value="">Umum</option>
+                            <select name="customer_id" id="customer-select" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                <option value="" data-price-tier="1">Umum</option>
                                 @foreach ($customers as $customer)
-                                    <option value="{{ $customer->id }}" @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
+                                    <option value="{{ $customer->id }}" data-price-tier="{{ $customer->price_tier ?? 1 }}" @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -230,6 +230,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         const productsData = @json($products);
+        const customersData = @json($customers);
         const cart = [];
         const printWindowFeatures = 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes';
         let $addProductButton;
@@ -243,6 +244,7 @@
         let printChoiceConfirmed = false;
         let pendingSubmitForm = null;
         let preOpenedPrintWindow = null;
+        let currentPriceTier = 1;
 
         function formatCurrency(value) {
             return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
@@ -383,6 +385,19 @@
             $('body').removeClass('overflow-hidden');
         }
 
+        function updateCartPrices(tier) {
+            cart.forEach(item => {
+                if (tier === 2 && item.price_2 > 0) {
+                    item.price = item.price_2;
+                } else if (tier === 3 && item.price_3 > 0) {
+                    item.price = item.price_3;
+                } else {
+                    item.price = item.price_1;
+                }
+            });
+            renderCart();
+        }
+
         function addProductToCart(product) {
             const existing = cart.find(item => item.id === product.id);
             if (existing) {
@@ -396,10 +411,19 @@
                     alert('Stok produk habis.');
                     return;
                 }
+                
+                // Tentukan harga berdasarkan tier yang aktif
+                let selectedPrice = Number(product.price);
+                if (currentPriceTier === 2 && product.price_2 > 0) {
+                    selectedPrice = Number(product.price_2);
+                } else if (currentPriceTier === 3 && product.price_3 > 0) {
+                    selectedPrice = Number(product.price_3);
+                }
+                
                 cart.push({
                     id: product.id,
                     name: product.name,
-                    price: Number(product.price),
+                    price: selectedPrice,
                     price_1: Number(product.price),
                     price_2: Number(product.price_2 || 0),
                     price_3: Number(product.price_3 || 0),
@@ -442,6 +466,7 @@
 
             const $customerToggle = $('#customer-section-toggle');
             const $customerBody = $('#customer-section-body');
+            const $customerSelectDropdown = $('#customer-select');
             let customerSectionCollapsed = true;
 
             $customerToggle.on('click', function () {
@@ -452,6 +477,18 @@
                 } else {
                     $customerBody.slideDown(150);
                     $customerToggle.text('Sembunyikan');
+                }
+            });
+
+            // Event handler untuk perubahan pelanggan - update tier harga
+            $customerSelectDropdown.on('change', function () {
+                const selectedOption = $(this).find('option:selected');
+                const priceTier = parseInt(selectedOption.data('price-tier')) || 1;
+                currentPriceTier = priceTier;
+                
+                // Update semua harga di cart berdasarkan tier baru
+                if (cart.length > 0) {
+                    updateCartPrices(priceTier);
                 }
             });
 

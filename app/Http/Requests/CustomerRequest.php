@@ -34,6 +34,7 @@ class CustomerRequest extends FormRequest
             'postal_code' => ['nullable', 'string', 'max:20'],
             'notes' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
+            'price_tier' => ['nullable', 'integer', 'in:1,2,3'],
         ];
     }
 }
