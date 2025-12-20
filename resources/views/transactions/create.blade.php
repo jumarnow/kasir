@@ -120,22 +120,22 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-                    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div>
-                            <h2 class="text-lg font-semibold text-slate-800">Item Transaksi</h2>
-                            <p class="text-sm text-slate-500">Gunakan barcode scanner atau pilih produk</p>
+                            <h2 class="text-base md:text-lg font-semibold text-slate-800">Item Transaksi</h2>
+                            <p class="text-xs md:text-sm text-slate-500">Scan barcode atau pilih produk</p>
                         </div>
-                        <div class="flex flex-col gap-3 md:flex-row">
-                            <div class="relative">
-                                <label class="text-xs uppercase text-slate-500">Barcode / SKU</label>
-                                <input type="text" id="barcode-input" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Scan barcode..." autofocus>
-                                <span class="absolute inset-y-0 right-3 top-6 flex items-center text-slate-400">📷</span>
+                        <div class="flex flex-col gap-3 sm:flex-row">
+                            <div class="relative flex-1">
+                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Barcode / SKU</label>
+                                <input type="text" id="barcode-input" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Scan..." autofocus>
+                                <span class="absolute inset-y-0 right-3 top-7 flex items-center text-slate-400">📷</span>
                             </div>
-                            <div class="flex items-end gap-2">
-                                <div>
-                                    <label class="text-xs uppercase text-slate-500">Pilih Produk</label>
-                                    <select id="product-select" class="mt-1 w-60 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                            <div class="flex items-end gap-2 flex-1">
+                                <div class="flex-1">
+                                    <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pilih Produk</label>
+                                    <select id="product-select" class="mt-1 w-full lg:w-60 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                         <option value="">-- Pilih Produk --</option>
                                         @foreach ($products as $product)
                                             <option value="{{ $product->id }}" 
@@ -175,66 +175,76 @@
                         <!-- Mobile List -->
                         <div id="cart-items-mobile" class="md:hidden divide-y divide-slate-100"></div>
 
-                        <div class="p-4 text-center text-sm text-slate-400" id="empty-cart">Belum ada produk ditambahkan</div>
+                        <div class="p-8 text-center text-sm text-slate-400" id="empty-cart">
+                            <div class="text-3xl mb-2">🛒</div>
+                            Belum ada produk ditambahkan
+                        </div>
                     </div>
-                    <div id="items-inputs"></div>
                 </div>
             </div>
 
             <div class="space-y-6">
-                <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+                <div class="rounded-2xl bg-white p-5 md:p-6 shadow-sm border border-slate-200">
                     <h2 class="text-lg font-semibold text-slate-800">Ringkasan Pembayaran</h2>
                     <div class="mt-4 space-y-4">
                         <div class="flex items-center justify-between text-sm text-slate-500">
                             <span>Subtotal</span>
                             <span id="summary-subtotal" class="font-semibold text-slate-700">Rp 0</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs uppercase text-slate-500">Diskon (%)</label>
+                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Diskon (%)</label>
                                 <input type="number" min="0" max="100" step="0.5" name="discount_percent" id="discount-percent" value="{{ old('discount_percent', 0) }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                             </div>
                             <div>
-                                <label class="text-xs uppercase text-slate-500">Diskon (Rp)</label>
+                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Diskon (Rp)</label>
                                 <input type="text" name="discount_amount" id="discount-amount" value="{{ old('discount_amount', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-sm text-slate-500">
                             <span>Total Diskon</span>
-                            <span id="summary-discount">Rp 0</span>
+                            <span id="summary-discount" class="font-medium">Rp 0</span>
                         </div>
                         <div>
-                            <label class="text-xs uppercase text-slate-500">Ongkir (Rp)</label>
+                            <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Ongkir (Rp)</label>
                             <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                         </div>
-                        <div class="flex items-center justify-between text-base font-semibold text-slate-800">
-                            <span>Total</span>
-                            <span id="summary-total" class="text-indigo-600">Rp 0</span>
-                        </div>
-                        <div>
-                            <label class="text-xs uppercase text-slate-500">Metode Pembayaran</label>
-                            <select name="payment_method" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                                <option value="cash">Tunai</option>
-                                <option value="transfer">Transfer</option>
-                                <option value="qris">QRIS</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs uppercase text-slate-500">Jumlah Bayar (Rp)</label>
-                            <input type="text" name="amount_paid" id="amount-paid" value="{{ old('amount_paid', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                        </div>
-                        <div class="flex items-center justify-between text-sm text-slate-500">
-                            <span>Kembalian</span>
-                            <span id="summary-change" class="font-semibold text-slate-700">Rp 0</span>
+                        
+                        <div class="py-3 border-y border-dashed border-slate-200">
+                            <div class="flex items-center justify-between text-lg font-bold text-slate-800">
+                                <span>Total</span>
+                                <span id="summary-total" class="text-indigo-600">Rp 0</span>
+                            </div>
                         </div>
 
-                    <div class="mt-6 flex flex-col gap-3">
-                        <button type="submit" id="transaction-submit" class="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50" disabled>
-                            Simpan Transaksi
-                        </button>
-                    </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pembayaran</label>
+                                <select name="payment_method" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                    <option value="cash">Tunai</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="qris">QRIS</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Dibayar (Rp)</label>
+                                <input type="text" name="amount_paid" id="amount-paid" value="{{ old('amount_paid', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-600 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-500">Kembalian</span>
+                            <span id="summary-change" class="font-bold text-slate-800">Rp 0</span>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" id="transaction-submit" class="w-full rounded-full bg-indigo-600 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 transition-all disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none" disabled>
+                                Simpan & Cetak Transaksi
+                            </button>
+                        </div>
                     </div>
                 </div>
+                <div id="items-inputs"></div>
             </div>
         </div>
     </form>
