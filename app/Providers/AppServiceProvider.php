@@ -19,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        try {
+            $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+            view()->share('settings', $settings);
+        } catch (\Exception $e) {
+            // Handle case where table doesn't exist yet (e.g. during migration)
+        }
     }
 }

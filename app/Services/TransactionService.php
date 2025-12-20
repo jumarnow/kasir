@@ -40,13 +40,14 @@ class TransactionService
 
             $discountPercent = (float) Arr::get($payload, 'discount_percent', 0);
             $explicitDiscount = (float) Arr::get($payload, 'discount_amount', 0);
+            $shippingCost = (float) Arr::get($payload, 'shipping_cost', 0);
 
             $subtotal = $items->sum(fn ($item) => $item['price'] * $item['quantity']);
 
             $percentDiscountValue = $subtotal * ($discountPercent / 100);
             $discountAmount = min($subtotal, $explicitDiscount + $percentDiscountValue);
 
-            $total = max($subtotal - $discountAmount, 0);
+            $total = max($subtotal - $discountAmount + $shippingCost, 0);
             $amountPaid = (float) Arr::get($payload, 'amount_paid', $total);
 
             if ($amountPaid < $total) {
@@ -65,6 +66,7 @@ class TransactionService
                 'subtotal' => $subtotal,
                 'discount_amount' => $discountAmount,
                 'discount_percent' => $discountPercent,
+                'shipping_cost' => $shippingCost,
                 'total' => $total,
                 'amount_paid' => $amountPaid,
                 'change_due' => $amountPaid - $total,

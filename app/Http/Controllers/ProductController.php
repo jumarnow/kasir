@@ -17,7 +17,12 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        $categories = Category::orderBy('name')->pluck('name', 'id');
+
         $products = Product::with('category')
+            ->when($request->category_id, function ($query, $categoryId) {
+                return $query->where('category_id', $categoryId);
+            })
             ->search($request->query('q'))
             ->orderBy('name')
             ->paginate(15)
@@ -25,6 +30,7 @@ class ProductController extends Controller
 
         return view('products.index', [
             'products' => $products,
+            'categories' => $categories,
             'search' => $request->query('q'),
         ]);
     }
@@ -85,6 +91,23 @@ class ProductController extends Controller
     public function barcode(Product $product)
     {
         return view('products.barcode', compact('product'));
+    }
+
+    public function bulkBarcode(Request $request)
+    {
+        $productIds = $request->input('product_ids', []);
+        
+        if (empty($productIds) || $request->input('all') == '1') {
+            $products = Product::all();
+        } else {
+            $products = Product::whereIn('id', $productIds)->get();
+        }
+
+        if ($products->isEmpty()) {
+            return back()->with('error', 'Pilih minimal satu produk.');
+        }
+
+        return view('products.bulk-barcode', compact('products'));
     }
 
     public function downloadTemplate()

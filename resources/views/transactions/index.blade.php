@@ -32,7 +32,8 @@
         </div>
     </form>
 
-    <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <!-- Desktop Table View -->
+    <div class="mt-6 hidden md:block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-slate-200 text-sm">
             <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <tr>
@@ -62,7 +63,9 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="font-semibold text-slate-800">Rp {{ number_format($transaction->total, 0, ',', '.') }}</div>
-                            <div class="text-xs text-slate-500">Profit: Rp {{ number_format($transaction->profit, 0, ',', '.') }}</div>
+                            @if(auth()->user()->hasPermission('view_profit'))
+                                <div class="text-xs text-slate-500">Profit: Rp {{ number_format($transaction->profit, 0, ',', '.') }}</div>
+                            @endif
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="inline-flex items-center gap-2">
@@ -71,6 +74,9 @@
                                 </a>
                                 <a target="_blank" href="{{ route('transactions.invoice', $transaction) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
                                     Invoice
+                                </a>
+                                <a target="_blank" href="{{ route('transactions.shipping_label', $transaction) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-emerald-200 hover:text-emerald-600">
+                                    Resi
                                 </a>
                             </div>
                         </td>
@@ -84,6 +90,59 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="mt-6 md:hidden space-y-4">
+        @forelse ($transactions as $transaction)
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</h3>
+                        <p class="text-xs text-slate-500 mt-1">{{ $transaction->created_at->format('d M Y, H:i') }}</p>
+                    </div>
+                    <span class="rounded-full px-3 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600">
+                        {{ ucfirst($transaction->status) }}
+                    </span>
+                </div>
+
+                <div class="mt-3 space-y-2 text-sm text-slate-600">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-400">Kasir:</span>
+                        <span class="font-medium">{{ $transaction->user?->name ?? '—' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-400">Pelanggan:</span>
+                        <span class="font-medium">{{ $transaction->customer?->name ?? 'Umum' }}</span>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                        <span class="font-semibold text-slate-800">Total</span>
+                        <div class="text-right">
+                            <span class="block font-bold text-slate-800">Rp {{ number_format($transaction->total, 0, ',', '.') }}</span>
+                            @if(auth()->user()->hasPermission('view_profit'))
+                                <span class="block text-xs text-slate-400">Profit: Rp {{ number_format($transaction->profit, 0, ',', '.') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                    <a href="{{ route('transactions.show', $transaction) }}" class="flex-1 min-w-[80px] rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
+                        Detail
+                    </a>
+                    <a target="_blank" href="{{ route('transactions.invoice', $transaction) }}" class="flex-1 min-w-[80px] rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 hover:bg-slate-50">
+                        Invoice
+                    </a>
+                    <a target="_blank" href="{{ route('transactions.shipping_label', $transaction) }}" class="flex-1 min-w-[80px] rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-medium text-emerald-600 hover:bg-emerald-100">
+                        Resi
+                    </a>
+                </div>
+            </div>
+        @empty
+            <div class="rounded-xl border border-slate-200 bg-white p-8 text-center">
+                <p class="text-sm text-slate-500">Belum ada transaksi.</p>
+            </div>
+        @endforelse
     </div>
 
     <div class="mt-6">

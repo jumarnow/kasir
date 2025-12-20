@@ -26,7 +26,8 @@
         </div>
     </form>
 
-    <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <!-- Desktop Table View -->
+    <div class="mt-6 hidden md:block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-slate-200 text-sm">
             <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <tr>
@@ -92,6 +93,73 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="mt-6 md:hidden space-y-4">
+        @forelse ($customers as $customer)
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 class="font-semibold text-slate-800">{{ $customer->name }}</h3>
+                        <p class="text-xs text-slate-500 mt-1">{{ $customer->notes ?? '-' }}</p>
+                    </div>
+                    <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $customer->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200 text-slate-600' }}">
+                        {{ $customer->is_active ? 'Aktif' : 'Nonaktif' }}
+                    </span>
+                </div>
+
+                <div class="mt-3 space-y-2 text-sm text-slate-600">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs w-16 text-slate-400">Kontak:</span>
+                        <div class="flex flex-col">
+                            <span>{{ $customer->email ?? '-' }}</span>
+                            <span class="text-xs text-slate-500">{{ $customer->phone ?? '-' }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-xs w-16 text-slate-400 mt-0.5">Alamat:</span>
+                        <div class="flex flex-col">
+                            <span>{{ $customer->address ?? '-' }}</span>
+                            @if($customer->city || $customer->state || $customer->postal_code)
+                                <span class="text-xs text-slate-500">{{ $customer->city }} {{ $customer->state }} {{ $customer->postal_code }}</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs w-16 text-slate-400">Harga:</span>
+                        <span class="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium">
+                             @if ($customer->price_tier == 1)
+                                Regular
+                            @elseif ($customer->price_tier == 2)
+                                Grosir
+                            @elseif ($customer->price_tier == 3)
+                                Distributor
+                            @else
+                                -
+                            @endif
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex items-center gap-2">
+                    <a href="{{ route('customers.edit', $customer) }}" class="flex-1 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
+                        Edit
+                    </a>
+                    <form action="{{ route('customers.destroy', $customer) }}" method="POST" onsubmit="return confirm('Hapus data pelanggan?')" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @empty
+            <div class="rounded-xl border border-slate-200 bg-white p-8 text-center">
+                <p class="text-sm text-slate-500">Belum ada pelanggan.</p>
+            </div>
+        @endforelse
     </div>
 
     <div class="mt-6">

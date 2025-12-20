@@ -18,10 +18,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('dashboard')
         ->middleware('permission:manage_dashboard');
 
+    Route::get('/settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+
     Route::middleware('permission:manage_products')->group(function () {
         Route::get('products/import/template', [ProductController::class, 'downloadTemplate'])->name('products.import.template');
         Route::post('products/import', [ProductController::class, 'import'])->name('products.import');
         Route::post('products/ocr', [ProductController::class, 'ocr'])->name('products.ocr');
+        Route::match(['get', 'post'], 'products-bulk/barcode', [ProductController::class, 'bulkBarcode'])->name('products.bulk_barcode');
         Route::get('products/{product}/barcode', [ProductController::class, 'barcode'])->name('products.barcode');
         Route::resource('products', ProductController::class)->except('show');
     });
@@ -37,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:manage_transactions')->group(function () {
         Route::get('transactions/barcode/lookup', [TransactionController::class, 'lookupByBarcode'])->name('transactions.lookup');
         Route::get('transactions/{transaction}/invoice', [TransactionController::class, 'invoice'])->name('transactions.invoice');
+        Route::get('transactions/{transaction}/shipping-label', [TransactionController::class, 'shippingLabel'])->name('transactions.shipping_label');
         Route::resource('transactions', TransactionController::class)->except('destroy');
     });
 

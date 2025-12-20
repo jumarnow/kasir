@@ -14,7 +14,8 @@
         </a>
     </div>
 
-    <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <!-- Desktop Table View -->
+    <div class="mt-6 hidden md:block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-slate-200 text-sm">
             <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <tr>
@@ -63,6 +64,44 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="mt-6 md:hidden space-y-4">
+        @forelse ($categories as $category)
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="font-semibold text-slate-800">{{ $category->name }}</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Slug: {{ $category->slug }}</p>
+                    </div>
+                    <span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold {{ $category->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200 text-slate-600' }}">
+                        {{ $category->is_active ? 'Aktif' : 'Nonaktif' }}
+                    </span>
+                </div>
+                
+                <p class="mt-3 text-sm text-slate-600">
+                    {{ $category->description ?? '-' }}
+                </p>
+
+                <div class="mt-4 flex items-center gap-3">
+                    <a href="{{ route('categories.edit', $category) }}" class="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 hover:bg-slate-50">
+                        Edit
+                    </a>
+                    <form action="{{ route('categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Hapus kategori ini?')" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @empty
+            <div class="rounded-xl border border-slate-200 bg-white p-8 text-center">
+                <p class="text-sm text-slate-500">Belum ada kategori.</p>
+            </div>
+        @endforelse
     </div>
 
     <div class="mt-6">

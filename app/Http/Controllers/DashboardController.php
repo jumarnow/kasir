@@ -13,7 +13,8 @@ class DashboardController extends Controller
     public function index()
     {
         $data = $this->dashboardService->dashboardData();
+        $canViewProfit = auth()->user()->hasPermission('view_profit');
 
-        return view('dashboard.index', compact('data'));
+        return view('dashboard.index', compact('data', 'canViewProfit'));
     }
 }

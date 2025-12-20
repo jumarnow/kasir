@@ -23,11 +23,6 @@
         .summary div span:last-child { font-weight: 600; }
         .summary div.total span:last-child { font-size: 18px; color: #4f46e5; }
         .footer { margin-top: 32px; text-align: center; font-size: 12px; color: #94a3b8; }
-        @media print {
-            body { background: #fff; padding: 0; }
-            .invoice { box-shadow: none; border: none; border-radius: 0; }
-            .print-button { display: none; }
-        }
         .print-button {
             display: inline-flex;
             align-items: center;
@@ -41,14 +36,20 @@
             border-radius: 999px;
             text-decoration: none;
         }
+        @media print {
+            body { background: #fff; padding: 0; }
+            .invoice { box-shadow: none; border: none; border-radius: 0; }
+            .print-button { display: none !important; }
+        }
     </style>
 </head>
 <body>
     <div class="invoice">
         <div class="invoice-header">
             <div>
-                <div class="brand">Kasir Modern</div>
-                <div style="color:#94a3b8;font-size:13px;">Invoice penjualan resmi</div>
+                <div class="brand">{{ $settings['store_name'] ?? 'Kasir Modern' }}</div>
+                <div style="color:#64748b;font-size:12px;margin-top:4px;">{{ $settings['store_address'] ?? '' }}</div>
+                <div style="color:#64748b;font-size:12px;">{{ $settings['store_phone'] ?? '' }}</div>
             </div>
             <div class="meta">
                 <div>Invoice : <strong>{{ $transaction->invoice_number }}</strong></div>
@@ -103,13 +104,15 @@
         <div class="summary">
             <div><span>Subtotal</span><span>Rp {{ number_format($transaction->subtotal, 0, ',', '.') }}</span></div>
             <div><span>Diskon</span><span>Rp {{ number_format($transaction->discount_amount, 0, ',', '.') }} ({{ $transaction->discount_percent }}%)</span></div>
+            @if ($transaction->shipping_cost > 0)
+                <div><span>Ongkir</span><span>Rp {{ number_format($transaction->shipping_cost, 0, ',', '.') }}</span></div>
+            @endif
             <div class="total"><span>Total</span><span>Rp {{ number_format($transaction->total, 0, ',', '.') }}</span></div>
             <div><span>Dibayar</span><span>Rp {{ number_format($transaction->amount_paid, 0, ',', '.') }}</span></div>
             <div><span>Kembalian</span><span>Rp {{ number_format($transaction->change_due, 0, ',', '.') }}</span></div>
-            <div><span>Profit</span><span style="color:#059669;">Rp {{ number_format($transaction->profit, 0, ',', '.') }}</span></div>
         </div>
 
-        <a href="#" onclick="window.print(); return false;" class="print-button">🖨 Cetak Invoice</a>
+        <a href="#" onclick="window.print(); this.style.display='none'; return false;" class="print-button">🖨 Cetak Invoice</a>
 
         <div class="footer">
             Terima kasih telah berbelanja. Simpan invoice ini sebagai bukti transaksi.

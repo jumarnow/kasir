@@ -113,13 +113,18 @@
                 'users' => $isAdmin || $permissionNames->contains('manage_users'),
                 'roles' => $isAdmin || $permissionNames->contains('manage_roles'),
                 'reports' => $isAdmin || $permissionNames->contains('view_reports'),
+                'view_profit' => $isAdmin || $permissionNames->contains('view_profit'),
             ];
         @endphp
         <aside id="sidebar" class="sidebar hidden md:flex md:flex-col bg-white border-r border-slate-200">
             <div class="px-6 py-8 border-b border-slate-200 flex items-center gap-3 sidebar-brand">
-                <span class="text-2xl sidebar-brand-icon" aria-hidden="true">🛒</span>
+                @if(isset($settings['store_logo']) && $settings['store_logo'])
+                    <img src="{{ Storage::url($settings['store_logo']) }}" alt="Logo" class="h-10 w-auto object-contain sidebar-brand-icon">
+                @else
+                    <span class="text-2xl sidebar-brand-icon" aria-hidden="true">🛒</span>
+                @endif
                 <div class="flex flex-col">
-                    <span class="text-lg font-semibold text-indigo-600 sidebar-brand-text">Kasir Modern</span>
+                    <span class="text-lg font-semibold text-indigo-600 sidebar-brand-text">{{ $settings['store_name'] ?? 'Kasir Modern' }}</span>
                     <p class="text-sm text-slate-500 mt-1 sidebar-description">Dashboard kasir &amp; laporan</p>
                 </div>
             </div>
@@ -151,11 +156,11 @@
 
                 @if ($permissions['transactions'])
                     <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Transaksi</p>
-                    <a href="{{ route('transactions.index') }}" class="nav-link" title="Transaksi">
-                        <span class="icon">🧾</span> <span class="label">Transaksi</span>
-                    </a>
                     <a href="{{ route('transactions.create') }}" class="nav-link" title="Transaksi Baru">
                         <span class="icon">➕</span> <span class="label">Transaksi Baru</span>
+                    </a>
+                    <a href="{{ route('transactions.index') }}" class="nav-link" title="Transaksi">
+                        <span class="icon">🧾</span> <span class="label">Transaksi</span>
                     </a>
                 @endif
 
@@ -174,17 +179,24 @@
                 @endif
 
                 @if ($permissions['reports'])
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Laporan</p>
                     <a href="{{ route('reports.sales') }}" class="nav-link" title="Laporan Penjualan">
                         <span class="icon">💰</span> <span class="label">Penjualan</span>
                     </a>
-                    <a href="{{ route('reports.profit') }}" class="nav-link" title="Laporan Profit">
-                        <span class="icon">📈</span> <span class="label">Profit</span>
-                    </a>
+                    @if ($permissions['view_profit'])
+                        <a href="{{ route('reports.profit') }}" class="nav-link" title="Laporan Profit">
+                            <span class="icon">📈</span> <span class="label">Profit</span>
+                        </a>
+                    @endif
                 @endif
+
+                {{-- Settings --}}
+                <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pengaturan</p>
+                <a href="{{ route('settings.index') }}" class="nav-link" title="Pengaturan Toko">
+                    <span class="icon">⚙️</span> <span class="label">Pengaturan Toko</span>
+                </a>
             </nav>
             <div class="px-6 py-6 border-t border-slate-200 text-sm text-slate-500 sidebar-footer">
-                &copy; {{ date('Y') }} Kasir Modern
+                &copy; {{ date('Y') }} {{ $settings['store_name'] ?? 'Kasir Modern' }}
             </div>
         </aside>
 
@@ -285,6 +297,7 @@
                     <a href="{{ route('reports.sales') }}" class="mobile-nav-link">Laporan Penjualan</a>
                     <a href="{{ route('reports.profit') }}" class="mobile-nav-link">Laporan Profit</a>
                 @endif
+                <a href="{{ route('settings.index') }}" class="mobile-nav-link">Pengaturan Toko</a>
                 <form method="POST" action="{{ route('logout') }}" class="pt-3 border-t border-slate-200">
                     @csrf
                     <button type="submit" class="mobile-nav-link text-center bg-red-50 border-red-200 text-red-600 hover:bg-red-100">

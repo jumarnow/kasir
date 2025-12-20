@@ -45,6 +45,7 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request)
     {
         $shouldPrintInvoice = $request->boolean('print_invoice');
+        $shouldPrintShippingLabel = $request->boolean('print_shipping_label');
         $user = $request->user() ?? auth()->user() ?? \App\Models\User::firstOrFail();
 
         $transaction = $this->transactionService->create($user, $request->validated());
@@ -52,6 +53,7 @@ class TransactionController extends Controller
         return redirect()->route('transactions.create')
             ->with('success', 'Transaksi berhasil dibuat.')
             ->with('print_invoice', $shouldPrintInvoice)
+            ->with('print_shipping_label', $shouldPrintShippingLabel)
             ->with('printed_transaction_id', $transaction->id);
     }
 
@@ -67,6 +69,13 @@ class TransactionController extends Controller
         $transaction->load(['items.product', 'customer', 'user']);
 
         return view('transactions.invoice', compact('transaction'));
+    }
+
+    public function shippingLabel(Transaction $transaction)
+    {
+        $transaction->load(['customer', 'user']);
+
+        return view('transactions.shipping_label', compact('transaction'));
     }
 
     public function lookupByBarcode(Request $request)

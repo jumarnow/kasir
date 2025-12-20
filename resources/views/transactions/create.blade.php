@@ -34,26 +34,35 @@
     </style>
 @endpush
 
-@if (session('print_invoice') && session('printed_transaction_id'))
+@if ((session('print_invoice') || session('print_shipping_label')) && session('printed_transaction_id'))
     @push('scripts')
         <script>
             window.addEventListener('load', function () {
-                if (sessionStorage.getItem('kasirInvoicePrintRequested') !== '1') {
+                if (sessionStorage.getItem('kasirInvoicePrintRequested') !== '1' && sessionStorage.getItem('kasirShippingLabelPrintRequested') !== '1') {
                     return;
                 }
 
+                const transactionId = '{{ session('printed_transaction_id') }}';
+                const printInvoice = sessionStorage.getItem('kasirInvoicePrintRequested') === '1';
+                const printShipping = sessionStorage.getItem('kasirShippingLabelPrintRequested') === '1';
+
                 try {
                     sessionStorage.removeItem('kasirInvoicePrintRequested');
+                    sessionStorage.removeItem('kasirShippingLabelPrintRequested');
                 } catch (error) {
                     // ignore storage errors
                 }
 
                 const features = 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes';
-                const invoiceWindow = window.open('', 'invoice-print', features);
+                
+                if (printInvoice) {
+                    const invoiceWindow = window.open('{{ route('transactions.invoice', ['transaction' => session('printed_transaction_id')]) }}', 'invoice-print', features);
+                    if (invoiceWindow) invoiceWindow.focus();
+                }
 
-                if (invoiceWindow) {
-                    invoiceWindow.location.replace('{{ route('transactions.invoice', ['transaction' => session('printed_transaction_id')]) }}');
-                    invoiceWindow.focus();
+                if (printShipping) {
+                    const shippingWindow = window.open('{{ route('transactions.shipping_label', ['transaction' => session('printed_transaction_id')]) }}', 'shipping-print', 'width=400,height=600');
+                    if (shippingWindow) shippingWindow.focus();
                 }
             });
         </script>
@@ -64,6 +73,7 @@
     <form action="{{ route('transactions.store') }}" method="POST" id="transaction-form">
         @csrf
         <input type="hidden" name="print_invoice" id="print-invoice" value="0">
+        <input type="hidden" name="print_shipping_label" id="print-shipping-label" value="0">
         <div class="grid gap-6 lg:grid-cols-3">
             <div class="lg:col-span-2 space-y-6">
                 <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
@@ -76,9 +86,15 @@
                             Tampilkan
                         </button>
                     </div>
-                    <div id="customer-section-body" class="mt-4 grid gap-4 md:grid-cols-2 hidden">
+                    <div id="customer-section-body" class="mt-4 hidden">
+                        <div class="grid gap-4 md:grid-cols-2">
                         <div>
-                            <label class="text-xs uppercase text-slate-500">Pelanggan</label>
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs uppercase text-slate-500">Pelanggan</label>
+                                <button type="button" id="btn-quick-customer" class="text-xs font-medium text-indigo-600 hover:underline">
+                                    + Baru
+                                </button>
+                            </div>
                             <select name="customer_id" id="customer-select" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                 <option value="" data-price-tier="1">Umum</option>
                                 @foreach ($customers as $customer)
@@ -89,6 +105,7 @@
                         <div>
                             <label class="text-xs uppercase text-slate-500">Catatan</label>
                             <input type="text" name="notes" value="{{ old('notes') }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Catatan khusus">
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -130,7 +147,8 @@
                     </div>
 
                     <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200">
-                        <table class="min-w-full divide-y divide-slate-200 text-sm">
+                        <!-- Desktop Table -->
+                        <table class="min-w-full divide-y divide-slate-200 text-sm hidden md:table">
                             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
                                 <tr>
                                     <th class="px-4 py-3 text-left">Produk</th>
@@ -142,6 +160,10 @@
                             </thead>
                             <tbody id="cart-items" class="divide-y divide-slate-100"></tbody>
                         </table>
+                        
+                        <!-- Mobile List -->
+                        <div id="cart-items-mobile" class="md:hidden divide-y divide-slate-100"></div>
+
                         <div class="p-4 text-center text-sm text-slate-400" id="empty-cart">Belum ada produk ditambahkan</div>
                     </div>
                     <div id="items-inputs"></div>
@@ -169,6 +191,10 @@
                         <div class="flex items-center justify-between text-sm text-slate-500">
                             <span>Total Diskon</span>
                             <span id="summary-discount">Rp 0</span>
+                        </div>
+                        <div>
+                            <label class="text-xs uppercase text-slate-500">Ongkir (Rp)</label>
+                            <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                         </div>
                         <div class="flex items-center justify-between text-base font-semibold text-slate-800">
                             <span>Total</span>
@@ -218,10 +244,48 @@
                 <button type="button" id="print-modal-confirm" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400">
                     Cetak Invoice
                 </button>
+                <button type="button" id="print-modal-shipping" class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                    Cetak Resi
+                </button>
                 <button type="button" id="print-modal-skip" class="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
                     Simpan Saja
                 </button>
             </div>
+        </div>
+    </div>
+    <div id="quick-customer-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <h3 class="text-lg font-semibold text-slate-800">Pelanggan Baru</h3>
+                <button type="button" id="close-quick-customer" class="text-slate-400 hover:text-slate-600">
+                    <span class="sr-only">Tutup</span>
+                    &times;
+                </button>
+            </div>
+            <form id="quick-customer-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700">Nama Lengkap</label>
+                        <input type="text" name="name" required class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" placeholder="Nama pelanggan">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700">Nomor Telepon</label>
+                        <input type="text" name="phone" class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" placeholder="08..." >
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-slate-700">Email (Opsional)</label>
+                        <input type="email" name="email" class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" placeholder="email@contoh.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700">Alamat (Opsional)</label>
+                        <textarea name="address" rows="2" class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" placeholder="Alamat lengkap"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" id="cancel-quick-customer" class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 shadow-sm">Simpan</button>
+                </div>
+            </form>
         </div>
     </div>
 @endsection
@@ -237,14 +301,80 @@
         let $submitButton;
         let $productSelect;
         let $printInvoiceInput;
+        let $printShippingInput;
         let $printModal;
         let $printModalConfirm;
+        let $printModalShipping;
         let $printModalSkip;
         let $printModalClose;
         let printChoiceConfirmed = false;
         let pendingSubmitForm = null;
         let preOpenedPrintWindow = null;
         let currentPriceTier = 1;
+
+        // Quick Customer Modal Logic
+        const $quickCustomerModal = $('#quick-customer-modal');
+        const $btnQuickCustomer = $('#btn-quick-customer');
+        const $btnCloseQuickCustomer = $('#close-quick-customer');
+        const $btnCancelQuickCustomer = $('#cancel-quick-customer');
+        const $quickCustomerForm = $('#quick-customer-form');
+
+        function toggleQuickCustomerModal(show) {
+            if (show) {
+                $quickCustomerModal.removeClass('hidden').addClass('flex');
+            } else {
+                $quickCustomerModal.addClass('hidden').removeClass('flex');
+                $quickCustomerForm[0].reset();
+            }
+        }
+
+        $btnQuickCustomer.on('click', () => toggleQuickCustomerModal(true));
+        $btnCloseQuickCustomer.on('click', () => toggleQuickCustomerModal(false));
+        $btnCancelQuickCustomer.on('click', () => toggleQuickCustomerModal(false));
+
+        $quickCustomerForm.on('submit', function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            const $submitBtn = $(this).find('button[type="submit"]');
+            
+            $submitBtn.prop('disabled', true).text('Menyimpan...');
+
+            $.ajax({
+                url: '{{ route('customers.store') }}',
+                method: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                success: function(response) {
+                    // Add to dropdown
+                    const newOption = new Option(response.name, response.id, true, true);
+                    $(newOption).data('price-tier', response.price_tier || 1);
+                    $('#customer-select').append(newOption).trigger('change');
+                    
+                    // Close modal
+                    toggleQuickCustomerModal(false);
+                    
+                    // Trigger tier update manually since trigger change might not suffice if logic depends on data attr
+                    currentPriceTier = response.price_tier || 1;
+                    if (cart.length > 0) updateCartPrices(currentPriceTier);
+
+                    alert('Pelanggan berhasil ditambahkan!');
+                },
+                error: function(xhr) {
+                    let msg = 'Terjadi kesalahan.';
+                    if (xhr.status === 422) {
+                        const errors = xhr.responseJSON.errors;
+                        msg = Object.values(errors).flat().join('\n');
+                    }
+                    alert(msg);
+                },
+                complete: function() {
+                    $submitBtn.prop('disabled', false).text('Simpan');
+                }
+            });
+        });
 
         function formatCurrency(value) {
             return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
@@ -271,9 +401,11 @@
 
         function renderCart() {
             const tbody = $('#cart-items');
+            const mobileList = $('#cart-items-mobile');
             const emptyState = $('#empty-cart');
             const inputsWrapper = $('#items-inputs');
             tbody.empty();
+            mobileList.empty();
             inputsWrapper.empty();
 
             if (cart.length === 0) {
@@ -294,6 +426,7 @@
                     priceOptions += `<option value="${item.price_3}">${formatCurrency(item.price_3)}</option>`;
                 }
 
+                // Desktop Row
                 const row = $(`
                     <tr>
                         <td class="px-4 py-3">
@@ -319,8 +452,38 @@
                 
                 // Set selected price
                 row.find('.price-select').val(item.price);
-
                 tbody.append(row);
+
+                // Mobile Item
+                const mobileItem = $(`
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="font-medium text-slate-700">${item.name}</p>
+                                <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
+                            </div>
+                            <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600 font-medium" data-index="${index}">Hapus</button>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs text-slate-500">Harga</label>
+                                <select class="price-select w-32 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">
+                                    ${priceOptions}
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs text-slate-500">Qty</label>
+                                <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-right text-sm" data-index="${index}" value="${item.quantity}">
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-slate-50">
+                                <span class="text-xs font-semibold text-slate-500">Subtotal</span>
+                                <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                mobileItem.find('.price-select').val(item.price);
+                mobileList.append(mobileItem);
 
                 inputsWrapper.append(`
                     <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
@@ -351,7 +514,8 @@
             const discountAmountInput = parseCurrency($('#discount-amount').val());
             const discountFromPercent = subtotal * (discountPercent / 100);
             const totalDiscount = Math.min(subtotal, discountAmountInput + discountFromPercent);
-            const total = Math.max(subtotal - totalDiscount, 0);
+            const shippingCost = parseCurrency($('#shipping-cost').val());
+            const total = Math.max(subtotal - totalDiscount + shippingCost, 0);
             const amountPaid = parseCurrency($('#amount-paid').val());
             const change = Math.max(amountPaid - total, 0);
             return { subtotal, totalDiscount, total, amountPaid, change };
@@ -442,11 +606,18 @@
                 allowClear: true,
                 width: 'resolve',
             });
+            $('#customer-select').select2({
+                placeholder: '-- Pilih Pelanggan --',
+                allowClear: true,
+                width: '100%',
+            });
             $addProductButton = $('#add-product');
             $submitButton = $('#transaction-submit');
             $printInvoiceInput = $('#print-invoice');
+            $printShippingInput = $('#print-shipping-label');
             $printModal = $('#print-confirm-modal');
             $printModalConfirm = $('#print-modal-confirm');
+            $printModalShipping = $('#print-modal-shipping');
             $printModalSkip = $('#print-modal-skip');
             $printModalClose = $('#print-modal-close');
 
@@ -522,7 +693,7 @@
                 }
             });
 
-            $('#cart-items').on('change', '.qty-input', function () {
+            $('#cart-items, #cart-items-mobile').on('change', '.qty-input', function () {
                 const index = $(this).data('index');
                 const quantity = Number($(this).val());
                 if (quantity < 1) {
@@ -538,35 +709,37 @@
                 renderCart();
             });
 
-            $('#cart-items').on('change', '.price-select', function () {
+            $('#cart-items, #cart-items-mobile').on('change', '.price-select', function () {
                 const index = $(this).data('index');
                 const price = Number($(this).val());
                 cart[index].price = price;
                 renderCart();
             });
 
-            $('#cart-items').on('click', '.remove-item', function () {
+            $('#cart-items, #cart-items-mobile').on('click', '.remove-item', function () {
                 const index = $(this).data('index');
                 cart.splice(index, 1);
                 renderCart();
             });
 
-            $(document).on('input', '#discount-percent, #discount-amount, #amount-paid', function () {
+            $(document).on('input', '#discount-percent, #discount-amount, #amount-paid, #shipping-cost', function () {
                 const raf = window.requestAnimationFrame || function (cb) { return setTimeout(cb, 0); };
                 raf(updateSummary);
             });
 
             $printModalConfirm.on('click', function () {
-                if ($printInvoiceInput) {
-                    $printInvoiceInput.val('1');
-                }
+                if ($printInvoiceInput) $printInvoiceInput.val('1');
+                if ($printShippingInput) $printShippingInput.val('0');
+                
                 printChoiceConfirmed = true;
                 hidePrintModal();
                 try {
                     sessionStorage.setItem('kasirInvoicePrintRequested', '1');
+                    sessionStorage.removeItem('kasirShippingLabelPrintRequested');
                 } catch (error) {
                     // ignore storage failures
                 }
+                
                 if (!preOpenedPrintWindow || preOpenedPrintWindow.closed) {
                     preOpenedPrintWindow = window.open('', 'invoice-print', printWindowFeatures);
                 } else {
@@ -581,14 +754,43 @@
                 }
             });
 
-            $printModalSkip.on('click', function () {
-                if ($printInvoiceInput) {
-                    $printInvoiceInput.val('0');
-                }
+            $printModalShipping.on('click', function () {
+                if ($printInvoiceInput) $printInvoiceInput.val('0');
+                if ($printShippingInput) $printShippingInput.val('1');
+                
                 printChoiceConfirmed = true;
                 hidePrintModal();
                 try {
                     sessionStorage.removeItem('kasirInvoicePrintRequested');
+                    sessionStorage.setItem('kasirShippingLabelPrintRequested', '1');
+                } catch (error) {
+                    // ignore storage failures
+                }
+
+                if (!preOpenedPrintWindow || preOpenedPrintWindow.closed) {
+                    preOpenedPrintWindow = window.open('', 'shipping-print', 'width=400,height=600');
+                } else {
+                    preOpenedPrintWindow.focus();
+                }
+                if (preOpenedPrintWindow) {
+                    preOpenedPrintWindow.document.title = 'Resi';
+                    preOpenedPrintWindow.document.body.innerHTML = '<div style="font-family: sans-serif; padding: 16px; font-size: 14px;">Menunggu resi...</div>';
+                }
+
+                if (pendingSubmitForm) {
+                    $(pendingSubmitForm).trigger('submit');
+                }
+            });
+
+            $printModalSkip.on('click', function () {
+                if ($printInvoiceInput) $printInvoiceInput.val('0');
+                if ($printShippingInput) $printShippingInput.val('0');
+                
+                printChoiceConfirmed = true;
+                hidePrintModal();
+                try {
+                    sessionStorage.removeItem('kasirInvoicePrintRequested');
+                    sessionStorage.removeItem('kasirShippingLabelPrintRequested');
                 } catch (error) {
                     // ignore storage failures
                 }

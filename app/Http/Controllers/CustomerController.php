@@ -33,7 +33,11 @@ class CustomerController extends Controller
 
     public function store(CustomerRequest $request)
     {
-        Customer::create($request->validated());
+        $customer = Customer::create($request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json($customer);
+        }
 
         return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil ditambahkan.');
     }

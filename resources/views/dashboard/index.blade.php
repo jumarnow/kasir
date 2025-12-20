@@ -15,6 +15,7 @@
                     {{ $data['today']['transactions'] }} transaksi
                 </p>
             </div>
+            @if ($canViewProfit)
             <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
                 <p class="text-xs text-slate-500">Profit Hari Ini</p>
                 <p class="mt-2 text-2xl font-semibold text-emerald-600">
@@ -22,6 +23,7 @@
                 </p>
                 <p class="mt-2 text-xs text-emerald-600">Profit bersih setelah diskon</p>
             </div>
+            @endif
             <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
                 <p class="text-xs text-slate-500">Rata-rata Transaksi</p>
                 <p class="mt-2 text-2xl font-semibold text-slate-700">
@@ -126,9 +128,16 @@
                     Manfaatkan laporan penjualan untuk melihat performa kasir.
                 </li>
             </ul>
-            <a href="{{ route('reports.sales') }}" class="mt-4 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
-                Lihat laporan penjualan
-            </a>
+            <div class="flex flex-wrap gap-2 mt-4">
+                <a href="{{ route('reports.sales') }}" class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                    Lihat laporan penjualan
+                </a>
+                @if ($canViewProfit)
+                    <a href="{{ route('reports.profit') }}" class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3.5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500">
+                        Lihat laporan profit
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 @endsection

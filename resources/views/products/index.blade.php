@@ -30,8 +30,22 @@
     <form method="GET" action="{{ route('products.index') }}" class="mt-6">
         <div class="flex flex-col gap-3 md:flex-row md:items-center">
             <div class="relative flex-1">
-                <input type="text" name="q" placeholder="Cari nama produk / SKU / barcode" value="{{ $search }}" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                <span class="absolute inset-y-0 right-4 flex items-center text-slate-400">⌕</span>
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="relative md:w-1/3">
+                        <select id="category-select" name="category_id" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                            <option value="">Semua Kategori</option>
+                            @foreach ($categories as $id => $name)
+                                <option value="{{ $id }}" {{ request('category_id') == $id ? 'selected' : '' }}>
+                                    {{ $name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="relative flex-1">
+                        <input type="text" name="q" placeholder="Cari nama produk / SKU / barcode" value="{{ $search }}" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                        <span class="absolute inset-y-0 right-4 flex items-center text-slate-400">⌕</span>
+                    </div>
+                </div>
             </div>
             <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">
                 Cari
@@ -43,11 +57,26 @@
         Import akan membuat atau memperbarui produk berdasarkan kolom <span class="font-semibold">SKU</span>. Pastikan kolom wajib terisi: <span class="font-semibold">nama, sku, satuan, harga_jual_1</span>. Gunakan template untuk contoh format lengkap.
     </div>
 
+    <form id="bulk-action-form" action="{{ route('products.bulk_barcode') }}" method="POST" target="_blank">
+        @csrf
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+            <button type="submit" name="selected" value="1" class="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100 transition-all">
+                🖨️ Cetak Barcode Terpilih
+            </button>
+            <button type="submit" name="all" value="1" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 transition-all" onclick="return confirm('Cetak barcode untuk SEMUA produk?')">
+                📑 Cetak Semua Barcode
+            </button>
+        </div>
+    </form>
+
     <!-- Desktop Table View -->
     <div class="mt-6 hidden md:block overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-slate-200 text-sm">
             <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <tr>
+                    <th class="px-6 py-4 w-10">
+                        <input type="checkbox" id="select-all" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                    </th>
                     <th class="px-6 py-4">Produk</th>
                     <th class="px-6 py-4">Kategori</th>
                     <th class="px-6 py-4">Harga</th>
@@ -59,6 +88,9 @@
             <tbody class="divide-y divide-slate-100">
                 @forelse ($products as $product)
                     <tr>
+                        <td class="px-6 py-4">
+                            <input type="checkbox" name="product_ids[]" value="{{ $product->id }}" form="bulk-action-form" class="product-checkbox rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                        </td>
                         <td class="px-6 py-4">
                             <p class="font-semibold text-slate-800">{{ $product->name }}</p>
                             <p class="text-xs text-slate-500">SKU: {{ $product->sku }}</p>
@@ -116,8 +148,11 @@
     <!-- Mobile Card View -->
     <div class="mt-6 md:hidden space-y-4">
         @forelse ($products as $product)
-            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div class="flex items-start justify-between gap-3">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm relative">
+                <div class="absolute top-4 left-4">
+                    <input type="checkbox" name="product_ids[]" value="{{ $product->id }}" form="bulk-action-form" class="product-checkbox rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                </div>
+                <div class="flex items-start justify-between gap-3 pl-8">
                     <div class="flex-1">
                         <h3 class="font-semibold text-slate-800">{{ $product->name }}</h3>
                         <p class="text-xs text-slate-500 mt-1">SKU: {{ $product->sku }}</p>
@@ -186,3 +221,78 @@
         {{ $products->withQueryString()->links() }}
     </div>
 @endsection
+
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Custom styles to match Tailwind */
+    .select2-container .select2-selection--single {
+        height: 42px !important;
+        border-color: #e2e8f0 !important; /* slate-200 */
+        border-radius: 0.75rem !important; /* rounded-xl */
+        display: flex !important;
+        align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important;
+        right: 10px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 1rem !important; /* px-4 */
+        padding-right: 2rem !important;
+        color: #334155 !important; /* slate-700 */
+        font-size: 0.875rem !important; /* text-sm */
+        font-weight: 400 !important;
+    }
+    .select2-dropdown {
+        border-color: #e2e8f0 !important;
+        border-radius: 0.75rem !important;
+        overflow: hidden !important;
+        margin-top: 4px !important;
+    }
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+        background-color: #4f46e5 !important; /* indigo-600 */
+    }
+    .select2-container--default .select2-results__option--selected {
+        background-color: #e0e7ff !important; /* indigo-100 */
+        color: #3730a3 !important; /* indigo-800 */
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#category-select').select2({
+            placeholder: 'Semua Kategori',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Select All checkboxes
+        $('#select-all').on('click', function() {
+            $('.product-checkbox').prop('checked', this.checked);
+        });
+
+        $('.product-checkbox').on('click', function() {
+            if ($('.product-checkbox:checked').length === $('.product-checkbox').length) {
+                $('#select-all').prop('checked', true);
+            } else {
+                $('#select-all').prop('checked', false);
+            }
+        });
+
+        // Bulk action form validation
+        $('#bulk-action-form').on('submit', function(e) {
+            const submitter = e.originalEvent.submitter;
+            if (submitter && submitter.name === 'selected') {
+                if ($('.product-checkbox:checked').length === 0) {
+                    alert('Pilih minimal satu produk untuk mencetak barcode.');
+                    return false;
+                }
+            }
+        });
+    });
+</script>
+@endpush

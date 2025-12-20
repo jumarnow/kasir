@@ -65,6 +65,12 @@
                         <dt class="text-slate-500">Diskon</dt>
                         <dd class="font-semibold text-slate-700">Rp {{ number_format($transaction->discount_amount, 0, ',', '.') }} ({{ $transaction->discount_percent }}%)</dd>
                     </div>
+                    @if ($transaction->shipping_cost > 0)
+                    <div class="flex items-center justify-between">
+                        <dt class="text-slate-500">Ongkir</dt>
+                        <dd class="font-semibold text-slate-700">Rp {{ number_format($transaction->shipping_cost, 0, ',', '.') }}</dd>
+                    </div>
+                    @endif
                     <div class="flex items-center justify-between text-base font-semibold text-slate-800">
                         <dt>Total</dt>
                         <dd class="text-indigo-600">Rp {{ number_format($transaction->total, 0, ',', '.') }}</dd>
@@ -77,18 +83,25 @@
                         <dt class="text-slate-500">Kembalian</dt>
                         <dd class="font-semibold text-slate-700">Rp {{ number_format($transaction->change_due, 0, ',', '.') }}</dd>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <dt class="text-slate-500">Profit</dt>
-                        <dd class="font-semibold text-emerald-600">Rp {{ number_format($transaction->profit, 0, ',', '.') }}</dd>
-                    </div>
+                    @if(auth()->user()->hasPermission('view_profit'))
+                        <div class="flex items-center justify-between">
+                            <dt class="text-slate-500">Profit</dt>
+                            <dd class="font-semibold text-emerald-600">Rp {{ number_format($transaction->profit, 0, ',', '.') }}</dd>
+                        </div>
+                    @endif
                     <div class="flex items-center justify-between">
                         <dt class="text-slate-500">Metode</dt>
                         <dd class="font-semibold text-slate-700">{{ strtoupper($transaction->payment_method) }}</dd>
                     </div>
                 </dl>
-                <a href="{{ route('transactions.invoice', $transaction) }}" class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
-                    Cetak Invoice
-                </a>
+                <div class="mt-6 flex flex-col gap-3">
+                    <a href="{{ route('transactions.invoice', $transaction) }}" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                        Cetak Invoice
+                    </a>
+                    <a href="{{ route('transactions.shipping_label', $transaction) }}" target="_blank" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                        Cetak Resi (100x150)
+                    </a>
+                </div>
             </div>
 
             <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">

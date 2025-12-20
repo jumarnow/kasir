@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-        <form method="GET" action="{{ route('reports.profit') }}" class="grid gap-4 lg:grid-cols-5">
+        <form method="GET" action="{{ route('reports.profit') }}" class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             <div>
                 <label class="text-xs uppercase text-slate-500">Tanggal Mulai</label>
                 <input type="date" name="start_date" value="{{ $filters['start_date'] ?? $report['range']['start'] }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
@@ -37,7 +37,7 @@
         </form>
     </div>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-3">
+    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
             <p class="text-xs uppercase text-slate-500">Total Profit</p>
             <p class="mt-2 text-3xl font-semibold text-emerald-600">Rp {{ number_format($report['summary']['profit'], 0, ',', '.') }}</p>
@@ -72,70 +72,128 @@
                 @endif
             @endif
         </div>
-        <div class="mt-6">
-            <canvas id="profitReportChart" height="140"></canvas>
+        <div class="mt-6 relative" style="min-height: 250px;">
+            <canvas id="profitReportChart"></canvas>
         </div>
     </div>
 
-    <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-slate-200 overflow-hidden">
+    <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
         <h2 class="text-lg font-semibold text-slate-800">Detail Profit</h2>
-        <table class="mt-4 w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <tr>
-                <th class="px-4 py-3">Periode</th>
-                <th class="px-4 py-3 text-right">Penjualan</th>
-                <th class="px-4 py-3 text-right">Profit</th>
-                <th class="px-4 py-3 text-right">Transaksi</th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
+        
+        <!-- Desktop Detail Table -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="mt-4 w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <tr>
+                        <th class="px-4 py-3">Periode</th>
+                        <th class="px-4 py-3 text-right">Penjualan</th>
+                        <th class="px-4 py-3 text-right">Profit</th>
+                        <th class="px-4 py-3 text-right">Transaksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                @forelse ($report['data'] as $row)
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-slate-700">{{ $row['label'] }}</td>
+                        <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($row['sales'], 0, ',', '.') }}</td>
+                        <td class="px-4 py-3 text-right text-emerald-600">Rp {{ number_format($row['profit'], 0, ',', '.') }}</td>
+                        <td class="px-4 py-3 text-right text-slate-600">{{ $row['transactions'] }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Tidak ada data untuk periode ini.</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Detail Cards -->
+        <div class="mt-4 md:hidden space-y-3">
             @forelse ($report['data'] as $row)
-                <tr>
-                    <td class="px-4 py-3 font-medium text-slate-700">{{ $row['label'] }}</td>
-                    <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($row['sales'], 0, ',', '.') }}</td>
-                    <td class="px-4 py-3 text-right text-emerald-600">Rp {{ number_format($row['profit'], 0, ',', '.') }}</td>
-                    <td class="px-4 py-3 text-right text-slate-600">{{ $row['transactions'] }}</td>
-                </tr>
+                <div class="rounded-xl border border-slate-100 bg-emerald-50/30 p-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+                        <span class="font-bold text-slate-800">{{ $row['label'] }}</span>
+                        <span class="text-xs text-emerald-600 font-semibold">{{ $row['transactions'] }} Tx</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[10px] uppercase text-slate-400">Penjualan</p>
+                            <p class="text-sm font-semibold text-slate-700">Rp {{ number_format($row['sales'], 0, ',', '.') }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] uppercase text-slate-400">Profit</p>
+                            <p class="text-sm font-semibold text-emerald-600">Rp {{ number_format($row['profit'], 0, ',', '.') }}</p>
+                        </div>
+                    </div>
+                </div>
             @empty
-                <tr>
-                    <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Tidak ada data untuk periode ini.</td>
-                </tr>
+                <p class="text-center text-sm text-slate-500 py-4">Tidak ada data.</p>
             @endforelse
-            </tbody>
-        </table>
+        </div>
     </div>
 
-    <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-slate-200 overflow-hidden">
+    <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-lg font-semibold text-slate-800">Performa Kasir</h2>
                 <p class="text-sm text-slate-500">Total profit per kasir pada periode ini</p>
             </div>
         </div>
-        <table class="mt-4 w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <tr>
-                <th class="px-4 py-3">Kasir</th>
-                <th class="px-4 py-3 text-right">Transaksi</th>
-                <th class="px-4 py-3 text-right">Penjualan</th>
-                <th class="px-4 py-3 text-right">Profit</th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
+
+        <!-- Desktop Cashier Table -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="mt-4 w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <tr>
+                        <th class="px-4 py-3">Kasir</th>
+                        <th class="px-4 py-3 text-right">Transaksi</th>
+                        <th class="px-4 py-3 text-right">Penjualan</th>
+                        <th class="px-4 py-3 text-right">Profit</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                @forelse ($report['cashiers'] as $cashier)
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-slate-700">{{ $cashier['name'] }}</td>
+                        <td class="px-4 py-3 text-right text-slate-600">{{ $cashier['transactions'] }}</td>
+                        <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($cashier['sales'], 0, ',', '.') }}</td>
+                        <td class="px-4 py-3 text-right text-emerald-600">Rp {{ number_format($cashier['profit'], 0, ',', '.') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Belum ada transaksi pada periode ini.</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cashier Cards -->
+        <div class="mt-4 md:hidden space-y-3">
             @forelse ($report['cashiers'] as $cashier)
-                <tr>
-                    <td class="px-4 py-3 font-medium text-slate-700">{{ $cashier['name'] }}</td>
-                    <td class="px-4 py-3 text-right text-slate-600">{{ $cashier['transactions'] }}</td>
-                    <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($cashier['sales'], 0, ',', '.') }}</td>
-                    <td class="px-4 py-3 text-right text-emerald-600">Rp {{ number_format($cashier['profit'], 0, ',', '.') }}</td>
-                </tr>
+                <div class="rounded-xl border border-slate-100 bg-emerald-50/30 p-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+                        <span class="font-bold text-slate-800">{{ $cashier['name'] }}</span>
+                        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+                            {{ $cashier['transactions'] }} Trx
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[10px] uppercase text-slate-400">Penjualan</p>
+                            <p class="text-sm font-semibold text-slate-700">Rp {{ number_format($cashier['sales'], 0, ',', '.') }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] uppercase text-slate-400">Profit</p>
+                            <p class="text-sm font-semibold text-emerald-600">Rp {{ number_format($cashier['profit'], 0, ',', '.') }}</p>
+                        </div>
+                    </div>
+                </div>
             @empty
-                <tr>
-                    <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Belum ada transaksi pada periode ini.</td>
-                </tr>
+                <p class="text-center text-sm text-slate-500 py-4">Belum ada data kasir.</p>
             @endforelse
-            </tbody>
-        </table>
+        </div>
     </div>
 @endsection
 
@@ -169,6 +227,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             ticks: {

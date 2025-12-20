@@ -32,6 +32,10 @@ class ReportController extends Controller
 
     public function profit(ReportFilterRequest $request)
     {
+        if (!auth()->user()->hasPermission('view_profit')) {
+            abort(403);
+        }
+
         $filters = $request->validated();
         $users = User::orderBy('name')->get(['id', 'name']);
         $report = $this->reportService->aggregate(
