@@ -74,7 +74,7 @@
                                 <a href="{{ route('customers.edit', $customer) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
                                     Edit
                                 </a>
-                                <form action="{{ route('customers.destroy', $customer) }}" method="POST" onsubmit="return confirm('Hapus data pelanggan?')" class="inline">
+                                <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="delete-form inline" data-message="Hapus pelanggan {{ $customer->name }}?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-500 hover:bg-red-50">
@@ -146,7 +146,7 @@
                     <a href="{{ route('customers.edit', $customer) }}" class="flex-1 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
                         Edit
                     </a>
-                    <form action="{{ route('customers.destroy', $customer) }}" method="POST" onsubmit="return confirm('Hapus data pelanggan?')" class="flex-1">
+                    <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="delete-form flex-1" data-message="Hapus pelanggan {{ $customer->name }}?">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100">

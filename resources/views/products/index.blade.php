@@ -63,7 +63,7 @@
             <button type="submit" name="selected" value="1" class="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100 transition-all">
                 🖨️ Cetak Barcode Terpilih
             </button>
-            <button type="submit" name="all" value="1" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 transition-all" onclick="return confirm('Cetak barcode untuk SEMUA produk?')">
+            <button type="button" id="btn-print-all-barcode" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 transition-all">
                 📑 Cetak Semua Barcode
             </button>
         </div>
@@ -124,7 +124,7 @@
                                 <a href="{{ route('products.edit', $product) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
                                     Edit
                                 </a>
-                                <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk ini?')" class="inline">
+                                <form action="{{ route('products.destroy', $product) }}" method="POST" class="delete-form inline" data-message="Hapus produk {{ $product->name }}?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-500 hover:bg-red-50">
@@ -201,7 +201,7 @@
                     <a href="{{ route('products.edit', $product) }}" class="flex-1 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
                         Edit
                     </a>
-                    <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk ini?')" class="flex-1">
+                    <form action="{{ route('products.destroy', $product) }}" method="POST" class="delete-form flex-1" data-message="Hapus produk {{ $product->name }}?">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100">
@@ -292,6 +292,30 @@
                     return false;
                 }
             }
+        });
+
+        $('#btn-print-all-barcode').on('click', function() {
+            Swal.fire({
+                title: 'Cetak Semua Barcode?',
+                text: 'Ini akan membuka halaman barcode untuk seluruh produk aktif.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Cetak!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const $form = $('#bulk-action-form');
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'all',
+                        value: '1'
+                    }).appendTo($form);
+                    $form.submit();
+                }
+            });
         });
     });
 </script>

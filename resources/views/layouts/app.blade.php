@@ -310,6 +310,7 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(function () {
             const $body = $('body');
@@ -524,6 +525,29 @@
                 value = new Intl.NumberFormat('id-ID', { style: 'decimal', minimumFractionDigits: 0 }).format(Number(value));
             }
             this.value = value;
+        });
+
+        $(document).on('submit', '.delete-form', function(e) {
+            e.preventDefault();
+            const form = this;
+            const message = $(form).data('message') || 'Data ini akan dihapus permanen!';
+            
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                borderRadius: '1rem'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
         });
     </script>
     @stack('scripts')

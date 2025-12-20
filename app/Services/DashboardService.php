@@ -69,10 +69,12 @@ class DashboardService
             ->all();
     }
 
-    public function lowStockProducts(int $limit = 5): array
+    public function lowStockProducts(int $limit = 10): array
     {
         return Product::select('id', 'name', 'sku', 'stock', 'stock_alert')
-            ->orderByRaw('CASE WHEN stock_alert > 0 THEN GREATEST(0, CAST(stock AS SIGNED) - CAST(stock_alert AS SIGNED)) ELSE stock END ASC')
+            ->where('stock_alert', '>', 0)
+            ->whereColumn('stock', '<=', 'stock_alert')
+            ->orderBy('stock', 'asc')
             ->limit($limit)
             ->get()
             ->map(static function ($product) {
@@ -82,7 +84,7 @@ class DashboardService
                     'sku' => $product->sku,
                     'stock' => (int) $product->stock,
                     'stock_alert' => (int) $product->stock_alert,
-                    'is_low' => $product->stock_alert > 0 && $product->stock <= $product->stock_alert,
+                    'is_low' => true,
                 ];
             })
             ->all();
@@ -90,11 +92,14 @@ class DashboardService
 
     public function dashboardData(): array
     {
+        $stockAlerts = $this->lowStockProducts();
+        
         return [
             'chart' => $this->salesLastSevenDays(),
             'today' => $this->todaySummary(),
             'top_products' => $this->topProducts(),
-            'stock_alerts' => $this->lowStockProducts(),
+            'stock_alerts' => $stockAlerts,
+            'low_stock_count' => count($stockAlerts),
         ];
     }
 }

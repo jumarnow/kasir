@@ -45,7 +45,7 @@
                                 <a href="{{ route('categories.edit', $category) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
                                     Edit
                                 </a>
-                                <form action="{{ route('categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Hapus kategori ini?')" class="inline">
+                                <form action="{{ route('categories.destroy', $category) }}" method="POST" class="delete-form inline" data-message="Hapus kategori {{ $category->name }}?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-500 hover:bg-red-50">
@@ -88,7 +88,7 @@
                     <a href="{{ route('categories.edit', $category) }}" class="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 hover:bg-slate-50">
                         Edit
                     </a>
-                    <form action="{{ route('categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Hapus kategori ini?')" class="flex-1">
+                    <form action="{{ route('categories.destroy', $category) }}" method="POST" class="delete-form flex-1" data-message="Hapus kategori {{ $category->name }}?">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100">

@@ -85,7 +85,7 @@
         </div>
     </div>
 
-    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+    <div class="mt-4 grid gap-4 lg:grid-cols-2" id="stock-alerts-section">
         <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-200">
             <h2 class="text-base font-semibold text-slate-800">Stok Produk</h2>
             <p class="text-xs text-slate-500">Pantau stok kritis dan stok aman</p>
@@ -196,5 +196,21 @@
                 }
             });
         }
+    </script>
+
+    <script>
+        $(function() {
+            const lowStockCount = {{ $data['low_stock_count'] ?? 0 }};
+            if (lowStockCount > 0) {
+                Swal.fire({
+                    title: 'Peringatan Stok!',
+                    text: `Ada ${lowStockCount} produk yang stoknya sudah menipis (di bawah batas alert).`,
+                    icon: 'warning',
+                    confirmButtonColor: '#4f46e5',
+                    confirmButtonText: 'Oke',
+                    footer: '<a href="#stock-alerts-section" style="color: #4f46e5; font-size: 12px; font-weight: 600;">Lihat daftar di bawah</a>'
+                });
+            }
+        });
     </script>
 @endpush

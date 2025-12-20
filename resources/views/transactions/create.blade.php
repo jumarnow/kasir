@@ -133,7 +133,8 @@
                                                 data-price-2="{{ $product->price_2 ?? 0 }}"
                                                 data-price-3="{{ $product->price_3 ?? 0 }}"
                                                 data-cost="{{ $product->cost_price ?? $product->price }}" 
-                                                data-stock="{{ $product->stock }}">
+                                                data-stock="{{ $product->stock }}"
+                                                data-stock-alert="{{ $product->stock_alert ?? 0 }}">
                                                 {{ $product->name }} (Stok: {{ $product->stock }})
                                             </option>
                                         @endforeach
@@ -564,12 +565,27 @@
 
         function addProductToCart(product) {
             const existing = cart.find(item => item.id === product.id);
+            const stockAlert = Number(product.stock_alert || 0);
+            
             if (existing) {
                 if (existing.quantity + 1 > product.stock) {
                     alert('Stok produk tidak mencukupi.');
                     return;
                 }
                 existing.quantity += 1;
+                
+                // Cek jika stok setelah dikurangi quantity menjadi menipis
+                if (stockAlert > 0 && (product.stock - existing.quantity) <= stockAlert) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: `Stok menipis: ${product.name}`,
+                        text: `Sisa stok: ${product.stock - existing.quantity}`,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
             } else {
                 if (product.stock < 1) {
                     alert('Stok produk habis.');
@@ -593,8 +609,22 @@
                     price_3: Number(product.price_3 || 0),
                     cost_price: Number(product.cost_price ?? product.price),
                     stock: product.stock,
+                    stock_alert: stockAlert,
                     quantity: 1,
                 });
+
+                // Cek jika stok awal memang sudah menipis
+                if (stockAlert > 0 && (product.stock - 1) <= stockAlert) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: `Stok menipis: ${product.name}`,
+                        text: `Sisa stok: ${product.stock - 1}`,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
             }
             renderCart();
         }
@@ -696,16 +726,33 @@
             $('#cart-items, #cart-items-mobile').on('change', '.qty-input', function () {
                 const index = $(this).data('index');
                 const quantity = Number($(this).val());
+                const item = cart[index];
+
                 if (quantity < 1) {
-                    $(this).val(cart[index].quantity);
+                    $(this).val(item.quantity);
                     return;
                 }
-                if (quantity > cart[index].stock) {
+                if (quantity > item.stock) {
                     alert('Stok tidak mencukupi.');
-                    $(this).val(cart[index].stock);
+                    $(this).val(item.stock);
                     return;
                 }
-                cart[index].quantity = quantity;
+                
+                item.quantity = quantity;
+                
+                // Cek stok menipis saat perubahan quantity
+                if (item.stock_alert > 0 && (item.stock - item.quantity) <= item.stock_alert) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: `Stok menipis: ${item.name}`,
+                        text: `Sisa stok: ${item.stock - item.quantity}`,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+
                 renderCart();
             });
 
