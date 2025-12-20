@@ -46,10 +46,15 @@
 <body>
     <div class="invoice">
         <div class="invoice-header">
-            <div>
-                <div class="brand">{{ $settings['store_name'] ?? 'Kasir Modern' }}</div>
-                <div style="color:#64748b;font-size:12px;margin-top:4px;">{{ $settings['store_address'] ?? '' }}</div>
-                <div style="color:#64748b;font-size:12px;">{{ $settings['store_phone'] ?? '' }}</div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                @if(isset($settings['store_logo']) && $settings['store_logo'])
+                    <img src="{{ Storage::url($settings['store_logo']) }}" alt="Logo" style="height: 60px; width: auto; object-fit: contain;">
+                @endif
+                <div>
+                    <div class="brand">{{ $settings['store_name'] ?? 'Kasir Modern' }}</div>
+                    <div style="color:#64748b;font-size:12px;margin-top:4px;">{{ $settings['store_address'] ?? '' }}</div>
+                    <div style="color:#64748b;font-size:12px;">{{ $settings['store_phone'] ?? '' }}</div>
+                </div>
             </div>
             <div class="meta">
                 <div>Invoice : <strong>{{ $transaction->invoice_number }}</strong></div>

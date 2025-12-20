@@ -86,27 +86,37 @@
                             Tampilkan
                         </button>
                     </div>
-                    <div id="customer-section-body" class="mt-4 hidden">
-                        <div class="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <label class="text-xs uppercase text-slate-500">Pelanggan</label>
-                                <button type="button" id="btn-quick-customer" class="text-xs font-medium text-indigo-600 hover:underline">
-                                    + Baru
-                                </button>
-                            </div>
-                            <select name="customer_id" id="customer-select" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                                <option value="" data-price-tier="1">Umum</option>
-                                @foreach ($customers as $customer)
-                                    <option value="{{ $customer->id }}" data-price-tier="{{ $customer->price_tier ?? 1 }}" @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs uppercase text-slate-500">Catatan</label>
-                            <input type="text" name="notes" value="{{ old('notes') }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Catatan khusus">
-                        </div>
-                        </div>
+                    <div id="customer-section-body" class="mt-4 hidden overflow-hidden rounded-xl border border-slate-200">
+                        <table class="min-w-full divide-y divide-slate-200">
+                            <tbody class="divide-y divide-slate-100 bg-white">
+                                <tr class="flex flex-col md:table-row">
+                                    <td class="w-full md:w-1/3 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 block md:table-cell">
+                                        <div class="flex items-center justify-between">
+                                            <span>Pelanggan</span>
+                                            <button type="button" id="btn-quick-customer" class="text-[10px] font-bold text-indigo-600 hover:underline">
+                                                + BARU
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2 block md:table-cell">
+                                        <select name="customer_id" id="customer-select" class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-sm focus:ring-0">
+                                            <option value="" data-price-tier="1">Umum</option>
+                                            @foreach ($customers as $customer)
+                                                <option value="{{ $customer->id }}" data-price-tier="{{ $customer->price_tier ?? 1 }}" @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr class="flex flex-col md:table-row">
+                                    <td class="w-full md:w-1/3 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 block md:table-cell">
+                                        Catatan
+                                    </td>
+                                    <td class="px-4 py-2 block md:table-cell">
+                                        <input type="text" name="notes" value="{{ old('notes') }}" class="w-full border-none bg-transparent px-0 py-1 text-sm focus:ring-0" placeholder="Tambahkan catatan khusus transaksi...">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 

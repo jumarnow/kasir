@@ -117,15 +117,16 @@
             ];
         @endphp
         <aside id="sidebar" class="sidebar hidden md:flex md:flex-col bg-white border-r border-slate-200">
-            <div class="px-6 py-8 border-b border-slate-200 flex items-center gap-3 sidebar-brand">
-                @if(isset($settings['store_logo']) && $settings['store_logo'])
-                    <img src="{{ Storage::url($settings['store_logo']) }}" alt="Logo" class="h-10 w-auto object-contain sidebar-brand-icon">
+            <div class="px-4 py-4 border-b border-slate-200 flex items-center gap-3 sidebar-brand">
+                @if(isset($settings['store_logo']))
+                    <img src="{{ Storage::url($settings['store_logo']) }}" alt="Logo" class="h-8 w-auto object-contain">
                 @else
-                    <span class="text-2xl sidebar-brand-icon" aria-hidden="true">🛒</span>
+                    <div class="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center text-xl">
+                        🛒
+                    </div>
                 @endif
-                <div class="flex flex-col">
-                    <span class="text-lg font-semibold text-indigo-600 sidebar-brand-text">{{ $settings['store_name'] ?? 'Kasir Modern' }}</span>
-                    <p class="text-sm text-slate-500 mt-1 sidebar-description">Dashboard kasir &amp; laporan</p>
+                <div class="flex flex-col sidebar-brand-text-container">
+                    <span class="text-sm font-bold text-indigo-600 truncate sidebar-brand-text">{{ $settings['store_name'] ?? 'Kasir Modern' }}</span>
                 </div>
             </div>
             <nav class="flex-1 px-4 py-6 space-y-1">
