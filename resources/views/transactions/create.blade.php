@@ -6,6 +6,9 @@
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
     <style>
+        .select2-container {
+            width: 100% !important;
+        }
         .select2-container .select2-selection--single {
             height: auto;
             padding: 0.5rem 0.75rem;
@@ -16,8 +19,8 @@
         }
         .select2-container--default .select2-selection--single .select2-selection__rendered {
             color: rgb(51 65 85);
-            font-size: 0.875rem;
-            line-height: 1.25rem;
+            font-size: 1rem;
+            line-height: 1.5rem;
             padding: 0;
         }
         .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -29,7 +32,7 @@
             border: 1px solid rgb(226 232 240);
         }
         .select2-results__option {
-            font-size: 0.875rem;
+            font-size: 1rem;
         }
     </style>
 @endpush
@@ -99,7 +102,7 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-2 block md:table-cell">
-                                        <select name="customer_id" id="customer-select" class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-sm focus:ring-0">
+                                        <select name="customer_id" id="customer-select" class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0">
                                             <option value="" data-price-tier="1">Umum</option>
                                             @foreach ($customers as $customer)
                                                 <option value="{{ $customer->id }}" data-price-tier="{{ $customer->price_tier ?? 1 }}" @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
@@ -112,7 +115,7 @@
                                         Catatan
                                     </td>
                                     <td class="px-4 py-2 block md:table-cell">
-                                        <input type="text" name="notes" value="{{ old('notes') }}" class="w-full border-none bg-transparent px-0 py-1 text-sm focus:ring-0" placeholder="Tambahkan catatan khusus transaksi...">
+                                        <input type="text" name="notes" value="{{ old('notes') }}" class="w-full border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0" placeholder="Tambahkan catatan khusus transaksi...">
                                     </td>
                                 </tr>
                             </tbody>
@@ -129,13 +132,13 @@
                         <div class="flex flex-col gap-3 sm:flex-row">
                             <div class="relative flex-1">
                                 <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Barcode / SKU</label>
-                                <input type="text" id="barcode-input" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Scan..." autofocus>
+                                <input type="text" id="barcode-input" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Scan..." autofocus>
                                 <span class="absolute inset-y-0 right-3 top-7 flex items-center text-slate-400">📷</span>
                             </div>
                             <div class="flex items-end gap-2 flex-1">
                                 <div class="flex-1">
                                     <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pilih Produk</label>
-                                    <select id="product-select" class="mt-1 w-full lg:w-60 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                    <select id="product-select" class="mt-1 w-full lg:w-60 rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                         <option value="">-- Pilih Produk --</option>
                                         @foreach ($products as $product)
                                             <option value="{{ $product->id }}" 

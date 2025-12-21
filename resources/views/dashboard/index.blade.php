@@ -4,7 +4,7 @@
 @section('subtitle', 'Ringkasan penjualan dan performa toko')
 
 @section('content')
-    <div class="grid gap-4 lg:grid-cols-3">
+    <div class="grid gap-4 lg:grid-cols-3 overflow-hidden">
         <div class="lg:col-span-2 grid gap-4 sm:grid-cols-3">
             <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
                 <p class="text-xs text-slate-500">Penjualan Hari Ini</p>
