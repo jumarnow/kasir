@@ -4,7 +4,7 @@
 @section('subtitle', 'Pantau profit bersih toko Anda')
 
 @section('content')
-    <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+    <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
         <form method="GET" action="{{ route('reports.profit') }}" class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             <div>
                 <label class="text-xs uppercase text-slate-500">Tanggal Mulai</label>
@@ -37,25 +37,25 @@
         </form>
     </div>
 
-    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+    <div class="mt-6 grid gap-3 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
             <p class="text-xs uppercase text-slate-500">Total Profit</p>
             <p class="mt-2 text-3xl font-semibold text-emerald-600">Rp {{ number_format($report['summary']['profit'], 0, ',', '.') }}</p>
             <p class="mt-3 text-xs text-slate-400">Periode {{ $report['range']['start'] }} - {{ $report['range']['end'] }}</p>
         </div>
-        <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
             <p class="text-xs uppercase text-slate-500">Total Penjualan</p>
             <p class="mt-2 text-3xl font-semibold text-indigo-500">Rp {{ number_format($report['summary']['sales'], 0, ',', '.') }}</p>
             <p class="mt-3 text-xs text-slate-400">Menjadi dasar perhitungan profit</p>
         </div>
-        <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
             <p class="text-xs uppercase text-slate-500">Transaksi</p>
             <p class="mt-2 text-3xl font-semibold text-slate-700">{{ $report['summary']['transactions'] }}</p>
             <p class="mt-3 text-xs text-slate-400">Profit rata-rata Rp {{ $report['summary']['transactions'] ? number_format($report['summary']['profit'] / max(1, $report['summary']['transactions']), 0, ',', '.') : 0 }}</p>
         </div>
     </div>
 
-    <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+    <div class="mt-6 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-lg font-semibold text-slate-800">Grafik Profit</h2>
@@ -77,7 +77,7 @@
         </div>
     </div>
 
-    <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+    <div class="mt-6 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
         <h2 class="text-lg font-semibold text-slate-800">Detail Profit</h2>
         
         <!-- Desktop Detail Table -->
@@ -133,7 +133,7 @@
         </div>
     </div>
 
-    <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+    <div class="mt-6 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-lg font-semibold text-slate-800">Performa Kasir</h2>

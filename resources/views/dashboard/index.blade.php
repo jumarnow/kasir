@@ -4,139 +4,184 @@
 @section('subtitle', 'Ringkasan penjualan dan performa toko')
 
 @section('content')
-    <div class="grid gap-4 lg:grid-cols-3 overflow-hidden">
-        <div class="lg:col-span-2 grid gap-4 sm:grid-cols-3">
-            <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
-                <p class="text-xs text-slate-500">Penjualan Hari Ini</p>
-                <p class="mt-2 text-2xl font-semibold text-indigo-600">
-                    Rp {{ number_format($data['today']['sales'], 0, ',', '.') }}
-                </p>
-                <p class="mt-2 inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600">
-                    {{ $data['today']['transactions'] }} transaksi
-                </p>
-            </div>
-            @if ($canViewProfit)
-            <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
-                <p class="text-xs text-slate-500">Profit Hari Ini</p>
-                <p class="mt-2 text-2xl font-semibold text-emerald-600">
-                    Rp {{ number_format($data['today']['profit'], 0, ',', '.') }}
-                </p>
-                <p class="mt-2 text-xs text-emerald-600">Profit bersih setelah diskon</p>
-            </div>
-            @endif
-            <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
-                <p class="text-xs text-slate-500">Rata-rata Transaksi</p>
-                <p class="mt-2 text-2xl font-semibold text-slate-700">
-                    Rp {{ $data['today']['transactions'] ? number_format($data['today']['sales'] / max(1, $data['today']['transactions']), 0, ',', '.') : 0 }}
-                </p>
-                <p class="mt-2 text-xs text-slate-500">Nominal per transaksi</p>
-            </div>
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-lg font-semibold text-slate-800">Dashboard</h2>
+            <p class="text-sm text-slate-500">Ringkasan penjualan dan performa toko hari ini</p>
         </div>
-        <div class="lg:col-span-1 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 p-5 text-white shadow-lg">
-            <p class="text-xs opacity-80">Quick Insight</p>
-            <h2 class="mt-3 text-xl font-semibold">Penjualan stabil</h2>
-            <p class="mt-2 text-xs opacity-80">
-                Pantau performa kasir, stok menipis, dan produk terlaris melalui dashboard interaktif.
-            </p>
-            <ul class="mt-4 space-y-2 text-xs">
-                <li class="flex items-center gap-2">
-                    <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-                    Penjualan 7 hari diringkas
-                </li>
-                <li class="flex items-center gap-2">
-                    <span class="h-2.5 w-2.5 rounded-full bg-white"></span>
-                    Alert stok produk kritis
-                </li>
-            </ul>
+        <div class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+            @if ($permissions['transactions'] ?? false)
+                <a href="{{ route('transactions.create') }}" class="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 transition-all">
+                    + Transaksi Baru
+                </a>
+            @endif
         </div>
     </div>
 
-    <div class="mt-4 grid gap-4 lg:grid-cols-3">
-        <div class="lg:col-span-2 rounded-xl bg-white p-5 shadow-sm border border-slate-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-semibold text-slate-800">Grafik Penjualan 7 Hari</h2>
-                    <p class="text-xs text-slate-500">Tren penjualan harian minggu ini</p>
+    <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2 grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-3">
+            <div class="rounded-2xl bg-white p-4 md:p-5 shadow-sm border border-slate-200 hover:border-indigo-100 transition-all">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Penjualan Hari Ini</p>
+                <p class="mt-3 text-2xl font-bold text-indigo-600">
+                    Rp {{ number_format($data['today']['sales'], 0, ',', '.') }}
+                </p>
+                <div class="mt-4 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600">
+                    {{ $data['today']['transactions'] }} transaksi
                 </div>
             </div>
-            <div class="mt-4">
-                <canvas id="salesChart" height="120"></canvas>
+
+            @if ($canViewProfit)
+            <div class="rounded-2xl bg-white p-4 md:p-5 shadow-sm border border-slate-200 hover:border-emerald-100 transition-all">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Profit Hari Ini</p>
+                <p class="mt-3 text-2xl font-bold text-emerald-600">
+                    Rp {{ number_format($data['today']['profit'], 0, ',', '.') }}
+                </p>
+                <p class="mt-4 text-[10px] sm:text-xs text-emerald-600 font-medium">Profit bersih setelah diskon</p>
+            </div>
+            @endif
+
+            <div class="rounded-2xl bg-white p-4 md:p-5 shadow-sm border border-slate-200 hover:border-slate-300 transition-all">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Rata-rata Transaksi</p>
+                <p class="mt-3 text-2xl font-bold text-slate-800">
+                    Rp {{ $data['today']['transactions'] ? number_format($data['today']['sales'] / max(1, $data['today']['transactions']), 0, ',', '.') : 0 }}
+                </p>
+                <p class="mt-4 text-[10px] sm:text-xs text-slate-500 font-medium">Nominal per transaksi</p>
             </div>
         </div>
 
-        <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-200">
-            <h2 class="text-base font-semibold text-slate-800">Produk Terlaris</h2>
-            <p class="text-xs text-slate-500">Periode 30 hari terakhir</p>
-            <ul class="mt-3 space-y-3">
+        <div class="lg:col-span-1 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-6 text-white shadow-lg shadow-indigo-100 relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-xs font-bold uppercase tracking-wider opacity-70">Quick Insight</p>
+                <h2 class="mt-4 text-xl font-bold">Performa Bisnis</h2>
+                <p class="mt-2 text-sm opacity-85 leading-relaxed">
+                    Pantau grafik penjualan, stok produk kritis, dan daftar produk terlaris secara real-time.
+                </p>
+                <div class="mt-6 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-tight backdrop-blur-md">
+                        7 Hari Terakhir
+                    </span>
+                    <span class="rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-tight backdrop-blur-md">
+                        Stok Alert
+                    </span>
+                </div>
+            </div>
+            <div class="absolute -right-6 -bottom-6 text-white/10 transform -rotate-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">Grafik Penjualan</h2>
+                    <p class="text-xs text-slate-500">Tren penjualan 7 hari terakhir</p>
+                </div>
+                <div class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></div>
+            </div>
+            <div class="relative">
+                <canvas id="salesChart" height="140"></canvas>
+            </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+            <div class="mb-6">
+                <h2 class="text-base font-bold text-slate-800">Produk Terlaris</h2>
+                <p class="text-xs text-slate-500">Berdasarkan kuantitas (30 hari)</p>
+            </div>
+            <ul class="space-y-3">
                 @forelse ($data['top_products'] as $product)
-                    <li class="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2.5">
-                        <div>
-                            <p class="text-sm font-medium text-slate-700">{{ $product['name'] }}</p>
-                            <p class="text-xs text-slate-400">SKU: {{ $product['sku'] }}</p>
+                    <li class="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-slate-50 hover:border-slate-200">
+                        <div class="flex-1 min-w-0 mr-4">
+                            <p class="text-sm font-bold text-slate-800 truncate">{{ $product['name'] }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">SKU: {{ $product['sku'] }}</p>
                         </div>
-                        <span class="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600">
-                            {{ $product['quantity'] }} terjual
-                        </span>
+                        <div class="text-right">
+                            <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold text-indigo-600 border border-indigo-50 shadow-sm">
+                                {{ $product['quantity'] }}
+                            </span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Terjual</p>
+                        </div>
                     </li>
                 @empty
-                    <p class="text-sm text-slate-500">Belum ada data transaksi.</p>
+                    <div class="py-8 text-center text-sm text-slate-500 italic">Belum ada data transaksi.</div>
                 @endforelse
             </ul>
         </div>
     </div>
 
-    <div class="mt-4 grid gap-4 lg:grid-cols-2" id="stock-alerts-section">
-        <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-200">
-            <h2 class="text-base font-semibold text-slate-800">Stok Produk</h2>
-            <p class="text-xs text-slate-500">Pantau stok kritis dan stok aman</p>
-            <div class="mt-3 space-y-3">
+    <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-2" id="stock-alerts-section">
+        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">Stok Produk</h2>
+                    <p class="text-xs text-slate-500">Pantau produk dengan stok kritis</p>
+                </div>
+                <a href="{{ route('products.index') }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-500">Lihat Semua</a>
+            </div>
+            <div class="space-y-3">
                 @forelse ($data['stock_alerts'] as $product)
-                    <div class="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2.5">
-                        <div>
-                            <p class="text-sm font-medium text-slate-700">{{ $product['name'] }}</p>
-                            <p class="text-xs text-slate-400">SKU: {{ $product['sku'] }}</p>
+                    <div class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-white hover:border-slate-200 hover:shadow-sm">
+                        <div class="flex-1 min-w-0 mr-4">
+                            <p class="text-sm font-bold text-slate-800 truncate">{{ $product['name'] }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">SKU: {{ $product['sku'] }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-semibold {{ $product['is_low'] ? 'text-red-500' : 'text-emerald-600' }}">
-                                {{ $product['stock'] }} stok
+                            <p class="text-sm font-bold {{ $product['is_low'] ? 'text-red-500' : 'text-emerald-600' }}">
+                                {{ $product['stock'] }} unit
                             </p>
-                            <p class="text-xs text-slate-400">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
                                 Alert: {{ $product['stock_alert'] ?: '-' }}
                             </p>
                         </div>
                     </div>
                 @empty
-                    <p class="text-sm text-slate-500">Belum ada data stok.</p>
+                    <div class="py-8 text-center text-sm text-slate-500 italic">Semua stok dalam kondisi aman.</div>
                 @endforelse
             </div>
         </div>
 
-        <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-200">
-            <h2 class="text-base font-semibold text-slate-800">Catatan</h2>
-            <p class="text-xs text-slate-500">Tips operasional kasir hari ini</p>
-            <ul class="mt-3 space-y-2 text-sm text-slate-600">
-                <li class="flex items-start gap-2">
-                    <span class="mt-0.5 text-indigo-500">•</span>
-                    Gunakan fitur pemindaian barcode untuk mempercepat transaksi.
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="mt-0.5 text-indigo-500">•</span>
-                    Pastikan stok produk ter-update setelah setiap transaksi.
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="mt-0.5 text-indigo-500">•</span>
-                    Manfaatkan laporan penjualan untuk melihat performa kasir.
-                </li>
-            </ul>
-            <div class="flex flex-wrap gap-2 mt-4">
-                <a href="{{ route('reports.sales') }}" class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
-                    Lihat laporan penjualan
+        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="mb-6 relative z-10">
+                <h2 class="text-base font-bold text-slate-800">Aksi & Laporan</h2>
+                <p class="text-xs text-slate-500">Akses cepat ke menu utama</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
+                <a href="{{ route('reports.sales') }}" class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-100 hover:shadow-md transition-all group">
+                    <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">💰</span>
+                    <span class="font-bold text-sm text-slate-800">Laporan Penjualan</span>
+                    <span class="text-xs text-slate-500 mt-1">Analisis histori transaksi</span>
                 </a>
+                
                 @if ($canViewProfit)
-                    <a href="{{ route('reports.profit') }}" class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3.5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500">
-                        Lihat laporan profit
+                    <a href="{{ route('reports.profit') }}" class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-emerald-100 hover:shadow-md transition-all group">
+                        <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">📈</span>
+                        <span class="font-bold text-sm text-slate-800">Laporan Profit</span>
+                        <span class="text-xs text-slate-500 mt-1">Pantau laba bersih harian</span>
                     </a>
                 @endif
+                
+                <a href="{{ route('products.index') }}" class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-100 hover:shadow-md transition-all group">
+                    <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">📦</span>
+                    <span class="font-bold text-sm text-slate-800">Kelola Produk</span>
+                    <span class="text-xs text-slate-500 mt-1">Update harga & stok</span>
+                </a>
+                
+                <a href="{{ route('transactions.index') }}" class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-100 hover:shadow-md transition-all group">
+                    <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">🧾</span>
+                    <span class="font-bold text-sm text-slate-800">Riwayat Transaksi</span>
+                    <span class="text-xs text-slate-500 mt-1">Cetak ulang invoice</span>
+                </a>
+            </div>
+            
+            <div class="absolute -right-4 top-0 text-slate-50/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-48 w-48" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </svg>
             </div>
         </div>
     </div>
