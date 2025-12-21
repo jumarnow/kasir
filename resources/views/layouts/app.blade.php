@@ -241,7 +241,7 @@
                     </form>
                 </div>
             </header>
-            <main class="px-4 md:px-5 py-6">
+            <main class="px-3 md:px-5 py-6">
                 @if (session('success'))
                     <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                         {{ session('success') }}
