@@ -5,9 +5,35 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.2/dist/slimselect.css">
     <style>
+        /* Select2 Custom Styling */
         .select2-container {
             width: 100% !important;
+        }
+        /* Slim Select Custom Styling */
+        .ss-main {
+            padding: 0.15rem 0.5rem !important;
+            border-radius: 0.75rem !important;
+            border: 1px solid rgb(226 232 240) !important;
+            min-height: 42px;
+        }
+        .ss-main:focus {
+            box-shadow: 0 0 0 2px rgb(199 210 254) !important;
+            border-color: rgb(99 102 241) !important;
+        }
+        .ss-content {
+            border-radius: 0.75rem !important;
+            border: 1px solid rgb(226 232 240) !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        }
+        .ss-list .ss-option:hover {
+            background-color: rgb(248 250 252) !important;
+            color: rgb(79 70 229) !important;
+        }
+        .ss-list .ss-option.ss-selected {
+            background-color: rgb(238 242 255) !important;
+            color: rgb(79 70 229) !important;
         }
         .select2-container .select2-selection--single {
             height: auto;
@@ -316,14 +342,13 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.2/dist/slimselect.min.js"></script>
     <script>
         const productsData = @json($products);
         const customersData = @json($customers);
         const cart = [];
         const printWindowFeatures = 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes';
-        let $addProductButton;
-        let $submitButton;
-        let $productSelect;
+        let $addProductButton, $submitButton, $productSelect, productSlimSelect;
         let $printInvoiceInput;
         let $printShippingInput;
         let $printModal;
@@ -654,11 +679,23 @@
 
         $(function () {
             const $barcodeInput = $('#barcode-input');
-            $productSelect = $('#product-select').select2({
-                placeholder: '-- Pilih Produk --',
-                allowClear: true,
-                width: 'resolve',
+            
+            // Initialize Slim Select for product select
+            productSlimSelect = new SlimSelect({
+                select: '#product-select',
+                settings: {
+                    placeholderText: '-- Pilih Produk --',
+                    allowDeselect: true,
+                },
+                events: {
+                    afterChange: (newVal) => {
+                        toggleAddButton();
+                    }
+                }
             });
+
+            $productSelect = $('#product-select');
+
             $('#customer-select').select2({
                 placeholder: '-- Pilih Pelanggan --',
                 allowClear: true,
@@ -725,7 +762,7 @@
                 const product = productsData.find(p => p.id == productId);
                 if (product) {
                     addProductToCart(product);
-                    $productSelect.val(null).trigger('change');
+                    productSlimSelect.setSelected('');
                     toggleAddButton();
                 }
             });
