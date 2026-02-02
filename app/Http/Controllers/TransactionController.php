@@ -39,7 +39,10 @@ class TransactionController extends Controller
             ->take(50)
             ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'min_width', 'min_length']);
 
-        return view('transactions.create', compact('customers', 'products'));
+        $finishings = \App\Models\Finishing::all();
+        $displays = \App\Models\Display::all();
+
+        return view('transactions.create', compact('customers', 'products', 'finishings', 'displays'));
     }
 
     public function store(StoreTransactionRequest $request)

@@ -28,6 +28,10 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], 'products-bulk/barcode', [ProductController::class, 'bulkBarcode'])->name('products.bulk_barcode');
         Route::get('products/{product}/barcode', [ProductController::class, 'barcode'])->name('products.barcode');
         Route::resource('products', ProductController::class)->except('show');
+
+        Route::resource('finishings', App\Http\Controllers\FinishingController::class)->except('show');
+        Route::resource('materials', App\Http\Controllers\MaterialController::class)->except('show');
+        Route::resource('displays', App\Http\Controllers\DisplayController::class)->except('show');
     });
 
     Route::middleware('permission:manage_categories')->group(function () {

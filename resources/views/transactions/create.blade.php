@@ -207,19 +207,44 @@
                                     </select>
                                 </div>
                                 <div id="dimension-inputs" class="hidden flex gap-2">
-                                    <div class="w-20">
+                                    <div class="w-16">
                                         <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">P
                                             (cm)</label>
                                         <input type="number" id="input-length"
                                             class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm text-center focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                             placeholder="0">
                                     </div>
-                                    <div class="w-20">
+                                    <div class="w-16">
                                         <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">L
                                             (cm)</label>
                                         <input type="number" id="input-width"
                                             class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm text-center focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                             placeholder="0">
+                                    </div>
+                                </div>
+                                <!-- Extra options wrapper -->
+                                <div class="hidden flex gap-2" id="extra-inputs">
+                                    <div class="w-24">
+                                        <label
+                                            class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Finishing</label>
+                                        <select id="input-finishing"
+                                            class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                            <option value="">-</option>
+                                            @foreach($finishings as $f)
+                                                <option value="{{ $f->id }}">{{ $f->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="w-24">
+                                        <label
+                                            class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Display</label>
+                                        <select id="input-display"
+                                            class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                            <option value="">-</option>
+                                            @foreach($displays as $d)
+                                                <option value="{{ $d->id }}">{{ $d->name }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <button type="button" id="add-product"
@@ -534,81 +559,140 @@
 
             cart.forEach((item, index) => {
                 const subtotal = item.quantity * item.price;
+                const isDimension = item.pricing_type === 'per_dimension';
 
-                // Build price options
+                // Build price options (only show if not dimension pricing?)
+                // Actually even for dimension pricing, base price per meter might change? 
+                // Let's assume price selection is mainly for Unit Items (Tier 1, 2, 3)
+                // For Dimension items, price is calculated, so maybe we show just text or allow override?
+                // For simplicity: If dimension, show formatted price (read-only sort of). 
+                // If unit, show dropdown.
+
+                let priceField = '';
                 let priceOptions = `<option value="${item.price_1}">${formatCurrency(item.price_1)}</option>`;
-                if (item.price_2 > 0) {
-                    priceOptions += `<option value="${item.price_2}">${formatCurrency(item.price_2)}</option>`;
-                }
-                if (item.price_3 > 0) {
-                    priceOptions += `<option value="${item.price_3}">${formatCurrency(item.price_3)}</option>`;
-                }
+                if (item.price_2 > 0) priceOptions += `<option value="${item.price_2}">${formatCurrency(item.price_2)}</option>`;
+                if (item.price_3 > 0) priceOptions += `<option value="${item.price_3}">${formatCurrency(item.price_3)}</option>`;
+
+                priceField = `
+                                     <select class="price-select w-28 rounded-lg border border-slate-200 px-2 py-1 text-sm ${isDimension ? 'bg-slate-100' : ''}" data-index="${index}" ${isDimension ? 'disabled' : ''}>
+                                            ${priceOptions}
+                                     </select>
+                                `;
+
+
+                // Helper to build options
+                const buildOptions = (data, selected) => {
+                    let html = '<option value="">-</option>';
+                    data.forEach(opt => {
+                        const isSel = opt.id == selected ? 'selected' : '';
+                        html += `<option value="${opt.id}" ${isSel}>${opt.name}</option>`;
+                    });
+                    return html;
+                };
+
+                const finishingsOpts = buildOptions(finishingsData, item.finishing_id);
+                const displaysOpts = buildOptions(displaysData, item.display_id);
+
+                // Inputs for Dimensions
+                // If not dimension type, disable or hide inputs? Let's hide or readonly.
+                const dimInputStyle = "w-16 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm";
+                const pInput = isDimension
+                    ? `<input type="number" min="0" class="item-length ${dimInputStyle}" data-index="${index}" value="${item.length || 0}">`
+                    : `<input type="number" disabled class="${dimInputStyle} bg-slate-50 text-slate-400" value="">`;
+
+                const lInput = isDimension
+                    ? `<input type="number" min="0" class="item-width ${dimInputStyle}" data-index="${index}" value="${item.width || 0}">`
+                    : `<input type="number" disabled class="${dimInputStyle} bg-slate-50 text-slate-400" value="">`;
 
                 // Desktop Row
                 const row = $(`
-                        <tr>
-                            <td class="px-4 py-3">
-                                <p class="font-medium text-slate-700">${item.name}</p>
-                                <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <select class="price-select w-32 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">
-                                    ${priceOptions}
-                                </select>
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm" data-index="${index}" value="${item.quantity}">
-                            </td>
-                            <td class="px-4 py-3 text-right font-semibold text-slate-700">
-                                ${formatCurrency(subtotal)}
-                            </td>
-                            <td class="px-4 py-3 text-right">
-                                <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600" data-index="${index}">Hapus</button>
-                            </td>
-                        </tr>
-                    `);
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <p class="font-medium text-slate-700">${item.name}</p>
+                                        <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        ${priceField}
+                                    </td>
+                                     <td class="px-4 py-3 text-center">${pInput}</td>
+                                     <td class="px-4 py-3 text-center">${lInput}</td>
+                                     <td class="px-4 py-3 text-center">
+                                        <select class="item-finishing w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">${finishingsOpts}</select>
+                                     </td>
+                                     <td class="px-4 py-3 text-center">
+                                        <select class="item-display w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">${displaysOpts}</select>
+                                     </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <input type="number" min="1" class="qty-input w-16 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm" data-index="${index}" value="${item.quantity}">
+                                    </td>
+                                    <td class="px-4 py-3 text-right font-semibold text-slate-700">
+                                        ${formatCurrency(subtotal)}
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600" data-index="${index}">Hapus</button>
+                                    </td>
+                                </tr>
+                            `);
 
-                // Set selected price
-                row.find('.price-select').val(item.price);
+                // Set selected price for non-dimension items (visually)
+                if (!isDimension) {
+                    row.find('.price-select').val(item.price);
+                } else {
+                    // For dimension, price is calculated, so we might want to show text instead of select?
+                    // Or just show total unit price
+                    // Let's replace the select with text for dimension items to avoid confusion
+                    row.find('.price-select').parent().html(`<span class="text-sm">${formatCurrency(item.price)}</span>`);
+                }
+
                 tbody.append(row);
 
-                // Mobile Item
+                // Mobile Item - simplified for now, maybe add an "Edit" button for details? 
+                // Or just show inputs linearly.
                 const mobileItem = $(`
-                        <div class="p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <p class="font-medium text-slate-700">${item.name}</p>
-                                    <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <p class="font-medium text-slate-700">${item.name}</p>
+                                        </div>
+                                        <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600 font-medium" data-index="${index}">Hapus</button>
+                                    </div>
+                                     <div class="grid grid-cols-2 gap-2 mb-2">
+                                        ${isDimension
+                        ? `<div><label class="text-[10px] text-slate-400">P</label><input type="number" class="item-length w-full border rounded px-2 py-1" data-index="${index}" value="${item.length || 0}"></div>
+                                               <div><label class="text-[10px] text-slate-400">L</label><input type="number" class="item-width w-full border rounded px-2 py-1" data-index="${index}" value="${item.width || 0}"></div>`
+                        : ''}
+                                        <div><label class="text-[10px] text-slate-400">Finishing</label><select class="item-finishing w-full border rounded px-1 py-1" data-index="${index}">${finishingsOpts}</select></div>
+                                        <div><label class="text-[10px] text-slate-400">Display</label><select class="item-display w-full border rounded px-1 py-1" data-index="${index}">${displaysOpts}</select></div>
+                                     </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-center justify-between">
+                                            <label class="text-xs text-slate-500">Harga</label>
+                                             <span class="text-sm font-medium text-slate-700">${formatCurrency(item.price)}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <label class="text-xs text-slate-500">Qty</label>
+                                            <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-right text-sm" data-index="${index}" value="${item.quantity}">
+                                        </div>
+                                        <div class="flex items-center justify-between pt-2 border-t border-slate-50">
+                                            <span class="text-xs font-semibold text-slate-500">Subtotal</span>
+                                            <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600 font-medium" data-index="${index}">Hapus</button>
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <div class="flex items-center justify-between">
-                                    <label class="text-xs text-slate-500">Harga</label>
-                                    <select class="price-select w-32 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">
-                                        ${priceOptions}
-                                    </select>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <label class="text-xs text-slate-500">Qty</label>
-                                    <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-right text-sm" data-index="${index}" value="${item.quantity}">
-                                </div>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-50">
-                                    <span class="text-xs font-semibold text-slate-500">Subtotal</span>
-                                    <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `);
-                mobileItem.find('.price-select').val(item.price);
+                            `);
                 mobileList.append(mobileItem);
 
                 inputsWrapper.append(`
-                        <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
-                        <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}" class="item-quantity" data-index="${index}">
-                        <input type="hidden" name="items[${index}][price]" value="${item.price}" class="item-price" data-index="${index}">
-                        <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
-                    `);
+                                <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
+                                <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
+                                <input type="hidden" name="items[${index}][price]" value="${item.price}">
+                                <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
+                                <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
+                                <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
+                                <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
+                                <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
+                            `);
             });
 
             updateSummary();
@@ -681,70 +765,73 @@
         }
 
         function addProductToCart(product) {
-            const existing = cart.find(item => item.id === product.id);
+
+            // Allow multiple rows for flexible customization
+            /* 
+               If we wanted to stack, we'd check cart.find() here.
+               But since we edit dimensions inline, better to always push new row for simplicity 
+               OR check if there is an existing row with 0 dimensions/default specs.
+               For now, let's just push to allow duplicates which user can customize differently.
+            */
+
             const stockAlert = Number(product.stock_alert || 0);
 
-            if (existing) {
-                if (existing.quantity + 1 > product.stock) {
-                    alert('Stok produk tidak mencukupi.');
-                    return;
-                }
-                existing.quantity += 1;
+            if (product.stock < 1) {
+                alert('Stok produk habis.');
+                return;
+            }
 
-                // Cek jika stok setelah dikurangi quantity menjadi menipis
-                if (stockAlert > 0 && (product.stock - existing.quantity) <= stockAlert) {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'warning',
-                        title: `Stok menipis: ${product.name}`,
-                        text: `Sisa stok: ${product.stock - existing.quantity}`,
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                }
-            } else {
-                if (product.stock < 1) {
-                    alert('Stok produk habis.');
-                    return;
-                }
+            let selectedPrice = Number(product.price);
+            if (currentPriceTier === 2 && product.price_2 > 0) {
+                selectedPrice = Number(product.price_2);
+            } else if (currentPriceTier === 3 && product.price_3 > 0) {
+                selectedPrice = Number(product.price_3);
+            }
 
-                // Tentukan harga berdasarkan tier yang aktif
-                let selectedPrice = Number(product.price);
-                if (currentPriceTier === 2 && product.price_2 > 0) {
-                    selectedPrice = Number(product.price_2);
-                } else if (currentPriceTier === 3 && product.price_3 > 0) {
-                    selectedPrice = Number(product.price_3);
-                }
+            // If per_dimension, initial price might be 0 until dimensions entered? 
+            // Or we use base price if it represents 1m x 1m? 
+            // Usually if width=0, length=0, area=0 -> price=0.
+            if (product.pricing_type === 'per_dimension') {
+                selectedPrice = 0;
+            }
 
-                cart.push({
-                    id: product.id,
-                    name: product.name,
-                    price: selectedPrice,
-                    price_1: Number(product.price),
-                    price_2: Number(product.price_2 || 0),
-                    price_3: Number(product.price_3 || 0),
-                    cost_price: Number(product.cost_price ?? product.price),
-                    stock: product.stock,
-                    stock_alert: stockAlert,
-                    quantity: 1,
+            cart.push({
+                id: product.id,
+                name: product.name,
+                price: selectedPrice,
+                price_1: Number(product.price),
+                price_2: Number(product.price_2 || 0),
+                price_3: Number(product.price_3 || 0),
+                cost_price: Number(product.cost_price ?? product.price),
+                stock: product.stock,
+                stock_alert: stockAlert,
+                quantity: 1,
+
+                // New Fields
+                pricing_type: product.pricing_type,
+                price_per_meter: Number(product.price_per_meter || product.price),
+                width: 0,
+                length: 0,
+                area: 0,
+                finishing_id: null,
+                display_id: null
+            });
+
+            if (stockAlert > 0 && (product.stock - 1) <= stockAlert) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: `Stok menipis: ${product.name}`,
+                    showConfirmButton: false,
+                    timer: 3000
                 });
-
-                // Cek jika stok awal memang sudah menipis
-                if (stockAlert > 0 && (product.stock - 1) <= stockAlert) {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'warning',
-                        title: `Stok menipis: ${product.name}`,
-                        text: `Sisa stok: ${product.stock - 1}`,
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                }
             }
             renderCart();
         }
+
+        const finishingsData = @json($finishings ?? []);
+        const displaysData = @json($displays ?? []);
 
         $(function () {
             const $barcodeInput = $('#barcode-input');
@@ -829,6 +916,7 @@
                     return;
                 }
                 const product = productsData.find(p => p.id == productId);
+
                 if (product) {
                     addProductToCart(product);
                     productSlimSelect.setSelected('');
@@ -852,43 +940,89 @@
                 }
             });
 
+            // Event listeners for inline table inputs
+            $('#cart-items, #cart-items-mobile').on('change input', '.item-length, .item-width', function () {
+                const index = $(this).data('index');
+
+                // Get values
+                const w = parseFloat($(`.item-width[data-index="${index}"]`).val()) || 0;
+                const l = parseFloat($(`.item-length[data-index="${index}"]`).val()) || 0;
+
+                const item = cart[index];
+                item.width = w;
+                item.length = l;
+
+                // Recalculate price if dimension type
+                if (item.pricing_type === 'per_dimension') {
+                    // Assuming price_per_meter was stored in item during addProductToCart
+                    // If not, we might need to rely on base 'price' if it's treated as per meter.
+                    // Let's ensure addProductToCart stores 'price_per_meter'.
+                    // If stored 'price' is the base meter price, we use that.
+                    // But 'price' usually holds the Final Calculated Price.
+                    const pricePerMeter = item.price_per_meter || item.price_1; // Fallback? Item.price_per_meter should be set.
+                    const area = (w / 100) * (l / 100);
+                    item.area = area;
+                    item.price = Math.round(pricePerMeter * area);
+                }
+
+                const subtotal = item.quantity * item.price;
+
+                // Update DOM elements manually to avoid full re-render (which kills focus)
+                // Update Price
+                const row = $('#cart-items tr').eq(index);
+                // For non-dimension items, price is select. For dimension, it's text.
+                // We targeted the span in renderCart for dimension items.
+                if (item.pricing_type === 'per_dimension') {
+                    row.find('td:nth-child(2) span').text(formatCurrency(item.price));
+                    // Mobile
+                    const mobItem = $('#cart-items-mobile > div').eq(index);
+                    mobItem.find('span:contains("Harga")').next().text(formatCurrency(item.price));
+                }
+
+                // Update Subtotal (Desktop)
+                row.find('td:nth-last-child(2)').text(formatCurrency(subtotal));
+                // Update Subtotal (Mobile)
+                $('#cart-items-mobile > div').eq(index).find('span:contains("Subtotal")').next().text(formatCurrency(subtotal));
+
+                // Update hidden inputs
+                $(`#items-inputs input[name="items[${index}][width]"]`).val(w);
+                $(`#items-inputs input[name="items[${index}][length]"]`).val(l);
+                $(`#items-inputs input[name="items[${index}][price]"]`).val(item.price);
+
+                updateSummary();
+            });
+
+            $('#cart-items, #cart-items-mobile').on('change', '.item-finishing', function () {
+                const index = $(this).data('index');
+                cart[index].finishing_id = $(this).val();
+                $(`#items-inputs input[name="items[${index}][finishing_id]"]`).val($(this).val());
+            });
+
+            $('#cart-items, #cart-items-mobile').on('change', '.item-display', function () {
+                const index = $(this).data('index');
+                cart[index].display_id = $(this).val();
+                $(`#items-inputs input[name="items[${index}][display_id]"]`).val($(this).val());
+            });
+
             $('#cart-items, #cart-items-mobile').on('change', '.qty-input', function () {
                 const index = $(this).data('index');
                 const quantity = Number($(this).val());
                 const item = cart[index];
+                const stockAlert = Number(item.stock_alert || 0);
 
-                if (quantity < 1) {
-                    $(this).val(item.quantity);
-                    return;
-                }
+                if (quantity < 1) { $(this).val(item.quantity); return; }
                 if (quantity > item.stock) {
                     alert('Stok tidak mencukupi.');
                     $(this).val(item.stock);
                     return;
                 }
-
                 item.quantity = quantity;
-
-                // Cek stok menipis saat perubahan quantity
-                if (item.stock_alert > 0 && (item.stock - item.quantity) <= item.stock_alert) {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'warning',
-                        title: `Stok menipis: ${item.name}`,
-                        text: `Sisa stok: ${item.stock - item.quantity}`,
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
+                if (stockAlert > 0 && (item.stock - item.quantity) <= stockAlert) {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: `Stok menipis: ${item.name}`, showConfirmButton: false, timer: 3000 });
                 }
 
-                renderCart();
-            });
-
-            $('#cart-items, #cart-items-mobile').on('change', '.price-select', function () {
-                const index = $(this).data('index');
-                const price = Number($(this).val());
-                cart[index].price = price;
+                // Since this updates subtotal and hidden inputs, simpler to re-render OR update manually. 
+                // renderCart() is safer but loses focus. qty input usually OK to lose focus.
                 renderCart();
             });
 
@@ -989,38 +1123,67 @@
                 }
             });
 
+            // Toggle Due Date base on Payment Method
+            $('#payment-method').on('change', function () {
+                if ($(this).val() === 'tempo') {
+                    $('#due-date-wrapper').removeClass('hidden');
+                    $('#due-date').prop('required', true);
+                } else {
+                    $('#due-date-wrapper').addClass('hidden');
+                    $('#due-date').prop('required', false);
+                }
+            });
+
             $('#transaction-form').on('submit', function (event) {
+                event.preventDefault();
                 const form = this;
                 const { total, amountPaid } = calculateSummary();
+                const paymentMethod = $('#payment-method').val();
 
-                if (cart.length === 0) {
-                    alert('Tambahkan minimal satu produk.');
-                    event.preventDefault();
-                    return false;
-                }
-                if (total > 0 && amountPaid <= 0) {
-                    alert('Masukkan jumlah pembayaran.');
-                    event.preventDefault();
-                    return false;
-                }
-                if (amountPaid < total) {
-                    alert('Jumlah pembayaran kurang dari total.');
-                    event.preventDefault();
-                    return false;
+                if (cart.length === 0) { alert('Tambahkan minimal satu produk.'); return false; }
+                if (amountPaid < total && paymentMethod !== 'tempo') {
+                    // warn partial payment
                 }
 
-                if (!printChoiceConfirmed) {
-                    event.preventDefault();
-                    pendingSubmitForm = form;
-                    showPrintModal();
-                    return false;
-                }
+                const formData = $(this).serialize();
+                $submitButton.prop('disabled', true).text('Memproses...');
 
-                printChoiceConfirmed = false;
-                pendingSubmitForm = null;
+                $.ajax({
+                    url: '{{ route('transactions.store') }}',
+                    method: 'POST',
+                    data: formData,
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            const txId = response.transaction_id;
+                            const features = 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes';
 
-                updateSummary();
-                return true;
+                            if (response.print_spk) setTimeout(() => window.open(`/transactions/${txId}/spk`, '_blank', features), 500);
+                            if (response.print_receipt) setTimeout(() => window.open(`/transactions/${txId}/receipt`, '_blank', features), 1000);
+                            if (response.print_invoice) setTimeout(() => window.open(`/transactions/${txId}/invoice-a5`, '_blank', features), 1000);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Transaksi Berhasil',
+                                text: 'Transaksi disimpan dan dokumen sedang dicetak/dibuka.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        $submitButton.prop('disabled', false).text('Simpan & Cetak');
+                        let msg = 'Gagal menyimpan transaksi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                        if (xhr.status === 422) {
+                            const errs = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                            msg += '\n' + errs;
+                        }
+                        Swal.fire('Error', msg, 'error');
+                    }
+                });
             });
         });
     </script>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,11 +12,13 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
     @yield('head')
     <style>
-        html, body {
+        html,
+        body {
             overflow-x: hidden;
             width: 100%;
             position: relative;
         }
+
         .nav-link {
             display: flex;
             align-items: center;
@@ -27,18 +30,22 @@
             color: rgb(100 116 139);
             transition: all 0.2s ease;
         }
+
         .nav-link:hover {
             background-color: rgb(248 250 252);
             color: rgb(79 70 229);
         }
+
         .nav-link.active {
             background-color: rgb(238 242 255);
             color: rgb(79 70 229);
             border: 1px solid rgb(224 231 255);
         }
+
         .nav-link .icon {
             font-size: 1rem;
         }
+
         .mobile-nav-link {
             display: block;
             border: 1px solid rgb(226 232 240);
@@ -48,39 +55,49 @@
             font-weight: 500;
             color: rgb(100 116 139);
         }
+
         .mobile-nav-link:hover {
             background-color: rgb(238 242 255);
             color: rgb(79 70 229);
         }
+
         .sidebar {
             width: 16rem;
             overflow-x: hidden;
             transition: width 0.2s ease;
         }
+
         .sidebar .nav-link {
             transition: all 0.2s ease;
         }
+
         .sidebar-brand-icon {
             display: none;
         }
+
         body.sidebar-collapsed .sidebar {
             width: 5rem;
         }
+
         body.sidebar-collapsed .sidebar .sidebar-brand {
             padding: 1.25rem 0.75rem;
             justify-content: center;
         }
+
         body.sidebar-collapsed .sidebar nav {
             padding-left: 0.75rem;
             padding-right: 0.75rem;
         }
+
         body.sidebar-collapsed .sidebar .nav-link {
             justify-content: center;
             padding: 0.75rem;
         }
+
         body.sidebar-collapsed .sidebar .sidebar-brand-icon {
             display: inline-flex;
         }
+
         body.sidebar-collapsed .sidebar .nav-link .label,
         body.sidebar-collapsed .sidebar .section-title,
         body.sidebar-collapsed .sidebar .sidebar-description,
@@ -88,15 +105,18 @@
         body.sidebar-collapsed .sidebar .sidebar-footer {
             display: none;
         }
+
         body.sidebar-collapsed .sidebar .nav-link .icon {
             font-size: 1.25rem;
         }
+
         body.sidebar-collapsed .layout-content {
             margin-left: 0;
         }
     </style>
     @stack('styles')
 </head>
+
 <body class="bg-slate-100 font-[Inter] text-slate-800">
     <div class="min-h-screen flex">
         @php
@@ -106,7 +126,7 @@
             }
             $roleLabel = $currentUser ? $currentUser->roles->pluck('display_name')->join(', ') : null;
             $permissionNames = $currentUser
-                ? $currentUser->roles->flatMap(fn ($role) => $role->permissions)->pluck('name')->unique()
+                ? $currentUser->roles->flatMap(fn($role) => $role->permissions)->pluck('name')->unique()
                 : collect();
             $isAdmin = $currentUser?->hasRole('admin') ?? false;
             $permissions = [
@@ -131,7 +151,8 @@
                     </div>
                 @endif
                 <div class="flex flex-col sidebar-brand-text-container">
-                    <span class="text-sm font-bold text-indigo-600 truncate sidebar-brand-text">{{ $settings['store_name'] ?? 'Kasir Modern' }}</span>
+                    <span
+                        class="text-sm font-bold text-indigo-600 truncate sidebar-brand-text">{{ $settings['store_name'] ?? 'Kasir Modern' }}</span>
                 </div>
             </div>
             <nav class="flex-1 px-4 py-6 space-y-1">
@@ -141,23 +162,52 @@
                     </a>
                 @endif
 
-                @if ($permissions['products'] || $permissions['categories'] || $permissions['customers'])
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Produk</p>
-                    @if ($permissions['products'])
-                        <a href="{{ route('products.index') }}" class="nav-link" title="Produk">
-                            <span class="icon">📦</span> <span class="label">Produk</span>
-                        </a>
-                    @endif
-                    @if ($permissions['categories'])
-                        <a href="{{ route('categories.index') }}" class="nav-link" title="Kategori">
-                            <span class="icon">🏷️</span> <span class="label">Kategori</span>
-                        </a>
-                    @endif
-                    @if ($permissions['customers'])
-                        <a href="{{ route('customers.index') }}" class="nav-link" title="Pelanggan">
-                            <span class="icon">🧑‍🤝‍🧑</span> <span class="label">Pelanggan</span>
-                        </a>
-                    @endif
+                @if ($permissions['products'] || $permissions['categories'])
+                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Inventaris</p>
+
+                    {{-- Dropdown Toggle --}}
+                    <button type="button" class="nav-link w-full flex items-center justify-between group select-none"
+                        onclick="$(this).next().slideToggle(200); $(this).find('.chevron').toggleClass('rotate-180')">
+                        <div class="flex items-center gap-2">
+                            <span class="icon">📦</span> <span class="label">Produk & Stok</span>
+                        </div>
+                        <span class="chevron text-xs text-slate-400 transition-transform duration-200">▼</span>
+                    </button>
+
+                    {{-- Dropdown Menu --}}
+                    <div class="pl-4 space-y-1 mt-1 hidden" id="product-menu">
+                        @if ($permissions['products'])
+                            <a href="{{ route('products.index') }}" class="nav-link text-sm" title="Daftar Produk">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
+                                    class="label">Daftar Produk</span>
+                            </a>
+                            <a href="{{ route('finishings.index') }}" class="nav-link text-sm" title="Finishing">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
+                                    class="label">Finishing</span>
+                            </a>
+                            <a href="{{ route('materials.index') }}" class="nav-link text-sm" title="Material">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
+                                    class="label">Material</span>
+                            </a>
+                            <a href="{{ route('displays.index') }}" class="nav-link text-sm" title="Display">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
+                                    class="label">Display</span>
+                            </a>
+                        @endif
+                        @if ($permissions['categories'])
+                            <a href="{{ route('categories.index') }}" class="nav-link text-sm" title="Kategori">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
+                                    class="label">Kategori</span>
+                            </a>
+                        @endif
+                    </div>
+                @endif
+
+                @if ($permissions['customers'])
+                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pelanggan</p>
+                    <a href="{{ route('customers.index') }}" class="nav-link" title="Pelanggan">
+                        <span class="icon">🧑‍🤝‍🧑</span> <span class="label">Pelanggan</span>
+                    </a>
                 @endif
 
                 @if ($permissions['transactions'])
@@ -209,32 +259,42 @@
         <div class="flex-1 flex flex-col layout-content transition-all duration-200">
             <header class="bg-white border-b border-slate-200 px-5 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <button id="mobile-nav-toggle" class="md:hidden inline-flex items-center justify-center p-2 rounded-md border border-slate-200 text-slate-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16" />
+                    <button id="mobile-nav-toggle"
+                        class="md:hidden inline-flex items-center justify-center p-2 rounded-md border border-slate-200 text-slate-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <button id="sidebar-toggle" class="hidden md:inline-flex items-center justify-center p-2 rounded-md border border-slate-200 text-slate-600 transition hover:bg-slate-100" aria-label="Toggle sidebar" title="Sembunyikan sidebar">
+                    <button id="sidebar-toggle"
+                        class="hidden md:inline-flex items-center justify-center p-2 rounded-md border border-slate-200 text-slate-600 transition hover:bg-slate-100"
+                        aria-label="Toggle sidebar" title="Sembunyikan sidebar">
                         <span id="sidebar-toggle-icon">◀</span>
                     </button>
-                    <button id="fullscreen-toggle" class="hidden md:inline-flex items-center justify-center p-2 rounded-md border border-slate-200 text-slate-600 transition hover:bg-slate-100" aria-label="Aktifkan layar penuh" title="Aktifkan layar penuh">
+                    <button id="fullscreen-toggle"
+                        class="hidden md:inline-flex items-center justify-center p-2 rounded-md border border-slate-200 text-slate-600 transition hover:bg-slate-100"
+                        aria-label="Aktifkan layar penuh" title="Aktifkan layar penuh">
                         <span id="fullscreen-toggle-icon">⛶</span>
                     </button>
                     <div>
                         <h1 class="text-xl font-semibold text-slate-800">@yield('title', 'Kasir')</h1>
-                        <p class="text-sm text-slate-500">@yield('subtitle', 'Kelola operasional kasir secara mudah')</p>
+                        <p class="text-sm text-slate-500">@yield('subtitle', 'Kelola operasional kasir secara mudah')
+                        </p>
                     </div>
                 </div>
                 <div class="hidden md:flex items-center gap-3">
                     <span class="text-sm text-slate-600">
                         {{ $currentUser?->name ?? 'Guest' }}
                     </span>
-                    <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
+                    <span
+                        class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
                         {{ $roleLabel ?: 'Kasir' }}
                     </span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
+                        <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
                             <span>🚪</span>
                             <span>Logout</span>
                         </button>
@@ -282,6 +342,9 @@
                 @endif
                 @if ($permissions['products'])
                     <a href="{{ route('products.index') }}" class="mobile-nav-link">Produk</a>
+                    <a href="{{ route('finishings.index') }}" class="mobile-nav-link">Finishing</a>
+                    <a href="{{ route('materials.index') }}" class="mobile-nav-link">Material</a>
+                    <a href="{{ route('displays.index') }}" class="mobile-nav-link">Display</a>
                 @endif
                 @if ($permissions['categories'])
                     <a href="{{ route('categories.index') }}" class="mobile-nav-link">Kategori</a>
@@ -306,7 +369,8 @@
                 <a href="{{ route('settings.index') }}" class="mobile-nav-link">Pengaturan Toko</a>
                 <form method="POST" action="{{ route('logout') }}" class="pt-3 border-t border-slate-200">
                     @csrf
-                    <button type="submit" class="mobile-nav-link text-center bg-red-50 border-red-200 text-red-600 hover:bg-red-100">
+                    <button type="submit"
+                        class="mobile-nav-link text-center bg-red-50 border-red-200 text-red-600 hover:bg-red-100">
                         Logout
                     </button>
                 </form>
@@ -504,12 +568,20 @@
             }
             $('.nav-link').each(function () {
                 const current = window.location.pathname;
-                const hrefPath = getPathname($(this).attr('href'));
+                const href = $(this).attr('href');
+                if (!href) return;
+                const hrefPath = getPathname(href);
                 if (!hrefPath) {
                     return;
                 }
                 if (current === hrefPath || (hrefPath !== '/' && current.startsWith(hrefPath + '/'))) {
                     $(this).addClass('active');
+                    // Open dropdown if this link is inside one
+                    const $dropdown = $(this).closest('.space-y-1.hidden');
+                    if ($dropdown.length) {
+                        $dropdown.removeClass('hidden').show();
+                        $dropdown.prev().find('.chevron').addClass('rotate-180');
+                    }
                 }
             });
             $('#mobile-nav-toggle').on('click', function () {
@@ -525,7 +597,7 @@
     </script>
 
     <script>
-        $(document).on('input', '.currency-input', function() {
+        $(document).on('input', '.currency-input', function () {
             let value = this.value.replace(/[^0-9]/g, '');
             if (value) {
                 value = new Intl.NumberFormat('id-ID', { style: 'decimal', minimumFractionDigits: 0 }).format(Number(value));
@@ -533,11 +605,11 @@
             this.value = value;
         });
 
-        $(document).on('submit', '.delete-form', function(e) {
+        $(document).on('submit', '.delete-form', function (e) {
             e.preventDefault();
             const form = this;
             const message = $(form).data('message') || 'Data ini akan dihapus permanen!';
-            
+
             Swal.fire({
                 title: 'Apakah Anda yakin?',
                 text: message,
@@ -558,4 +630,5 @@
     </script>
     @stack('scripts')
 </body>
+
 </html>

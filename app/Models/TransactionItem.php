@@ -21,6 +21,8 @@ class TransactionItem extends Model
         'total',
         'profit',
         'notes',
+        'finishing_id',
+        'display_id',
     ];
 
     protected $casts = [
@@ -69,6 +71,16 @@ class TransactionItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function finishing()
+    {
+        return $this->belongsTo(Finishing::class);
+    }
+
+    public function display()
+    {
+        return $this->belongsTo(Display::class);
     }
 
     /**
