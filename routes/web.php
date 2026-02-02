@@ -41,6 +41,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:manage_transactions')->group(function () {
         Route::get('transactions/barcode/lookup', [TransactionController::class, 'lookupByBarcode'])->name('transactions.lookup');
         Route::get('transactions/{transaction}/invoice', [TransactionController::class, 'invoice'])->name('transactions.invoice');
+        Route::get('transactions/{transaction}/spk', [TransactionController::class, 'spk'])->name('transactions.spk');
+        Route::get('transactions/{transaction}/receipt', [TransactionController::class, 'receipt'])->name('transactions.receipt');
+        Route::get('transactions/{transaction}/invoice-a5', [TransactionController::class, 'invoiceA5'])->name('transactions.invoice_a5');
         Route::get('transactions/{transaction}/shipping-label', [TransactionController::class, 'shippingLabel'])->name('transactions.shipping_label');
         Route::resource('transactions', TransactionController::class)->except('destroy');
     });

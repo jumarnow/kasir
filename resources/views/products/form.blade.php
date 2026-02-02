@@ -99,17 +99,67 @@
                     </div>
                 </div>
                 <div class="space-y-4">
-                    <div>
-                        <label class="text-sm font-medium text-slate-600">Harga Jual 1</label>
+                    <!-- Pricing Type Selection -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="text-sm font-medium text-slate-600 block mb-2">Tipe Perhitungan Harga</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="pricing_type" value="per_unit" class="text-indigo-600 focus:ring-indigo-500" {{ old('pricing_type', $isEdit ? $product->pricing_type : 'per_unit') == 'per_unit' ? 'checked' : '' }}>
+                                <span class="text-sm text-slate-700">Per Unit (Pcs/Box)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="pricing_type" value="per_dimension" class="text-indigo-600 focus:ring-indigo-500" {{ old('pricing_type', $isEdit ? $product->pricing_type : '') == 'per_dimension' ? 'checked' : '' }}>
+                                <span class="text-sm text-slate-700">Per Dimensi (Meter Persegi)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Dimension Fields (Hidden by default) -->
+                    <div id="dimension-fields" class="space-y-4 {{ old('pricing_type', $isEdit ? $product->pricing_type : 'per_unit') == 'per_dimension' ? '' : 'hidden' }}">
+                         <div>
+                            <label class="text-sm font-medium text-slate-600">Harga Jual per m²</label>
+                            <input
+                                type="text"
+                                min="0"
+                                name="price_per_meter"
+                                value="{{ old('price_per_meter', $isEdit ? formatNumber($product->price_per_meter) : '') }}"
+                                class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            >
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-slate-600">Min. Lebar (cm)</label>
+                                <input
+                                    type="text"
+                                    name="min_width"
+                                    value="{{ old('min_width', $isEdit ? formatNumber($product->min_width) : '') }}"
+                                    class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                >
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-slate-600">Min. Panjang (cm)</label>
+                                <input
+                                    type="text"
+                                    name="min_length"
+                                    value="{{ old('min_length', $isEdit ? formatNumber($product->min_length) : '') }}"
+                                    class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unit Price Fields (Toggled) -->
+                    <div id="unit-price-fields" class="{{ old('pricing_type', $isEdit ? $product->pricing_type : 'per_unit') == 'per_unit' ? '' : 'hidden' }}">
+                        <label class="text-sm font-medium text-slate-600">Harga Jual Satuan</label>
                         <input
                             type="text"
                             min="0"
                             name="price"
                             value="{{ old('price', $isEdit ? formatNumber($product->price) : '') }}"
                             class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                            required
                         >
                     </div>
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-sm font-medium text-slate-600">Harga Jual 2 <span class="text-slate-400 text-xs">(opsional)</span></label>
@@ -176,6 +226,32 @@
                         >
                     </div>
                 </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const pricingTypeRadios = document.querySelectorAll('input[name="pricing_type"]');
+                        const dimensionFields = document.getElementById('dimension-fields');
+                        const unitPriceFields = document.getElementById('unit-price-fields');
+                        const unitInput = document.querySelector('input[name="unit"]');
+
+                        function toggleFields() {
+                            const selectedType = document.querySelector('input[name="pricing_type"]:checked').value;
+                            if (selectedType === 'per_dimension') {
+                                dimensionFields.classList.remove('hidden');
+                                unitPriceFields.classList.add('hidden');
+                                if(unitInput.value === 'pcs') unitInput.value = 'm2'; // Auto suggest unit
+                            } else {
+                                dimensionFields.classList.add('hidden');
+                                unitPriceFields.classList.remove('hidden');
+                                if(unitInput.value === 'm2') unitInput.value = 'pcs'; 
+                            }
+                        }
+
+                        pricingTypeRadios.forEach(radio => {
+                            radio.addEventListener('change', toggleFields);
+                        });
+                    });
+                </script>
             </div>
 
             <div>

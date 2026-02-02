@@ -99,12 +99,24 @@
                             {{ $product->category?->name ?? '-' }}
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-semibold text-slate-800">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
-                            @if($product->price_2)
-                                <div class="text-xs text-slate-500">Harga 2: Rp {{ number_format($product->price_2, 0, ',', '.') }}</div>
-                            @endif
-                            @if($product->price_3)
-                                <div class="text-xs text-slate-500">Harga 3: Rp {{ number_format($product->price_3, 0, ',', '.') }}</div>
+                            <div class="font-semibold text-slate-800">
+                                @if($product->pricing_type === 'per_dimension')
+                                    Rp {{ number_format($product->price_per_meter ?? $product->price, 0, ',', '.') }} <span class="text-xs font-normal text-slate-500">/ m²</span>
+                                @else
+                                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                                @endif
+                            </div>
+                            @if($product->pricing_type === 'per_dimension')
+                                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 mt-1">
+                                    Per Dimensi
+                                </span>
+                            @else
+                                @if($product->price_2)
+                                    <div class="text-xs text-slate-500">Harga 2: Rp {{ number_format($product->price_2, 0, ',', '.') }}</div>
+                                @endif
+                                @if($product->price_3)
+                                    <div class="text-xs text-slate-500">Harga 3: Rp {{ number_format($product->price_3, 0, ',', '.') }}</div>
+                                @endif
                             @endif
                             <div class="text-xs text-slate-400 mt-1">Modal: Rp {{ number_format($product->cost_price, 0, ',', '.') }}</div>
                         </td>

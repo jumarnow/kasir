@@ -14,17 +14,40 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            // Dashboard & Umum
             ['name' => 'manage_dashboard', 'display_name' => 'Kelola Dashboard'],
+
+            // Master Data
             ['name' => 'manage_products', 'display_name' => 'Kelola Produk'],
             ['name' => 'manage_categories', 'display_name' => 'Kelola Kategori'],
             ['name' => 'manage_customers', 'display_name' => 'Kelola Pelanggan'],
+            ['name' => 'manage_materials', 'display_name' => 'Kelola Bahan'],
+            ['name' => 'manage_finishings', 'display_name' => 'Kelola Finishing'],
+            ['name' => 'manage_displays', 'display_name' => 'Kelola Display'],
+
+            // Transaksi & Pesanan
             ['name' => 'manage_transactions', 'display_name' => 'Kelola Transaksi'],
+            ['name' => 'edit_orders', 'display_name' => 'Edit Pesanan'],
             ['name' => 'apply_discounts', 'display_name' => 'Mengatur Diskon'],
+
+            // Cetak Dokumen
             ['name' => 'print_invoices', 'display_name' => 'Cetak Invoice'],
+            ['name' => 'print_spk', 'display_name' => 'Cetak SPK'],
+            ['name' => 'print_receipts', 'display_name' => 'Cetak Faktur'],
+
+            // View/Lihat
+            ['name' => 'view_invoices_unpaid', 'display_name' => 'Lihat Invoice Belum Lunas'],
+            ['name' => 'view_stock', 'display_name' => 'Lihat Stok Bahan'],
             ['name' => 'view_reports', 'display_name' => 'Lihat Laporan'],
+            ['name' => 'view_omset', 'display_name' => 'Lihat Omset'],
+            ['name' => 'view_profit', 'display_name' => 'Lihat Profit/Laba Rugi'],
+            ['name' => 'view_receivables', 'display_name' => 'Lihat Piutang'],
+            ['name' => 'view_cashflow', 'display_name' => 'Lihat Pembukuan Kas'],
+
+            // User Management
             ['name' => 'manage_users', 'display_name' => 'Kelola Pengguna'],
             ['name' => 'manage_roles', 'display_name' => 'Kelola Role dan Izin'],
-            ['name' => 'view_profit', 'display_name' => 'Lihat Profit'],
+            ['name' => 'manage_settings', 'display_name' => 'Kelola Pengaturan'],
         ];
 
         $permissionMap = collect($permissions)
@@ -38,35 +61,78 @@ class RolePermissionSeeder extends Seeder
             });
 
         $roles = [
-            'admin' => [
-                'display_name' => 'Administrator',
-                'description' => 'Memiliki akses penuh ke seluruh fitur.',
-                'permissions' => $permissionMap->keys()->all(),
-            ],
-            'manager' => [
-                'display_name' => 'Manajer',
-                'description' => 'Mengelola laporan dan operasi harian.',
-                'permissions' => [
-                    'manage_dashboard',
-                    'manage_products',
-                    'manage_categories',
-                    'manage_customers',
-                    'manage_transactions',
-                    'view_reports',
-                    'view_reports',
-                    'view_profit',
-                    'print_invoices',
-                ],
-            ],
-            'cashier' => [
+            // Kasir: hanya bisa Input dan tidak bisa melihat Omset
+            'kasir' => [
                 'display_name' => 'Kasir',
-                'description' => 'Melayani penjualan dan pelanggan.',
+                'description' => 'Hanya bisa input transaksi, tidak bisa melihat omset.',
                 'permissions' => [
                     'manage_dashboard',
                     'manage_transactions',
                     'apply_discounts',
                     'print_invoices',
+                    'print_receipts',
                 ],
+            ],
+
+            // Admin: Bisa Input, Lihat Invoice belum lunas, Lihat Faktur, Lihat stock bahan (tidak bisa melihat Omset)
+            'admin' => [
+                'display_name' => 'Admin',
+                'description' => 'Bisa input, lihat invoice belum lunas, faktur, stok bahan. Tidak bisa lihat omset.',
+                'permissions' => [
+                    'manage_dashboard',
+                    'manage_products',
+                    'manage_categories',
+                    'manage_customers',
+                    'manage_materials',
+                    'manage_finishings',
+                    'manage_displays',
+                    'manage_transactions',
+                    'apply_discounts',
+                    'print_invoices',
+                    'print_spk',
+                    'print_receipts',
+                    'view_invoices_unpaid',
+                    'view_stock',
+                    'view_reports',
+                ],
+            ],
+
+            // Kepala Toko: Sama seperti Admin + Bisa Edit pesanan (tidak bisa melihat Omset)
+            'kepala_toko' => [
+                'display_name' => 'Kepala Toko',
+                'description' => 'Sama seperti admin + bisa edit pesanan. Tidak bisa lihat omset.',
+                'permissions' => [
+                    'manage_dashboard',
+                    'manage_products',
+                    'manage_categories',
+                    'manage_customers',
+                    'manage_materials',
+                    'manage_finishings',
+                    'manage_displays',
+                    'manage_transactions',
+                    'edit_orders',
+                    'apply_discounts',
+                    'print_invoices',
+                    'print_spk',
+                    'print_receipts',
+                    'view_invoices_unpaid',
+                    'view_stock',
+                    'view_reports',
+                ],
+            ],
+
+            // Finance: Bisa semua
+            'finance' => [
+                'display_name' => 'Finance',
+                'description' => 'Akses penuh ke semua fitur termasuk keuangan.',
+                'permissions' => $permissionMap->keys()->all(),
+            ],
+
+            // Manager: Bisa semua
+            'manager' => [
+                'display_name' => 'Manager',
+                'description' => 'Akses penuh ke semua fitur.',
+                'permissions' => $permissionMap->keys()->all(),
             ],
         ];
 
@@ -80,7 +146,7 @@ class RolePermissionSeeder extends Seeder
             );
 
             $permissionIds = collect($roleData['permissions'])
-                ->map(fn ($permissionName) => $permissionMap[$permissionName])
+                ->map(fn($permissionName) => $permissionMap[$permissionName])
                 ->filter()
                 ->all();
 

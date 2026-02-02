@@ -11,6 +11,7 @@
         .select2-container {
             width: 100% !important;
         }
+
         /* Slim Select Custom Styling */
         .ss-main {
             padding: 0.15rem 0.5rem !important;
@@ -18,23 +19,28 @@
             border: 1px solid rgb(226 232 240) !important;
             min-height: 42px;
         }
+
         .ss-main:focus {
             box-shadow: 0 0 0 2px rgb(199 210 254) !important;
             border-color: rgb(99 102 241) !important;
         }
+
         .ss-content {
             border-radius: 0.75rem !important;
             border: 1px solid rgb(226 232 240) !important;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
         }
+
         .ss-list .ss-option:hover {
             background-color: rgb(248 250 252) !important;
             color: rgb(79 70 229) !important;
         }
+
         .ss-list .ss-option.ss-selected {
             background-color: rgb(238 242 255) !important;
             color: rgb(79 70 229) !important;
         }
+
         .select2-container .select2-selection--single {
             height: auto;
             padding: 0.5rem 0.75rem;
@@ -43,20 +49,24 @@
             display: flex;
             align-items: center;
         }
+
         .select2-container--default .select2-selection--single .select2-selection__rendered {
             color: rgb(51 65 85);
             font-size: 1rem;
             line-height: 1.5rem;
             padding: 0;
         }
+
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             height: 100%;
             right: 0.75rem;
         }
+
         .select2-dropdown {
             border-radius: 0.75rem;
             border: 1px solid rgb(226 232 240);
         }
+
         .select2-results__option {
             font-size: 1rem;
         }
@@ -83,7 +93,7 @@
                 }
 
                 const features = 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes';
-                
+
                 if (printInvoice) {
                     const invoiceWindow = window.open('{{ route('transactions.invoice', ['transaction' => session('printed_transaction_id')]) }}', 'invoice-print', features);
                     if (invoiceWindow) invoiceWindow.focus();
@@ -111,7 +121,8 @@
                             <h2 class="text-base font-semibold text-slate-800">Detail Pelanggan</h2>
                             <p class="text-xs text-slate-500">Optional, kosongkan jika pelanggan umum</p>
                         </div>
-                        <button type="button" id="customer-section-toggle" class="text-xs font-medium text-indigo-600 hover:text-indigo-500">
+                        <button type="button" id="customer-section-toggle"
+                            class="text-xs font-medium text-indigo-600 hover:text-indigo-500">
                             Tampilkan
                         </button>
                     </div>
@@ -119,29 +130,37 @@
                         <table class="min-w-full divide-y divide-slate-200">
                             <tbody class="divide-y divide-slate-100 bg-white">
                                 <tr class="flex flex-col md:table-row">
-                                    <td class="w-full md:w-1/3 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 block md:table-cell">
+                                    <td
+                                        class="w-full md:w-1/3 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 block md:table-cell">
                                         <div class="flex items-center justify-between">
                                             <span>Pelanggan</span>
-                                            <button type="button" id="btn-quick-customer" class="text-[10px] font-bold text-indigo-600 hover:underline">
+                                            <button type="button" id="btn-quick-customer"
+                                                class="text-[10px] font-bold text-indigo-600 hover:underline">
                                                 + BARU
                                             </button>
                                         </div>
                                     </td>
                                     <td class="px-4 py-2 block md:table-cell">
-                                        <select name="customer_id" id="customer-select" class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0">
+                                        <select name="customer_id" id="customer-select"
+                                            class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0">
                                             <option value="" data-price-tier="1">Umum</option>
                                             @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}" data-price-tier="{{ $customer->price_tier ?? 1 }}" @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
+                                                <option value="{{ $customer->id }}"
+                                                    data-price-tier="{{ $customer->price_tier ?? 1 }}"
+                                                    @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
                                 </tr>
                                 <tr class="flex flex-col md:table-row">
-                                    <td class="w-full md:w-1/3 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 block md:table-cell">
+                                    <td
+                                        class="w-full md:w-1/3 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 block md:table-cell">
                                         Catatan
                                     </td>
                                     <td class="px-4 py-2 block md:table-cell">
-                                        <input type="text" name="notes" value="{{ old('notes') }}" class="w-full border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0" placeholder="Tambahkan catatan khusus transaksi...">
+                                        <input type="text" name="notes" value="{{ old('notes') }}"
+                                            class="w-full border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0"
+                                            placeholder="Tambahkan catatan khusus transaksi...">
                                     </td>
                                 </tr>
                             </tbody>
@@ -157,29 +176,55 @@
                         </div>
                         <div class="flex flex-col gap-3 sm:flex-row">
                             <div class="relative flex-1">
-                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Barcode / SKU</label>
-                                <input type="text" id="barcode-input" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" placeholder="Scan..." autofocus>
+                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Barcode /
+                                    SKU</label>
+                                <input type="text" id="barcode-input"
+                                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                    placeholder="Scan..." autofocus>
                                 <span class="absolute inset-y-0 right-3 top-7 flex items-center text-slate-400">📷</span>
                             </div>
-                            <div class="flex items-end gap-2 flex-1">
+                            <div class="flex items-end gap-2 flex-[2]">
                                 <div class="flex-1">
-                                    <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pilih Produk</label>
-                                    <select id="product-select" class="mt-1 w-full lg:w-60 rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                    <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pilih
+                                        Produk</label>
+                                    <select id="product-select"
+                                        class="mt-1 w-full lg:w-60 rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                         <option value="">-- Pilih Produk --</option>
                                         @foreach ($products as $product)
-                                            <option value="{{ $product->id }}" 
-                                                data-price="{{ $product->price }}" 
+                                            <option value="{{ $product->id }}" data-price="{{ $product->price }}"
                                                 data-price-2="{{ $product->price_2 ?? 0 }}"
                                                 data-price-3="{{ $product->price_3 ?? 0 }}"
-                                                data-cost="{{ $product->cost_price ?? $product->price }}" 
+                                                data-cost="{{ $product->cost_price ?? $product->price }}"
                                                 data-stock="{{ $product->stock }}"
-                                                data-stock-alert="{{ $product->stock_alert ?? 0 }}">
+                                                data-stock-alert="{{ $product->stock_alert ?? 0 }}"
+                                                data-pricing-type="{{ $product->pricing_type }}"
+                                                data-price-per-meter="{{ $product->price_per_meter ?? 0 }}"
+                                                data-min-width="{{ $product->min_width ?? 0 }}"
+                                                data-min-length="{{ $product->min_length ?? 0 }}">
                                                 {{ $product->name }} (Stok: {{ $product->stock }})
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <button type="button" id="add-product" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50" disabled>
+                                <div id="dimension-inputs" class="hidden flex gap-2">
+                                    <div class="w-20">
+                                        <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">P
+                                            (cm)</label>
+                                        <input type="number" id="input-length"
+                                            class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm text-center focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                            placeholder="0">
+                                    </div>
+                                    <div class="w-20">
+                                        <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">L
+                                            (cm)</label>
+                                        <input type="number" id="input-width"
+                                            class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm text-center focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                            placeholder="0">
+                                    </div>
+                                </div>
+                                <button type="button" id="add-product"
+                                    class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                    disabled>
                                     Tambah
                                 </button>
                             </div>
@@ -200,7 +245,7 @@
                             </thead>
                             <tbody id="cart-items" class="divide-y divide-slate-100"></tbody>
                         </table>
-                        
+
                         <!-- Mobile List -->
                         <div id="cart-items-mobile" class="md:hidden divide-y divide-slate-100"></div>
 
@@ -223,11 +268,15 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Diskon (%)</label>
-                                <input type="number" min="0" max="100" step="0.5" name="discount_percent" id="discount-percent" value="{{ old('discount_percent', 0) }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                <input type="number" min="0" max="100" step="0.5" name="discount_percent"
+                                    id="discount-percent" value="{{ old('discount_percent', 0) }}"
+                                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                             </div>
                             <div>
                                 <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Diskon (Rp)</label>
-                                <input type="text" name="discount_amount" id="discount-amount" value="{{ old('discount_amount', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                <input type="text" name="discount_amount" id="discount-amount"
+                                    value="{{ old('discount_amount', 0) }}"
+                                    class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-sm text-slate-500">
@@ -236,9 +285,10 @@
                         </div>
                         <div>
                             <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Ongkir (Rp)</label>
-                            <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                            <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}"
+                                class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                         </div>
-                        
+
                         <div class="py-3 border-y border-dashed border-slate-200">
                             <div class="flex items-center justify-between text-lg font-bold text-slate-800">
                                 <span>Total</span>
@@ -249,15 +299,18 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pembayaran</label>
-                                <select name="payment_method" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                <select name="payment_method"
+                                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                     <option value="cash">Tunai</option>
                                     <option value="transfer">Transfer</option>
                                     <option value="qris">QRIS</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Dibayar (Rp)</label>
-                                <input type="text" name="amount_paid" id="amount-paid" value="{{ old('amount_paid', 0) }}" class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-600 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+                                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Dibayar
+                                    (Rp)</label>
+                                <input type="text" name="amount_paid" id="amount-paid" value="{{ old('amount_paid', 0) }}"
+                                    class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-600 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
                             </div>
                         </div>
 
@@ -267,7 +320,9 @@
                         </div>
 
                         <div class="pt-2">
-                            <button type="submit" id="transaction-submit" class="w-full rounded-full bg-indigo-600 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 transition-all disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none" disabled>
+                            <button type="submit" id="transaction-submit"
+                                class="w-full rounded-full bg-indigo-600 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 transition-all disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                                disabled>
                                 Simpan & Cetak Transaksi
                             </button>
                         </div>
@@ -283,7 +338,8 @@
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <h3 class="text-lg font-semibold text-slate-800">Cetak invoice?</h3>
-                    <p class="mt-1 text-sm text-slate-500">Transaksi akan disimpan terlebih dahulu. Lanjutkan ke cetak invoice dengan printer thermal?</p>
+                    <p class="mt-1 text-sm text-slate-500">Transaksi akan disimpan terlebih dahulu. Lanjutkan ke cetak
+                        invoice dengan printer thermal?</p>
                 </div>
                 <button type="button" id="print-modal-close" class="text-slate-400 hover:text-slate-600">
                     <span class="sr-only">Tutup</span>
@@ -291,13 +347,16 @@
                 </button>
             </div>
             <div class="mt-6 flex flex-col gap-3 sm:flex-row-reverse sm:justify-end">
-                <button type="button" id="print-modal-confirm" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400">
+                <button type="button" id="print-modal-confirm"
+                    class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400">
                     Cetak Invoice
                 </button>
-                <button type="button" id="print-modal-shipping" class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                <button type="button" id="print-modal-shipping"
+                    class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
                     Cetak Resi
                 </button>
-                <button type="button" id="print-modal-skip" class="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                <button type="button" id="print-modal-skip"
+                    class="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
                     Simpan Saja
                 </button>
             </div>
@@ -316,24 +375,34 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-700">Nama Lengkap</label>
-                        <input type="text" name="name" required class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" placeholder="Nama pelanggan">
+                        <input type="text" name="name" required
+                            class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
+                            placeholder="Nama pelanggan">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-700">Nomor Telepon</label>
-                        <input type="text" name="phone" class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" placeholder="08..." >
+                        <input type="text" name="phone"
+                            class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
+                            placeholder="08...">
                     </div>
-                     <div>
+                    <div>
                         <label class="block text-xs font-medium text-slate-700">Email (Opsional)</label>
-                        <input type="email" name="email" class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" placeholder="email@contoh.com">
+                        <input type="email" name="email"
+                            class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
+                            placeholder="email@contoh.com">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-700">Alamat (Opsional)</label>
-                        <textarea name="address" rows="2" class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" placeholder="Alamat lengkap"></textarea>
+                        <textarea name="address" rows="2"
+                            class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
+                            placeholder="Alamat lengkap"></textarea>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" id="cancel-quick-customer" class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
-                    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 shadow-sm">Simpan</button>
+                    <button type="button" id="cancel-quick-customer"
+                        class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                    <button type="submit"
+                        class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 shadow-sm">Simpan</button>
                 </div>
             </form>
         </div>
@@ -381,11 +450,11 @@
         $btnCloseQuickCustomer.on('click', () => toggleQuickCustomerModal(false));
         $btnCancelQuickCustomer.on('click', () => toggleQuickCustomerModal(false));
 
-        $quickCustomerForm.on('submit', function(e) {
+        $quickCustomerForm.on('submit', function (e) {
             e.preventDefault();
             const formData = $(this).serialize();
             const $submitBtn = $(this).find('button[type="submit"]');
-            
+
             $submitBtn.prop('disabled', true).text('Menyimpan...');
 
             $.ajax({
@@ -396,22 +465,22 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
                 },
-                success: function(response) {
+                success: function (response) {
                     // Add to dropdown
                     const newOption = new Option(response.name, response.id, true, true);
                     $(newOption).data('price-tier', response.price_tier || 1);
                     $('#customer-select').append(newOption).trigger('change');
-                    
+
                     // Close modal
                     toggleQuickCustomerModal(false);
-                    
+
                     // Trigger tier update manually since trigger change might not suffice if logic depends on data attr
                     currentPriceTier = response.price_tier || 1;
                     if (cart.length > 0) updateCartPrices(currentPriceTier);
 
                     alert('Pelanggan berhasil ditambahkan!');
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     let msg = 'Terjadi kesalahan.';
                     if (xhr.status === 422) {
                         const errors = xhr.responseJSON.errors;
@@ -419,7 +488,7 @@
                     }
                     alert(msg);
                 },
-                complete: function() {
+                complete: function () {
                     $submitBtn.prop('disabled', false).text('Simpan');
                 }
             });
@@ -465,7 +534,7 @@
 
             cart.forEach((item, index) => {
                 const subtotal = item.quantity * item.price;
-                
+
                 // Build price options
                 let priceOptions = `<option value="${item.price_1}">${formatCurrency(item.price_1)}</option>`;
                 if (item.price_2 > 0) {
@@ -477,69 +546,69 @@
 
                 // Desktop Row
                 const row = $(`
-                    <tr>
-                        <td class="px-4 py-3">
-                            <p class="font-medium text-slate-700">${item.name}</p>
-                            <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <select class="price-select w-32 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">
-                                ${priceOptions}
-                            </select>
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm" data-index="${index}" value="${item.quantity}">
-                        </td>
-                        <td class="px-4 py-3 text-right font-semibold text-slate-700">
-                            ${formatCurrency(subtotal)}
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                            <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600" data-index="${index}">Hapus</button>
-                        </td>
-                    </tr>
-                `);
-                
+                        <tr>
+                            <td class="px-4 py-3">
+                                <p class="font-medium text-slate-700">${item.name}</p>
+                                <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <select class="price-select w-32 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">
+                                    ${priceOptions}
+                                </select>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm" data-index="${index}" value="${item.quantity}">
+                            </td>
+                            <td class="px-4 py-3 text-right font-semibold text-slate-700">
+                                ${formatCurrency(subtotal)}
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600" data-index="${index}">Hapus</button>
+                            </td>
+                        </tr>
+                    `);
+
                 // Set selected price
                 row.find('.price-select').val(item.price);
                 tbody.append(row);
 
                 // Mobile Item
                 const mobileItem = $(`
-                    <div class="p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <p class="font-medium text-slate-700">${item.name}</p>
-                                <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="font-medium text-slate-700">${item.name}</p>
+                                    <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
+                                </div>
+                                <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600 font-medium" data-index="${index}">Hapus</button>
                             </div>
-                            <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600 font-medium" data-index="${index}">Hapus</button>
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs text-slate-500">Harga</label>
+                                    <select class="price-select w-32 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">
+                                        ${priceOptions}
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs text-slate-500">Qty</label>
+                                    <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-right text-sm" data-index="${index}" value="${item.quantity}">
+                                </div>
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-50">
+                                    <span class="text-xs font-semibold text-slate-500">Subtotal</span>
+                                    <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <div class="flex items-center justify-between">
-                                <label class="text-xs text-slate-500">Harga</label>
-                                <select class="price-select w-32 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">
-                                    ${priceOptions}
-                                </select>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <label class="text-xs text-slate-500">Qty</label>
-                                <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-right text-sm" data-index="${index}" value="${item.quantity}">
-                            </div>
-                            <div class="flex items-center justify-between pt-2 border-t border-slate-50">
-                                <span class="text-xs font-semibold text-slate-500">Subtotal</span>
-                                <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                    `);
                 mobileItem.find('.price-select').val(item.price);
                 mobileList.append(mobileItem);
 
                 inputsWrapper.append(`
-                    <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
-                    <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}" class="item-quantity" data-index="${index}">
-                    <input type="hidden" name="items[${index}][price]" value="${item.price}" class="item-price" data-index="${index}">
-                    <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
-                `);
+                        <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
+                        <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}" class="item-quantity" data-index="${index}">
+                        <input type="hidden" name="items[${index}][price]" value="${item.price}" class="item-price" data-index="${index}">
+                        <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
+                    `);
             });
 
             updateSummary();
@@ -614,14 +683,14 @@
         function addProductToCart(product) {
             const existing = cart.find(item => item.id === product.id);
             const stockAlert = Number(product.stock_alert || 0);
-            
+
             if (existing) {
                 if (existing.quantity + 1 > product.stock) {
                     alert('Stok produk tidak mencukupi.');
                     return;
                 }
                 existing.quantity += 1;
-                
+
                 // Cek jika stok setelah dikurangi quantity menjadi menipis
                 if (stockAlert > 0 && (product.stock - existing.quantity) <= stockAlert) {
                     Swal.fire({
@@ -639,7 +708,7 @@
                     alert('Stok produk habis.');
                     return;
                 }
-                
+
                 // Tentukan harga berdasarkan tier yang aktif
                 let selectedPrice = Number(product.price);
                 if (currentPriceTier === 2 && product.price_2 > 0) {
@@ -647,7 +716,7 @@
                 } else if (currentPriceTier === 3 && product.price_3 > 0) {
                     selectedPrice = Number(product.price_3);
                 }
-                
+
                 cart.push({
                     id: product.id,
                     name: product.name,
@@ -679,7 +748,7 @@
 
         $(function () {
             const $barcodeInput = $('#barcode-input');
-            
+
             // Initialize Slim Select for product select
             productSlimSelect = new SlimSelect({
                 select: '#product-select',
@@ -746,7 +815,7 @@
                 const selectedOption = $(this).find('option:selected');
                 const priceTier = parseInt(selectedOption.data('price-tier')) || 1;
                 currentPriceTier = priceTier;
-                
+
                 // Update semua harga di cart berdasarkan tier baru
                 if (cart.length > 0) {
                     updateCartPrices(priceTier);
@@ -797,9 +866,9 @@
                     $(this).val(item.stock);
                     return;
                 }
-                
+
                 item.quantity = quantity;
-                
+
                 // Cek stok menipis saat perubahan quantity
                 if (item.stock_alert > 0 && (item.stock - item.quantity) <= item.stock_alert) {
                     Swal.fire({
@@ -837,7 +906,7 @@
             $printModalConfirm.on('click', function () {
                 if ($printInvoiceInput) $printInvoiceInput.val('1');
                 if ($printShippingInput) $printShippingInput.val('0');
-                
+
                 printChoiceConfirmed = true;
                 hidePrintModal();
                 try {
@@ -846,7 +915,7 @@
                 } catch (error) {
                     // ignore storage failures
                 }
-                
+
                 if (!preOpenedPrintWindow || preOpenedPrintWindow.closed) {
                     preOpenedPrintWindow = window.open('', 'invoice-print', printWindowFeatures);
                 } else {
@@ -864,7 +933,7 @@
             $printModalShipping.on('click', function () {
                 if ($printInvoiceInput) $printInvoiceInput.val('0');
                 if ($printShippingInput) $printShippingInput.val('1');
-                
+
                 printChoiceConfirmed = true;
                 hidePrintModal();
                 try {
@@ -892,7 +961,7 @@
             $printModalSkip.on('click', function () {
                 if ($printInvoiceInput) $printInvoiceInput.val('0');
                 if ($printShippingInput) $printShippingInput.val('0');
-                
+
                 printChoiceConfirmed = true;
                 hidePrintModal();
                 try {

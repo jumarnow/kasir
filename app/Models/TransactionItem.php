@@ -13,14 +13,21 @@ class TransactionItem extends Model
         'transaction_id',
         'product_id',
         'quantity',
+        'width',
+        'length',
+        'area',
         'price',
         'cost_price',
         'total',
         'profit',
+        'notes',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
+        'width' => 'decimal:2',
+        'length' => 'decimal:2',
+        'area' => 'decimal:4',
         'price' => 'decimal:2',
         'cost_price' => 'decimal:2',
         'total' => 'decimal:2',
@@ -32,8 +39,25 @@ class TransactionItem extends Model
     protected static function booted(): void
     {
         static::saving(function (TransactionItem $item) {
-            $item->total = $item->price * $item->quantity;
-            $item->profit = ($item->price - $item->cost_price) * $item->quantity;
+            // Calculate area if dimensions are provided (in m²)
+            if ($item->width && $item->length) {
+                $item->area = ($item->width / 100) * ($item->length / 100);
+            }
+
+            // Calculate total based on pricing type
+            if ($item->area && $item->product?->pricing_type === 'per_dimension') {
+                // For dimension-based: price is already per-area unit price × area
+                $item->total = $item->price * $item->quantity;
+            } else {
+                // For per-unit pricing
+                $item->total = $item->price * $item->quantity;
+            }
+
+            // Calculate profit
+            $costTotal = $item->area
+                ? ($item->cost_price * $item->area * $item->quantity)
+                : ($item->cost_price * $item->quantity);
+            $item->profit = $item->total - $costTotal;
         });
     }
 
@@ -46,4 +70,27 @@ class TransactionItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    /**
+     * Get formatted dimensions
+     */
+    public function getDimensionsAttribute(): ?string
+    {
+        if ($this->width && $this->length) {
+            return "{$this->width} × {$this->length} cm";
+        }
+        return null;
+    }
+
+    /**
+     * Get formatted area
+     */
+    public function getFormattedAreaAttribute(): ?string
+    {
+        if ($this->area) {
+            return number_format($this->area, 2) . ' m²';
+        }
+        return null;
+    }
 }
+

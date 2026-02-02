@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
+class Material extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'code',
+        'description',
+        'unit',
+        'cost_price',
+        'selling_price',
+        'stock',
+        'stock_alert',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'cost_price' => 'decimal:2',
+        'selling_price' => 'decimal:2',
+        'stock' => 'integer',
+        'stock_alert' => 'integer',
+        'is_active' => 'boolean',
+    ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Material $material) {
+            if (empty($material->code)) {
+                $material->code = strtoupper(Str::slug($material->name, '-'));
+            }
+        });
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if (!$term) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', '%' . $term . '%')
+                ->orWhere('code', 'like', '%' . $term . '%');
+        });
+    }
+
+    public function decrementStock(int $quantity): void
+    {
+        $this->stock = max(0, $this->stock - $quantity);
+        $this->save();
+    }
+
+    public function incrementStock(int $quantity): void
+    {
+        $this->stock += $quantity;
+        $this->save();
+    }
+
+    public function isLowStock(): bool
+    {
+        return $this->stock <= $this->stock_alert;
+    }
+}

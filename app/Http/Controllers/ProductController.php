@@ -49,6 +49,9 @@ class ProductController extends Controller
         $payload['price_2'] = !empty($payload['price_2']) ? toNumeric($payload['price_2']) : null;
         $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
         $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
+        $payload['price_per_meter'] = !empty($payload['price_per_meter']) ? toNumeric($payload['price_per_meter']) : null;
+        $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;
+        $payload['min_length'] = !empty($payload['min_length']) ? toNumeric($payload['min_length']) : null;
         $payload['stock'] = $payload['stock'] ?? 0;
         $payload['stock_alert'] = $payload['stock_alert'] ?? 5;
 
@@ -71,6 +74,9 @@ class ProductController extends Controller
         $payload['price_2'] = !empty($payload['price_2']) ? toNumeric($payload['price_2']) : null;
         $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
         $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
+        $payload['price_per_meter'] = !empty($payload['price_per_meter']) ? toNumeric($payload['price_per_meter']) : null;
+        $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;
+        $payload['min_length'] = !empty($payload['min_length']) ? toNumeric($payload['min_length']) : null;
 
         $product->update($payload);
 
@@ -96,7 +102,7 @@ class ProductController extends Controller
     public function bulkBarcode(Request $request)
     {
         $productIds = $request->input('product_ids', []);
-        
+
         if (empty($productIds) || $request->input('all') == '1') {
             $products = Product::all();
         } else {

@@ -18,9 +18,9 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $transactions = Transaction::with(['customer', 'user'])
-            ->when($request->query('start_date'), fn ($query, $date) => $query->whereDate('created_at', '>=', $date))
-            ->when($request->query('end_date'), fn ($query, $date) => $query->whereDate('created_at', '<=', $date))
-            ->when($request->query('q'), fn ($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'))
+            ->when($request->query('start_date'), fn($query, $date) => $query->whereDate('created_at', '>=', $date))
+            ->when($request->query('end_date'), fn($query, $date) => $query->whereDate('created_at', '<=', $date))
+            ->when($request->query('q'), fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'))
             ->orderByDesc('created_at')
             ->paginate(15)
             ->withQueryString();
@@ -37,7 +37,7 @@ class TransactionController extends Controller
         $products = Product::where('is_active', true)
             ->orderBy('name')
             ->take(50)
-            ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert']);
+            ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'min_width', 'min_length']);
 
         return view('transactions.create', compact('customers', 'products'));
     }
@@ -64,6 +64,29 @@ class TransactionController extends Controller
         return view('transactions.show', compact('transaction'));
     }
 
+    public function spk(Transaction $transaction)
+    {
+        $transaction->load(['items.product', 'customer', 'user', 'files']);
+
+        return view('transactions.spk_thermal', compact('transaction'));
+    }
+
+    public function receipt(Transaction $transaction)
+    {
+        $transaction->load(['items.product', 'customer', 'user']);
+        $settings = \App\Models\Setting::pluck('value', 'key')->all();
+
+        return view('transactions.receipt_thermal', compact('transaction', 'settings'));
+    }
+
+    public function invoiceA5(Transaction $transaction)
+    {
+        $transaction->load(['items.product', 'customer', 'user']);
+        $settings = \App\Models\Setting::pluck('value', 'key')->all();
+
+        return view('transactions.invoice_a5', compact('transaction', 'settings'));
+    }
+
     public function invoice(Transaction $transaction)
     {
         $transaction->load(['items.product', 'customer', 'user']);
@@ -88,7 +111,7 @@ class TransactionController extends Controller
             })
             ->first();
 
-        if (! $product) {
+        if (!$product) {
             return response()->json(['message' => 'Produk tidak ditemukan.'], 404);
         }
 
