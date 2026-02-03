@@ -41,8 +41,9 @@ class TransactionController extends Controller
 
         $finishings = \App\Models\Finishing::all();
         $displays = \App\Models\Display::all();
+        $materials = \App\Models\Material::all();
 
-        return view('transactions.create', compact('customers', 'products', 'finishings', 'displays'));
+        return view('transactions.create', compact('customers', 'products', 'finishings', 'displays', 'materials'));
     }
 
     public function store(StoreTransactionRequest $request)
@@ -52,6 +53,18 @@ class TransactionController extends Controller
         $user = $request->user() ?? auth()->user() ?? \App\Models\User::firstOrFail();
 
         $transaction = $this->transactionService->create($user, $request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transaksi berhasil dibuat.',
+                'transaction_id' => $transaction->id,
+                'print_invoice' => $shouldPrintInvoice,
+                'print_shipping_label' => $shouldPrintShippingLabel,
+                'print_receipt' => $request->boolean('print_receipt'),
+                'print_spk' => $request->boolean('print_spk'),
+            ]);
+        }
 
         return redirect()->route('transactions.create')
             ->with('success', 'Transaksi berhasil dibuat.')

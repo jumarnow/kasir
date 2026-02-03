@@ -34,6 +34,22 @@ class StoreTransactionRequest extends FormRequest
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.price' => ['required', 'numeric', 'min:0'],
             'items.*.cost_price' => ['nullable', 'numeric', 'min:0'],
+            'items.*.finishing_id' => ['nullable', 'exists:finishings,id'],
+            'items.*.display_id' => ['nullable', 'exists:displays,id'],
+            'items.*.material_id' => ['nullable', 'exists:materials,id'],
+            'items.*.width' => ['nullable', 'numeric', 'min:0'],
+            'items.*.length' => ['nullable', 'numeric', 'min:0'],
+            'due_date' => [
+                'nullable',
+                'date',
+                'after_or_equal:today',
+                function ($attribute, $value, $fail) {
+                    $paymentMethod = $this->input('payment_method');
+                    if (in_array($paymentMethod, ['dp', 'pending']) && empty($value)) {
+                        $fail('Tanggal jatuh tempo wajib diisi untuk pembayaran DP atau Pending.');
+                    }
+                }
+            ],
         ];
     }
 

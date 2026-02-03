@@ -42,7 +42,7 @@ class TransactionService
             $explicitDiscount = (float) Arr::get($payload, 'discount_amount', 0);
             $shippingCost = (float) Arr::get($payload, 'shipping_cost', 0);
 
-            $subtotal = $items->sum(fn ($item) => $item['price'] * $item['quantity']);
+            $subtotal = $items->sum(fn($item) => $item['price'] * $item['quantity']);
 
             $percentDiscountValue = $subtotal * ($discountPercent / 100);
             $discountAmount = min($subtotal, $explicitDiscount + $percentDiscountValue);
@@ -50,11 +50,25 @@ class TransactionService
             $total = max($subtotal - $discountAmount + $shippingCost, 0);
             $amountPaid = (float) Arr::get($payload, 'amount_paid', $total);
 
-            if ($amountPaid < $total) {
+            $amountPaid = (float) Arr::get($payload, 'amount_paid', $total);
+            $paymentMethod = Arr::get($payload, 'payment_method', 'cash');
+
+            // Allow partial payment only for DP or Pending (Tempo)
+            if ($amountPaid < $total && !in_array($paymentMethod, ['dp', 'pending', 'tempo'])) {
                 throw ValidationException::withMessages([
-                    'amount_paid' => ['Jumlah pembayaran tidak boleh kurang dari total.'],
+                    'amount_paid' => ['Jumlah pembayaran tidak boleh kurang dari total (kecuali DP/Tempo).'],
                 ]);
             }
+
+            // Determine status based on payment
+            $status = 'completed';
+            if ($amountPaid < $total) {
+                $status = 'partial'; // or 'pending' depending on your business logic
+            }
+            if ($paymentMethod === 'pending') {
+                $status = 'pending';
+            }
+
 
             $profit = $items->sum(function ($item) {
                 return ($item['price'] - $item['cost_price']) * $item['quantity'];

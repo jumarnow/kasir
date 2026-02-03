@@ -79,6 +79,7 @@
                     </th>
                     <th class="px-6 py-4">Produk</th>
                     <th class="px-6 py-4">Kategori</th>
+                    <th class="px-6 py-4">Tipe Harga</th>
                     <th class="px-6 py-4">Harga</th>
                     <th class="px-6 py-4">Stok</th>
                     <th class="px-6 py-4">Barcode</th>
@@ -99,6 +100,17 @@
                             {{ $product->category?->name ?? '-' }}
                         </td>
                         <td class="px-6 py-4">
+                            @if($product->pricing_type === 'per_dimension')
+                                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                                    Per Dimensi
+                                </span>
+                            @else
+                                <span class="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">
+                                    Unit/Pcs
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4">
                             <div class="font-semibold text-slate-800">
                                 @if($product->pricing_type === 'per_dimension')
                                     Rp {{ number_format($product->price_per_meter ?? $product->price, 0, ',', '.') }} <span class="text-xs font-normal text-slate-500">/ m²</span>
@@ -106,11 +118,7 @@
                                     Rp {{ number_format($product->price, 0, ',', '.') }}
                                 @endif
                             </div>
-                            @if($product->pricing_type === 'per_dimension')
-                                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 mt-1">
-                                    Per Dimensi
-                                </span>
-                            @else
+                            @if($product->pricing_type !== 'per_dimension')
                                 @if($product->price_2)
                                     <div class="text-xs text-slate-500">Harga 2: Rp {{ number_format($product->price_2, 0, ',', '.') }}</div>
                                 @endif
@@ -148,7 +156,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-6 text-center text-sm text-slate-500">
+                        <td colspan="7" class="px-6 py-6 text-center text-sm text-slate-500">
                             Belum ada produk. Tambahkan produk baru sekarang.
                         </td>
                     </tr>
@@ -178,6 +186,12 @@
                 </div>
 
                 <div class="mt-3 space-y-1">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-slate-500">Tipe Harga:</span>
+                        <span class="font-medium text-slate-700">
+                            {{ $product->pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs' }}
+                        </span>
+                    </div>
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-slate-500">Harga 1:</span>
                         <span class="font-semibold text-slate-800">Rp {{ number_format($product->price, 0, ',', '.') }}</span>

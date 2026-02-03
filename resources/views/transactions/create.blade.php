@@ -206,47 +206,9 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div id="dimension-inputs" class="hidden flex gap-2">
-                                    <div class="w-16">
-                                        <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">P
-                                            (cm)</label>
-                                        <input type="number" id="input-length"
-                                            class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm text-center focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                            placeholder="0">
-                                    </div>
-                                    <div class="w-16">
-                                        <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">L
-                                            (cm)</label>
-                                        <input type="number" id="input-width"
-                                            class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm text-center focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                            placeholder="0">
-                                    </div>
-                                </div>
-                                <!-- Extra options wrapper -->
-                                <div class="hidden flex gap-2" id="extra-inputs">
-                                    <div class="w-24">
-                                        <label
-                                            class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Finishing</label>
-                                        <select id="input-finishing"
-                                            class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                                            <option value="">-</option>
-                                            @foreach($finishings as $f)
-                                                <option value="{{ $f->id }}">{{ $f->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="w-24">
-                                        <label
-                                            class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Display</label>
-                                        <select id="input-display"
-                                            class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                                            <option value="">-</option>
-                                            @foreach($displays as $d)
-                                                <option value="{{ $d->id }}">{{ $d->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
+                                <!-- Extra inputs removed - moved to modal -->
+                                <div id="dimension-inputs" class="hidden"></div>
+                                <div id="extra-inputs" class="hidden"></div>
                                 <button type="button" id="add-product"
                                     class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
                                     disabled>
@@ -262,10 +224,11 @@
                             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
                                 <tr>
                                     <th class="px-4 py-3 text-left">Produk</th>
+                                    <th class="px-4 py-3 text-center">Tipe Harga</th>
                                     <th class="px-4 py-3 text-center">Harga</th>
                                     <th class="px-4 py-3 text-center">Qty</th>
                                     <th class="px-4 py-3 text-right">Subtotal</th>
-                                    <th class="px-4 py-3 text-right"></th>
+                                    <th class="px-4 py-3 text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="cart-items" class="divide-y divide-slate-100"></tbody>
@@ -324,11 +287,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pembayaran</label>
-                                <select name="payment_method"
+                                <select name="payment_method" id="payment-method"
                                     class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                                    <option value="cash">Tunai</option>
-                                    <option value="transfer">Transfer</option>
-                                    <option value="qris">QRIS</option>
+                                    <option value="lunas">Lunas</option>
+                                    <option value="dp">DP</option>
+                                    <option value="pending">Pending</option>
                                 </select>
                             </div>
                             <div>
@@ -425,6 +388,135 @@
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" id="cancel-quick-customer"
+                        class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                    <button type="submit"
+                        class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 shadow-sm">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Print Preview Modal -->
+    <div id="print-preview-modal"
+        class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
+        <div class="w-full max-w-4xl h-[85vh] flex flex-col rounded-2xl bg-white shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                    Pratinjau Cetak
+                </h3>
+                <button type="button" id="close-print-preview"
+                    class="rounded-lg p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
+                    <span class="sr-only">Tutup & Selesai</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="flex-1 bg-slate-100 relative">
+                <iframe id="print-preview-frame" class="w-full h-full border-0" src=""></iframe>
+            </div>
+            <div class="border-t border-slate-200 px-6 py-4 bg-white flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('print-preview-frame').contentWindow.print()"
+                    class="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 hover:shadow-indigo-300 transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                    Cetak Dokumen
+                </button>
+                <button type="button" onclick="$('#close-print-preview').trigger('click')"
+                    class="rounded-lg border border-slate-200 px-6 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+                    Selesai & Transaksi Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div id="item-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800" id="modal-item-name">Detail Item</h3>
+                    <p class="text-xs text-slate-500">Sesuaikan spesifikasi produk</p>
+                </div>
+                <button type="button" id="close-item-detail" class="text-slate-400 hover:text-slate-600">
+                    <span class="sr-only">Tutup</span>
+                    &times;
+                </button>
+            </div>
+            <form id="item-detail-form">
+                <input type="hidden" id="modal-item-index">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Quantity</label>
+                        <input type="number" id="modal-qty" min="1"
+                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+
+                    <!-- Dimensions -->
+                    <div id="modal-dimensions-wrapper" class="col-span-2 grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Panjang (cm)</label>
+                            <input type="number" id="modal-length" min="0" step="0.1"
+                                class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                placeholder="0">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Lebar (cm)</label>
+                            <input type="number" id="modal-width" min="0" step="0.1"
+                                class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                placeholder="0">
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Finishing</label>
+                        <select id="modal-finishing"
+                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">- Pilih Finishing -</option>
+                            @foreach($finishings as $f)
+                                <option value="{{ $f->id }}">{{ $f->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Material</label>
+                        <select id="modal-material"
+                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">- Pilih Material -</option>
+                            @foreach($materials as $m)
+                                <option value="{{ $m->id }}">{{ $m->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Display</label>
+                        <select id="modal-display"
+                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">- Pilih Display -</option>
+                            @foreach($displays as $d)
+                                <option value="{{ $d->id }}">{{ $d->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-span-2 pt-2 border-t border-slate-100 mt-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold text-slate-600">Estimasi Harga</span>
+                            <span class="text-lg font-bold text-indigo-600" id="modal-price-display">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" id="cancel-item-detail"
                         class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
                     <button type="submit"
                         class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 shadow-sm">Simpan</button>
@@ -559,140 +651,104 @@
 
             cart.forEach((item, index) => {
                 const subtotal = item.quantity * item.price;
-                const isDimension = item.pricing_type === 'per_dimension';
 
-                // Build price options (only show if not dimension pricing?)
-                // Actually even for dimension pricing, base price per meter might change? 
-                // Let's assume price selection is mainly for Unit Items (Tier 1, 2, 3)
-                // For Dimension items, price is calculated, so maybe we show just text or allow override?
-                // For simplicity: If dimension, show formatted price (read-only sort of). 
-                // If unit, show dropdown.
+                // Format Dimensions & Details for display
+                let detailsText = '';
+                if (item.width > 0 && item.length > 0) {
+                    detailsText += `<div class="text-xs text-slate-500">Dimensi: ${item.length} x ${item.width} cm</div>`;
+                }
+                const finishingName = finishingsData.find(f => f.id == item.finishing_id)?.name || null;
+                const materialName = materialsData.find(m => m.id == item.material_id)?.name || null;
+                const displayName = displaysData.find(d => d.id == item.display_id)?.name || null;
 
-                let priceField = '';
-                let priceOptions = `<option value="${item.price_1}">${formatCurrency(item.price_1)}</option>`;
-                if (item.price_2 > 0) priceOptions += `<option value="${item.price_2}">${formatCurrency(item.price_2)}</option>`;
-                if (item.price_3 > 0) priceOptions += `<option value="${item.price_3}">${formatCurrency(item.price_3)}</option>`;
+                let extras = [];
+                if (finishingName) extras.push(`F: ${finishingName}`);
+                if (materialName) extras.push(`M: ${materialName}`);
+                if (displayName) extras.push(`D: ${displayName}`);
 
-                priceField = `
-                                     <select class="price-select w-28 rounded-lg border border-slate-200 px-2 py-1 text-sm ${isDimension ? 'bg-slate-100' : ''}" data-index="${index}" ${isDimension ? 'disabled' : ''}>
-                                            ${priceOptions}
-                                     </select>
-                                `;
-
-
-                // Helper to build options
-                const buildOptions = (data, selected) => {
-                    let html = '<option value="">-</option>';
-                    data.forEach(opt => {
-                        const isSel = opt.id == selected ? 'selected' : '';
-                        html += `<option value="${opt.id}" ${isSel}>${opt.name}</option>`;
-                    });
-                    return html;
-                };
-
-                const finishingsOpts = buildOptions(finishingsData, item.finishing_id);
-                const displaysOpts = buildOptions(displaysData, item.display_id);
-
-                // Inputs for Dimensions
-                // If not dimension type, disable or hide inputs? Let's hide or readonly.
-                const dimInputStyle = "w-16 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm";
-                const pInput = isDimension
-                    ? `<input type="number" min="0" class="item-length ${dimInputStyle}" data-index="${index}" value="${item.length || 0}">`
-                    : `<input type="number" disabled class="${dimInputStyle} bg-slate-50 text-slate-400" value="">`;
-
-                const lInput = isDimension
-                    ? `<input type="number" min="0" class="item-width ${dimInputStyle}" data-index="${index}" value="${item.width || 0}">`
-                    : `<input type="number" disabled class="${dimInputStyle} bg-slate-50 text-slate-400" value="">`;
+                if (extras.length > 0) {
+                    detailsText += `<div class="text-xs text-slate-500 mt-1">${extras.join(' | ')}</div>`;
+                }
 
                 // Desktop Row
                 const row = $(`
-                                <tr>
-                                    <td class="px-4 py-3">
-                                        <p class="font-medium text-slate-700">${item.name}</p>
-                                        <p class="text-xs text-slate-400">Stok: ${item.stock}</p>
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        ${priceField}
-                                    </td>
-                                     <td class="px-4 py-3 text-center">${pInput}</td>
-                                     <td class="px-4 py-3 text-center">${lInput}</td>
-                                     <td class="px-4 py-3 text-center">
-                                        <select class="item-finishing w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">${finishingsOpts}</select>
-                                     </td>
-                                     <td class="px-4 py-3 text-center">
-                                        <select class="item-display w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm" data-index="${index}">${displaysOpts}</select>
-                                     </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <input type="number" min="1" class="qty-input w-16 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm" data-index="${index}" value="${item.quantity}">
-                                    </td>
-                                    <td class="px-4 py-3 text-right font-semibold text-slate-700">
-                                        ${formatCurrency(subtotal)}
-                                    </td>
-                                    <td class="px-4 py-3 text-right">
-                                        <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600" data-index="${index}">Hapus</button>
-                                    </td>
-                                </tr>
-                            `);
-
-                // Set selected price for non-dimension items (visually)
-                if (!isDimension) {
-                    row.find('.price-select').val(item.price);
-                } else {
-                    // For dimension, price is calculated, so we might want to show text instead of select?
-                    // Or just show total unit price
-                    // Let's replace the select with text for dimension items to avoid confusion
-                    row.find('.price-select').parent().html(`<span class="text-sm">${formatCurrency(item.price)}</span>`);
-                }
+                                                                                <tr>
+                                                                                    <td class="px-4 py-3">
+                                                                                        <div class="font-medium text-slate-700">${item.name}</div>
+                                                                                        <div class="text-xs text-slate-400">Stok: ${item.stock}</div>
+                                                                                        ${detailsText}
+                                                                                    </td>
+                                                                                    <td class="px-4 py-3 text-center">
+                                                                                        <span class="inline-flex items-center rounded-md ${item.pricing_type === 'per_dimension' ? 'bg-blue-50 text-blue-700 ring-blue-700/10' : 'bg-slate-50 text-slate-600 ring-slate-200'} px-2 py-1 text-[10px] font-medium ring-1 ring-inset">
+                                                                                            ${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td class="px-4 py-3 text-center">
+                                                                                        ${formatCurrency(item.price)}
+                                                                                    </td>
+                                                                                    <td class="px-4 py-3 text-center">
+                                                                                        ${item.quantity}
+                                                                                    </td>
+                                                                                    <td class="px-4 py-3 text-right font-semibold text-slate-700">
+                                                                                        ${formatCurrency(subtotal)}
+                                                                                    </td>
+                                                                                    <td class="px-4 py-3 text-right">
+                                                                                        <div class="flex justify-end gap-2">
+                                                                                            <button type="button" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-edit-item" data-index="${index}">Edit</button>
+                                                                                            <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 rounded-md px-2 py-1 text-xs font-medium transition-colors remove-item" data-index="${index}">Hapus</button>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            `);
 
                 tbody.append(row);
 
-                // Mobile Item - simplified for now, maybe add an "Edit" button for details? 
-                // Or just show inputs linearly.
+                // Mobile list
                 const mobileItem = $(`
-                                <div class="p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <p class="font-medium text-slate-700">${item.name}</p>
-                                        </div>
-                                        <button type="button" class="remove-item text-xs text-red-500 hover:text-red-600 font-medium" data-index="${index}">Hapus</button>
-                                    </div>
-                                     <div class="grid grid-cols-2 gap-2 mb-2">
-                                        ${isDimension
-                        ? `<div><label class="text-[10px] text-slate-400">P</label><input type="number" class="item-length w-full border rounded px-2 py-1" data-index="${index}" value="${item.length || 0}"></div>
-                                               <div><label class="text-[10px] text-slate-400">L</label><input type="number" class="item-width w-full border rounded px-2 py-1" data-index="${index}" value="${item.width || 0}"></div>`
-                        : ''}
-                                        <div><label class="text-[10px] text-slate-400">Finishing</label><select class="item-finishing w-full border rounded px-1 py-1" data-index="${index}">${finishingsOpts}</select></div>
-                                        <div><label class="text-[10px] text-slate-400">Display</label><select class="item-display w-full border rounded px-1 py-1" data-index="${index}">${displaysOpts}</select></div>
-                                     </div>
-
-                                    <div class="flex flex-col gap-2">
-                                        <div class="flex items-center justify-between">
-                                            <label class="text-xs text-slate-500">Harga</label>
-                                             <span class="text-sm font-medium text-slate-700">${formatCurrency(item.price)}</span>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <label class="text-xs text-slate-500">Qty</label>
-                                            <input type="number" min="1" class="qty-input w-20 rounded-lg border border-slate-200 px-2 py-1 text-right text-sm" data-index="${index}" value="${item.quantity}">
-                                        </div>
-                                        <div class="flex items-center justify-between pt-2 border-t border-slate-50">
-                                            <span class="text-xs font-semibold text-slate-500">Subtotal</span>
-                                            <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            `);
+                                                                                <div class="p-4">
+                                                                                    <div class="flex justify-between items-start mb-2">
+                                                                                        <div>
+                                                                                            <p class="font-medium text-slate-700">${item.name}</p>
+                                                                                            ${detailsText}
+                                                                                        </div>
+                                                                                        <div class="flex gap-3">
+                                                                                            <button type="button" class="text-xs text-indigo-600 font-medium btn-edit-item" data-index="${index}">Edit</button>
+                                                                                            <button type="button" class="remove-item text-xs text-red-500 font-medium" data-index="${index}">Hapus</button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="flex flex-col gap-2">
+                                                                                        <div class="flex items-center justify-between text-sm">
+                                                                                            <span class="text-slate-500">Tipe Harga</span>
+                                                                                            <span class="font-medium ${item.pricing_type === 'per_dimension' ? 'text-blue-600' : 'text-slate-600'}">${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}</span>
+                                                                                        </div>
+                                                                                        <div class="flex items-center justify-between text-sm">
+                                                                                            <span class="text-slate-500">Harga</span>
+                                                                                            <span>${formatCurrency(item.price)}</span>
+                                                                                        </div>
+                                                                                        <div class="flex items-center justify-between text-sm">
+                                                                                            <span class="text-slate-500">Qty</span>
+                                                                                            <span>${item.quantity}</span>
+                                                                                        </div>
+                                                                                         <div class="flex items-center justify-between pt-2 border-t border-slate-50">
+                                                                                            <span class="text-xs font-semibold text-slate-500">Subtotal</span>
+                                                                                            <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            `);
                 mobileList.append(mobileItem);
 
                 inputsWrapper.append(`
-                                <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
-                                <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
-                                <input type="hidden" name="items[${index}][price]" value="${item.price}">
-                                <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
-                                <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
-                                <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
-                                <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
-                                <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
-                            `);
+                                                                                <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
+                                                                                <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
+                                                                                <input type="hidden" name="items[${index}][price]" value="${item.price}">
+                                                                                <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
+                                                                                <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
+                                                                                <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
+                                                                                <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
+                                                                                <input type="hidden" name="items[${index}][material_id]" value="${item.material_id || ''}">
+                                                                                <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
+                                                                            `);
             });
 
             updateSummary();
@@ -703,9 +759,10 @@
                 return;
             }
 
-            const hasPayment = amountPaid > 0 || total === 0;
-            const isPaymentSufficient = amountPaid >= total;
-            const canSubmit = cart.length > 0 && hasPayment && isPaymentSufficient;
+            // Allow submit even if partial payment (for DP/Tempo)
+            // Just ensure cart is not empty.
+            // Backend validation will handle specific constraints if any.
+            const canSubmit = cart.length > 0;
 
             $submitButton.prop('disabled', !canSubmit);
         }
@@ -724,12 +781,22 @@
         }
 
         function updateSummary() {
-            const { subtotal, totalDiscount, total, amountPaid, change } = calculateSummary();
+            const results = calculateSummary();
+            const { subtotal, totalDiscount, total, change } = results;
+            let amountPaid = results.amountPaid;
+
+            const paymentMethod = $('select[name="payment_method"]').val();
+
+            // Auto-fill amount_paid if lunas
+            if (paymentMethod === 'lunas') {
+                $('#amount-paid').val(formatCurrency(total));
+                amountPaid = total;
+            }
 
             $('#summary-subtotal').text(formatCurrency(subtotal));
             $('#summary-discount').text(formatCurrency(totalDiscount));
             $('#summary-total').text(formatCurrency(total));
-            $('#summary-change').text(formatCurrency(change));
+            $('#summary-change').text(formatCurrency(Math.max(amountPaid - total, 0)));
             updateSubmitButton(total, amountPaid);
         }
 
@@ -749,6 +816,95 @@
 
             $printModal.addClass('hidden').removeClass('flex');
             $('body').removeClass('overflow-hidden');
+        }
+
+        let $itemDetailModal, $closeItemDetail, $cancelItemDetail, $itemDetailForm;
+
+        function openItemDetail(index) {
+            const item = cart[index];
+            if (!item) return;
+
+            $('#modal-item-index').val(index);
+            $('#modal-item-name').text(item.name);
+            $('#modal-qty').val(item.quantity);
+            $('#modal-length').val(item.length || 0);
+            $('#modal-width').val(item.width || 0);
+            $('#modal-finishing').val(item.finishing_id || '');
+            $('#modal-material').val(item.material_id || '');
+            $('#modal-display').val(item.display_id || '');
+            // Toggle Dimensions based on pricing type
+            if (item.pricing_type === 'per_dimension') {
+                $('#modal-dimensions-wrapper').removeClass('hidden').addClass('grid');
+            } else {
+                $('#modal-dimensions-wrapper').addClass('hidden').removeClass('grid');
+            }
+
+            // Recalculate estimated price for display
+            calculateModalPrice();
+
+            $itemDetailModal.removeClass('hidden').addClass('flex');
+            $('#modal-qty').focus();
+        }
+
+        function closeItemDetail() {
+            $itemDetailModal.addClass('hidden').removeClass('flex');
+            $itemDetailForm[0].reset();
+        }
+
+        function calculateModalPrice() {
+            const index = $('#modal-item-index').val();
+            const item = cart[index];
+            if (!item) return;
+
+            const w = parseFloat($('#modal-width').val()) || 0;
+            const l = parseFloat($('#modal-length').val()) || 0;
+            const qty = parseInt($('#modal-qty').val()) || 1;
+            const area = (w / 100) * (l / 100);
+
+            let productPrice = item.price_1;
+            if (currentPriceTier === 2 && item.price_2 > 0) productPrice = item.price_2;
+            if (currentPriceTier === 3 && item.price_3 > 0) productPrice = item.price_3;
+            if (item.pricing_type === 'per_dimension') productPrice = item.price_per_meter || item.price_1;
+
+            let unitPrice = 0;
+            if (item.pricing_type === 'per_dimension') {
+                unitPrice = productPrice * area;
+            } else {
+                unitPrice = productPrice;
+            }
+
+            // Add Material Price
+            const materialId = $('#modal-material').val();
+            if (materialId) {
+                const material = materialsData.find(m => m.id == materialId);
+                if (material) {
+                    const matPrice = parseFloat(material.selling_price) || 0;
+                    if (item.pricing_type === 'per_dimension') {
+                        unitPrice += (matPrice * area);
+                    } else {
+                        unitPrice += matPrice;
+                    }
+                }
+            }
+
+            // Add Finishing Price
+            const finishingId = $('#modal-finishing').val();
+            if (finishingId) {
+                const finishing = finishingsData.find(f => f.id == finishingId);
+                if (finishing) {
+                    const fPrice = parseFloat(finishing.price) || 0;
+                    if (finishing.pricing_type === 'per_meter') {
+                        unitPrice += (fPrice * (l / 100));
+                    } else if (finishing.pricing_type === 'per_dimension') {
+                        unitPrice += (fPrice * area);
+                    } else {
+                        unitPrice += fPrice;
+                    }
+                }
+            }
+
+            const total = Math.round(unitPrice) * qty;
+            $('#modal-price-display').text(formatCurrency(total));
         }
 
         function updateCartPrices(tier) {
@@ -814,6 +970,7 @@
                 length: 0,
                 area: 0,
                 finishing_id: null,
+                material_id: null,
                 display_id: null
             });
 
@@ -828,10 +985,13 @@
                 });
             }
             renderCart();
+            // Open modal for the newly added item
+            openItemDetail(cart.length - 1);
         }
 
         const finishingsData = @json($finishings ?? []);
         const displaysData = @json($displays ?? []);
+        const materialsData = @json($materials ?? []);
 
         $(function () {
             const $barcodeInput = $('#barcode-input');
@@ -940,90 +1100,85 @@
                 }
             });
 
-            // Event listeners for inline table inputs
-            $('#cart-items, #cart-items-mobile').on('change input', '.item-length, .item-width', function () {
-                const index = $(this).data('index');
+            // Modal Logic
+            $itemDetailModal = $('#item-detail-modal');
+            $closeItemDetail = $('#close-item-detail');
+            $cancelItemDetail = $('#cancel-item-detail');
+            $itemDetailForm = $('#item-detail-form');
 
-                // Get values
-                const w = parseFloat($(`.item-width[data-index="${index}"]`).val()) || 0;
-                const l = parseFloat($(`.item-length[data-index="${index}"]`).val()) || 0;
 
+            $closeItemDetail.on('click', closeItemDetail);
+            $cancelItemDetail.on('click', closeItemDetail);
+
+            $('#item-detail-form input, #item-detail-form select').on('input change', calculateModalPrice);
+
+            $itemDetailForm.on('submit', function (e) {
+                e.preventDefault();
+                const index = $('#modal-item-index').val();
                 const item = cart[index];
-                item.width = w;
-                item.length = l;
+                if (!item) return;
 
-                // Recalculate price if dimension type
+                const qty = parseInt($('#modal-qty').val()) || 1;
+                const w = parseFloat($('#modal-length').val()) || 0;
+                const l = parseFloat($('#modal-width').val()) || 0;
+                const area = (w / 100) * (l / 100);
+
+                // Update basic specs
+                item.quantity = qty;
+                item.length = w;
+                item.width = l;
+                item.area = area;
+                item.finishing_id = $('#modal-finishing').val() || null;
+                item.material_id = $('#modal-material').val() || null;
+                item.display_id = $('#modal-display').val() || null;
+
+                // Final Unit Price Calculation (Mirror calculateModalPrice logic)
+                let productPrice = item.price_1;
+                if (currentPriceTier === 2 && item.price_2 > 0) productPrice = item.price_2;
+                if (currentPriceTier === 3 && item.price_3 > 0) productPrice = item.price_3;
+                if (item.pricing_type === 'per_dimension') productPrice = item.price_per_meter || item.price_1;
+
+                let unitPrice = 0;
                 if (item.pricing_type === 'per_dimension') {
-                    // Assuming price_per_meter was stored in item during addProductToCart
-                    // If not, we might need to rely on base 'price' if it's treated as per meter.
-                    // Let's ensure addProductToCart stores 'price_per_meter'.
-                    // If stored 'price' is the base meter price, we use that.
-                    // But 'price' usually holds the Final Calculated Price.
-                    const pricePerMeter = item.price_per_meter || item.price_1; // Fallback? Item.price_per_meter should be set.
-                    const area = (w / 100) * (l / 100);
-                    item.area = area;
-                    item.price = Math.round(pricePerMeter * area);
+                    unitPrice = productPrice * area;
+                } else {
+                    unitPrice = productPrice;
                 }
 
-                const subtotal = item.quantity * item.price;
-
-                // Update DOM elements manually to avoid full re-render (which kills focus)
-                // Update Price
-                const row = $('#cart-items tr').eq(index);
-                // For non-dimension items, price is select. For dimension, it's text.
-                // We targeted the span in renderCart for dimension items.
-                if (item.pricing_type === 'per_dimension') {
-                    row.find('td:nth-child(2) span').text(formatCurrency(item.price));
-                    // Mobile
-                    const mobItem = $('#cart-items-mobile > div').eq(index);
-                    mobItem.find('span:contains("Harga")').next().text(formatCurrency(item.price));
+                // Material
+                if (item.material_id) {
+                    const material = materialsData.find(m => m.id == item.material_id);
+                    if (material) {
+                        const matPrice = parseFloat(material.selling_price) || 0;
+                        unitPrice += (item.pricing_type === 'per_dimension') ? (matPrice * area) : matPrice;
+                    }
                 }
 
-                // Update Subtotal (Desktop)
-                row.find('td:nth-last-child(2)').text(formatCurrency(subtotal));
-                // Update Subtotal (Mobile)
-                $('#cart-items-mobile > div').eq(index).find('span:contains("Subtotal")').next().text(formatCurrency(subtotal));
-
-                // Update hidden inputs
-                $(`#items-inputs input[name="items[${index}][width]"]`).val(w);
-                $(`#items-inputs input[name="items[${index}][length]"]`).val(l);
-                $(`#items-inputs input[name="items[${index}][price]"]`).val(item.price);
-
-                updateSummary();
-            });
-
-            $('#cart-items, #cart-items-mobile').on('change', '.item-finishing', function () {
-                const index = $(this).data('index');
-                cart[index].finishing_id = $(this).val();
-                $(`#items-inputs input[name="items[${index}][finishing_id]"]`).val($(this).val());
-            });
-
-            $('#cart-items, #cart-items-mobile').on('change', '.item-display', function () {
-                const index = $(this).data('index');
-                cart[index].display_id = $(this).val();
-                $(`#items-inputs input[name="items[${index}][display_id]"]`).val($(this).val());
-            });
-
-            $('#cart-items, #cart-items-mobile').on('change', '.qty-input', function () {
-                const index = $(this).data('index');
-                const quantity = Number($(this).val());
-                const item = cart[index];
-                const stockAlert = Number(item.stock_alert || 0);
-
-                if (quantity < 1) { $(this).val(item.quantity); return; }
-                if (quantity > item.stock) {
-                    alert('Stok tidak mencukupi.');
-                    $(this).val(item.stock);
-                    return;
-                }
-                item.quantity = quantity;
-                if (stockAlert > 0 && (item.stock - item.quantity) <= stockAlert) {
-                    Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: `Stok menipis: ${item.name}`, showConfirmButton: false, timer: 3000 });
+                // Finishing
+                if (item.finishing_id) {
+                    const finishing = finishingsData.find(f => f.id == item.finishing_id);
+                    if (finishing) {
+                        const fPrice = parseFloat(finishing.price) || 0;
+                        if (finishing.pricing_type === 'per_meter') {
+                            unitPrice += (fPrice * (item.length / 100));
+                        } else if (finishing.pricing_type === 'per_dimension') {
+                            unitPrice += (fPrice * area);
+                        } else {
+                            unitPrice += fPrice;
+                        }
+                    }
                 }
 
-                // Since this updates subtotal and hidden inputs, simpler to re-render OR update manually. 
-                // renderCart() is safer but loses focus. qty input usually OK to lose focus.
+                item.price = Math.round(unitPrice);
+
                 renderCart();
+                closeItemDetail();
+            });
+
+            // Event listeners
+            $('#cart-items, #cart-items-mobile').on('click', '.btn-edit-item', function () {
+                const index = $(this).data('index');
+                openItemDetail(index);
             });
 
             $('#cart-items, #cart-items-mobile').on('click', '.remove-item', function () {
@@ -1035,6 +1190,35 @@
             $(document).on('input', '#discount-percent, #discount-amount, #amount-paid, #shipping-cost', function () {
                 const raf = window.requestAnimationFrame || function (cb) { return setTimeout(cb, 0); };
                 raf(updateSummary);
+            });
+
+            $('select[name="payment_method"]').on('change', function () {
+                const method = $(this).val();
+
+                // Print & Field logic
+                if (method === 'lunas') {
+                    // Hide Due Date
+                    $('#due-date-wrapper').addClass('hidden');
+                    $('#due-date').prop('required', false);
+
+                    // Auto Select Print Receipt (Nota Thermal), uncheck Invoice A5
+                    $printInvoiceInput.prop('checked', false);
+                    // Assuming there might be a receipt input or default behavior
+                    // Based on controller, print_receipt is a separate param. 
+                    // We need to ensure the form sends the right signals or the print modal defaults correctly.
+                    // The user request says: "sistem mengarahkan cetak ke Nota Thermal"
+
+                } else if (method === 'dp' || method === 'pending') {
+                    // Show Due Date
+                    $('#due-date-wrapper').removeClass('hidden');
+                    $('#due-date').prop('required', true);
+                    $('#amount-paid').val(formatCurrency(0));
+
+                    // Auto Select Print Invoice A5
+                    $printInvoiceInput.prop('checked', true);
+                }
+
+                updateSummary();
             });
 
             $printModalConfirm.on('click', function () {
@@ -1156,20 +1340,28 @@
                     success: function (response) {
                         if (response.status === 'success') {
                             const txId = response.transaction_id;
-                            const features = 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes';
+                            let printUrl = '';
 
-                            if (response.print_spk) setTimeout(() => window.open(`/transactions/${txId}/spk`, '_blank', features), 500);
-                            if (response.print_receipt) setTimeout(() => window.open(`/transactions/${txId}/receipt`, '_blank', features), 1000);
-                            if (response.print_invoice) setTimeout(() => window.open(`/transactions/${txId}/invoice-a5`, '_blank', features), 1000);
+                            // Determine URL based on payment method or print preferences
+                            // So: Lunas -> /receipt (Nota Thermal), DP/Pending -> /invoice-a5
+
+                            const paymentMethod = $('#payment-method').val();
+                            if (paymentMethod === 'lunas') {
+                                printUrl = `/transactions/${txId}/receipt`;
+                            } else {
+                                printUrl = `/transactions/${txId}/invoice-a5`;
+                            }
+
+                            // Open Modal
+                            $('#print-preview-frame').attr('src', printUrl);
+                            $('#print-preview-modal').removeClass('hidden').addClass('flex');
 
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Transaksi Berhasil',
-                                text: 'Transaksi disimpan dan dokumen sedang dicetak/dibuka.',
-                                timer: 2000,
+                                text: 'Silakan cetak dokumen pada jendela preview.',
+                                timer: 1500,
                                 showConfirmButton: false
-                            }).then(() => {
-                                window.location.reload();
                             });
                         }
                     },
@@ -1184,6 +1376,11 @@
                         Swal.fire('Error', msg, 'error');
                     }
                 });
+            });
+
+            // Print Preview Modal Logic
+            $('#close-print-preview').on('click', function () {
+                window.location.reload();
             });
         });
     </script>

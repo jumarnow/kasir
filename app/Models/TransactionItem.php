@@ -23,6 +23,7 @@ class TransactionItem extends Model
         'notes',
         'finishing_id',
         'display_id',
+        'material_id',
     ];
 
     protected $casts = [
@@ -81,6 +82,11 @@ class TransactionItem extends Model
     public function display()
     {
         return $this->belongsTo(Display::class);
+    }
+
+    public function material()
+    {
+        return $this->belongsTo(Material::class);
     }
 
     /**

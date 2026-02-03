@@ -126,9 +126,7 @@
         Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.
     </div>
 
-    <script>
-        window.print();
-    </script>
+
 </body>
 
 </html>
