@@ -115,10 +115,10 @@
             <span>Bayar</span>
             <span>{{ number_format($transaction->amount_paid, 0, ',', '.') }}</span>
         </div>
-        <div class="row">
+        <!-- <div class="row">
             <span>Kembali</span>
             <span>{{ number_format($transaction->change_due, 0, ',', '.') }}</span>
-        </div>
+        </div> -->
     </div>
 
     <div class="footer">
