@@ -75,7 +75,7 @@ class TransactionController extends Controller
 
     public function show(Transaction $transaction)
     {
-        $transaction->load(['items.product', 'customer', 'user']);
+        $transaction->load(['items.product', 'items.finishing', 'items.material', 'items.display', 'customer', 'user']);
 
         return view('transactions.show', compact('transaction'));
     }
@@ -143,5 +143,24 @@ class TransactionController extends Controller
             'stock_alert' => (int) ($product->stock_alert ?? 0),
             'cost_price' => (float) $product->cost_price,
         ]);
+    }
+    public function storePayment(Request $request, Transaction $transaction)
+    {
+        $amount = toNumeric($request->input('amount', 0));
+
+        if ($amount <= 0) {
+            return back()->with('error', 'Jumlah pembayaran tidak valid.');
+        }
+
+        if ($amount > $transaction->remaining_amount) {
+            return back()->with('error', 'Jumlah pembayaran melebihi sisa tagihan.');
+        }
+
+        // Record payment
+        $transaction->amount_paid += $amount;
+        $transaction->save(); // Model's saving event will handle status update and remaining amount calculation
+
+        return redirect()->route('transactions.show', $transaction)
+            ->with('success', 'Pembayaran berhasil dicatat.');
     }
 }

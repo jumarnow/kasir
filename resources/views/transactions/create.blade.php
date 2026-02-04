@@ -271,11 +271,11 @@
                             <span>Total Diskon</span>
                             <span id="summary-discount" class="font-medium">Rp 0</span>
                         </div>
-                        <div>
-                            <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Ongkir (Rp)</label>
-                            <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}"
-                                class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                        </div>
+                        <!-- <div>
+                                    <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Ongkir (Rp)</label>
+                                    <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}"
+                                        class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                </div> -->
 
                         <div class="py-3 border-y border-dashed border-slate-200">
                             <div class="flex items-center justify-between text-lg font-bold text-slate-800">
@@ -300,6 +300,12 @@
                                 <input type="text" name="amount_paid" id="amount-paid" value="{{ old('amount_paid', 0) }}"
                                     class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-600 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
                             </div>
+                        </div>
+
+                        <div id="due-date-container" class="hidden mt-4">
+                            <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Jatuh Tempo</label>
+                            <input type="date" name="due_date" id="due-date" value="{{ old('due_date') }}"
+                                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                         </div>
 
                         <div class="flex items-center justify-between text-sm">
@@ -477,35 +483,37 @@
                     </div>
 
                     <!-- Options -->
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Finishing</label>
-                        <select id="modal-finishing"
-                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">- Pilih Finishing -</option>
-                            @foreach($finishings as $f)
-                                <option value="{{ $f->id }}">{{ $f->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Material</label>
-                        <select id="modal-material"
-                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">- Pilih Material -</option>
-                            @foreach($materials as $m)
-                                <option value="{{ $m->id }}">{{ $m->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Display</label>
-                        <select id="modal-display"
-                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">- Pilih Display -</option>
-                            @foreach($displays as $d)
-                                <option value="{{ $d->id }}">{{ $d->name }}</option>
-                            @endforeach
-                        </select>
+                    <div id="modal-options-wrapper" class="col-span-2 grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Finishing</label>
+                            <select id="modal-finishing"
+                                class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">- Pilih Finishing -</option>
+                                @foreach($finishings as $f)
+                                    <option value="{{ $f->id }}">{{ $f->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Material</label>
+                            <select id="modal-material"
+                                class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">- Pilih Material -</option>
+                                @foreach($materials as $m)
+                                    <option value="{{ $m->id }}">{{ $m->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Display</label>
+                            <select id="modal-display"
+                                class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">- Pilih Display -</option>
+                                @foreach($displays as $d)
+                                    <option value="{{ $d->id }}">{{ $d->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     <div class="col-span-2 pt-2 border-t border-slate-100 mt-2">
@@ -672,83 +680,83 @@
 
                 // Desktop Row
                 const row = $(`
-                                                                                <tr>
-                                                                                    <td class="px-4 py-3">
-                                                                                        <div class="font-medium text-slate-700">${item.name}</div>
-                                                                                        <div class="text-xs text-slate-400">Stok: ${item.stock}</div>
-                                                                                        ${detailsText}
-                                                                                    </td>
-                                                                                    <td class="px-4 py-3 text-center">
-                                                                                        <span class="inline-flex items-center rounded-md ${item.pricing_type === 'per_dimension' ? 'bg-blue-50 text-blue-700 ring-blue-700/10' : 'bg-slate-50 text-slate-600 ring-slate-200'} px-2 py-1 text-[10px] font-medium ring-1 ring-inset">
-                                                                                            ${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}
-                                                                                        </span>
-                                                                                    </td>
-                                                                                    <td class="px-4 py-3 text-center">
-                                                                                        ${formatCurrency(item.price)}
-                                                                                    </td>
-                                                                                    <td class="px-4 py-3 text-center">
-                                                                                        ${item.quantity}
-                                                                                    </td>
-                                                                                    <td class="px-4 py-3 text-right font-semibold text-slate-700">
-                                                                                        ${formatCurrency(subtotal)}
-                                                                                    </td>
-                                                                                    <td class="px-4 py-3 text-right">
-                                                                                        <div class="flex justify-end gap-2">
-                                                                                            <button type="button" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-edit-item" data-index="${index}">Edit</button>
-                                                                                            <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 rounded-md px-2 py-1 text-xs font-medium transition-colors remove-item" data-index="${index}">Hapus</button>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            `);
+                                                                                                    <tr>
+                                                                                                        <td class="px-4 py-3">
+                                                                                                            <div class="font-medium text-slate-700">${item.name}</div>
+                                                                                                            <div class="text-xs text-slate-400">Stok: ${item.stock}</div>
+                                                                                                            ${detailsText}
+                                                                                                        </td>
+                                                                                                        <td class="px-4 py-3 text-center">
+                                                                                                            <span class="inline-flex items-center rounded-md ${item.pricing_type === 'per_dimension' ? 'bg-blue-50 text-blue-700 ring-blue-700/10' : 'bg-slate-50 text-slate-600 ring-slate-200'} px-2 py-1 text-[10px] font-medium ring-1 ring-inset">
+                                                                                                                ${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}
+                                                                                                            </span>
+                                                                                                        </td>
+                                                                                                        <td class="px-4 py-3 text-center">
+                                                                                                            ${formatCurrency(item.price)}
+                                                                                                        </td>
+                                                                                                        <td class="px-4 py-3 text-center">
+                                                                                                            ${item.quantity}
+                                                                                                        </td>
+                                                                                                        <td class="px-4 py-3 text-right font-semibold text-slate-700">
+                                                                                                            ${formatCurrency(subtotal)}
+                                                                                                        </td>
+                                                                                                        <td class="px-4 py-3 text-right">
+                                                                                                            <div class="flex justify-end gap-2">
+                                                                                                                <button type="button" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-edit-item" data-index="${index}">Edit</button>
+                                                                                                                <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 rounded-md px-2 py-1 text-xs font-medium transition-colors remove-item" data-index="${index}">Hapus</button>
+                                                                                                            </div>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                `);
 
                 tbody.append(row);
 
                 // Mobile list
                 const mobileItem = $(`
-                                                                                <div class="p-4">
-                                                                                    <div class="flex justify-between items-start mb-2">
-                                                                                        <div>
-                                                                                            <p class="font-medium text-slate-700">${item.name}</p>
-                                                                                            ${detailsText}
-                                                                                        </div>
-                                                                                        <div class="flex gap-3">
-                                                                                            <button type="button" class="text-xs text-indigo-600 font-medium btn-edit-item" data-index="${index}">Edit</button>
-                                                                                            <button type="button" class="remove-item text-xs text-red-500 font-medium" data-index="${index}">Hapus</button>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="flex flex-col gap-2">
-                                                                                        <div class="flex items-center justify-between text-sm">
-                                                                                            <span class="text-slate-500">Tipe Harga</span>
-                                                                                            <span class="font-medium ${item.pricing_type === 'per_dimension' ? 'text-blue-600' : 'text-slate-600'}">${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}</span>
-                                                                                        </div>
-                                                                                        <div class="flex items-center justify-between text-sm">
-                                                                                            <span class="text-slate-500">Harga</span>
-                                                                                            <span>${formatCurrency(item.price)}</span>
-                                                                                        </div>
-                                                                                        <div class="flex items-center justify-between text-sm">
-                                                                                            <span class="text-slate-500">Qty</span>
-                                                                                            <span>${item.quantity}</span>
-                                                                                        </div>
-                                                                                         <div class="flex items-center justify-between pt-2 border-t border-slate-50">
-                                                                                            <span class="text-xs font-semibold text-slate-500">Subtotal</span>
-                                                                                            <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            `);
+                                                                                                    <div class="p-4">
+                                                                                                        <div class="flex justify-between items-start mb-2">
+                                                                                                            <div>
+                                                                                                                <p class="font-medium text-slate-700">${item.name}</p>
+                                                                                                                ${detailsText}
+                                                                                                            </div>
+                                                                                                            <div class="flex gap-3">
+                                                                                                                <button type="button" class="text-xs text-indigo-600 font-medium btn-edit-item" data-index="${index}">Edit</button>
+                                                                                                                <button type="button" class="remove-item text-xs text-red-500 font-medium" data-index="${index}">Hapus</button>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <div class="flex flex-col gap-2">
+                                                                                                            <div class="flex items-center justify-between text-sm">
+                                                                                                                <span class="text-slate-500">Tipe Harga</span>
+                                                                                                                <span class="font-medium ${item.pricing_type === 'per_dimension' ? 'text-blue-600' : 'text-slate-600'}">${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}</span>
+                                                                                                            </div>
+                                                                                                            <div class="flex items-center justify-between text-sm">
+                                                                                                                <span class="text-slate-500">Harga</span>
+                                                                                                                <span>${formatCurrency(item.price)}</span>
+                                                                                                            </div>
+                                                                                                            <div class="flex items-center justify-between text-sm">
+                                                                                                                <span class="text-slate-500">Qty</span>
+                                                                                                                <span>${item.quantity}</span>
+                                                                                                            </div>
+                                                                                                             <div class="flex items-center justify-between pt-2 border-t border-slate-50">
+                                                                                                                <span class="text-xs font-semibold text-slate-500">Subtotal</span>
+                                                                                                                <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                `);
                 mobileList.append(mobileItem);
 
                 inputsWrapper.append(`
-                                                                                <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
-                                                                                <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
-                                                                                <input type="hidden" name="items[${index}][price]" value="${item.price}">
-                                                                                <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
-                                                                                <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
-                                                                                <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
-                                                                                <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
-                                                                                <input type="hidden" name="items[${index}][material_id]" value="${item.material_id || ''}">
-                                                                                <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
-                                                                            `);
+                                                                                                    <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
+                                                                                                    <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
+                                                                                                    <input type="hidden" name="items[${index}][price]" value="${item.price}">
+                                                                                                    <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
+                                                                                                    <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
+                                                                                                    <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
+                                                                                                    <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
+                                                                                                    <input type="hidden" name="items[${index}][material_id]" value="${item.material_id || ''}">
+                                                                                                    <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
+                                                                                                `);
             });
 
             updateSummary();
@@ -835,8 +843,10 @@
             // Toggle Dimensions based on pricing type
             if (item.pricing_type === 'per_dimension') {
                 $('#modal-dimensions-wrapper').removeClass('hidden').addClass('grid');
+                $('#modal-options-wrapper').removeClass('hidden').addClass('grid');
             } else {
                 $('#modal-dimensions-wrapper').addClass('hidden').removeClass('grid');
+                $('#modal-options-wrapper').addClass('hidden').removeClass('grid');
             }
 
             // Recalculate estimated price for display
@@ -1309,14 +1319,25 @@
 
             // Toggle Due Date base on Payment Method
             $('#payment-method').on('change', function () {
-                if ($(this).val() === 'tempo') {
-                    $('#due-date-wrapper').removeClass('hidden');
-                    $('#due-date').prop('required', true);
+                const method = $(this).val();
+                if (method === 'dp' || method === 'pending') {
+                    $('#due-date-container').removeClass('hidden');
+                    // Optional: set default due date to 7 days from now if empty
+                    if (!$('#due-date').val()) {
+                        const date = new Date();
+                        date.setDate(date.getDate() + 7); // Default 7 days
+                        let month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        let day = date.getDate().toString().padStart(2, '0');
+                        $('#due-date').val(`${date.getFullYear()}-${month}-${day}`);
+                    }
                 } else {
-                    $('#due-date-wrapper').addClass('hidden');
-                    $('#due-date').prop('required', false);
+                    $('#due-date-container').addClass('hidden');
+                    $('#due-date').val('');
                 }
             });
+
+            // Trigger on load
+            $('#payment-method').trigger('change');
 
             $('#transaction-form').on('submit', function (event) {
                 event.preventDefault();

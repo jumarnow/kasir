@@ -9,7 +9,8 @@
             <h2 class="text-lg font-semibold text-slate-800">Riwayat Transaksi</h2>
             <p class="text-sm text-slate-500">Filter transaksi berdasarkan tanggal dan invoice</p>
         </div>
-        <a href="{{ route('transactions.create') }}" class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+        <a href="{{ route('transactions.create') }}"
+            class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
             + Transaksi Baru
         </a>
     </div>
@@ -17,18 +18,22 @@
     <form method="GET" action="{{ route('transactions.index') }}" class="mt-6 grid gap-4 md:grid-cols-4">
         <div>
             <label class="text-xs uppercase text-slate-500">Tanggal Mulai</label>
-            <input type="date" name="start_date" value="{{ $filters['start_date'] ?? '' }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            <input type="date" name="start_date" value="{{ $filters['start_date'] ?? '' }}"
+                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
         </div>
         <div>
             <label class="text-xs uppercase text-slate-500">Tanggal Akhir</label>
-            <input type="date" name="end_date" value="{{ $filters['end_date'] ?? '' }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            <input type="date" name="end_date" value="{{ $filters['end_date'] ?? '' }}"
+                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
         </div>
         <div>
             <label class="text-xs uppercase text-slate-500">Invoice</label>
-            <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Cari invoice..." class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Cari invoice..."
+                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
         </div>
         <div class="flex items-end">
-            <button type="submit" class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Filter</button>
+            <button type="submit"
+                class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Filter</button>
         </div>
     </form>
 
@@ -62,21 +67,26 @@
                             {{ $transaction->created_at->format('d M Y, H:i') }}
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-semibold text-slate-800">Rp {{ number_format($transaction->total, 0, ',', '.') }}</div>
+                            <div class="font-semibold text-slate-800">Rp {{ number_format($transaction->total, 0, ',', '.') }}
+                            </div>
                             @if(auth()->user()->hasPermission('view_profit'))
-                                <div class="text-xs text-slate-500">Profit: Rp {{ number_format($transaction->profit, 0, ',', '.') }}</div>
+                                <div class="text-xs text-slate-500">Profit: Rp
+                                    {{ number_format($transaction->profit, 0, ',', '.') }}</div>
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="inline-flex items-center gap-2">
-                                <a href="{{ route('transactions.show', $transaction) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
+                                <a href="{{ route('transactions.show', $transaction) }}"
+                                    class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
                                     Detail
                                 </a>
-                                <a target="_blank" href="{{ route('transactions.invoice', $transaction) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
+                                <a target="_blank" href="{{ route('transactions.invoice_a5', $transaction) }}"
+                                    class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
                                     Invoice
                                 </a>
-                                <a target="_blank" href="{{ route('transactions.shipping_label', $transaction) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-emerald-200 hover:text-emerald-600">
-                                    Resi
+                                <a target="_blank" href="{{ route('transactions.spk', $transaction) }}"
+                                    class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-emerald-200 hover:text-emerald-600">
+                                    SPK
                                 </a>
                             </div>
                         </td>
@@ -118,23 +128,28 @@
                     <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
                         <span class="font-semibold text-slate-800">Total</span>
                         <div class="text-right">
-                            <span class="block font-bold text-slate-800">Rp {{ number_format($transaction->total, 0, ',', '.') }}</span>
+                            <span class="block font-bold text-slate-800">Rp
+                                {{ number_format($transaction->total, 0, ',', '.') }}</span>
                             @if(auth()->user()->hasPermission('view_profit'))
-                                <span class="block text-xs text-slate-400">Profit: Rp {{ number_format($transaction->profit, 0, ',', '.') }}</span>
+                                <span class="block text-xs text-slate-400">Profit: Rp
+                                    {{ number_format($transaction->profit, 0, ',', '.') }}</span>
                             @endif
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-4 flex flex-wrap items-center gap-2">
-                    <a href="{{ route('transactions.show', $transaction) }}" class="flex-1 min-w-[80px] rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
+                    <a href="{{ route('transactions.show', $transaction) }}"
+                        class="flex-1 min-w-[80px] rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
                         Detail
                     </a>
-                    <a target="_blank" href="{{ route('transactions.invoice', $transaction) }}" class="flex-1 min-w-[80px] rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 hover:bg-slate-50">
+                    <a target="_blank" href="{{ route('transactions.invoice_a5', $transaction) }}"
+                        class="flex-1 min-w-[80px] rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 hover:bg-slate-50">
                         Invoice
                     </a>
-                    <a target="_blank" href="{{ route('transactions.shipping_label', $transaction) }}" class="flex-1 min-w-[80px] rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-medium text-emerald-600 hover:bg-emerald-100">
-                        Resi
+                    <a target="_blank" href="{{ route('transactions.spk', $transaction) }}"
+                        class="flex-1 min-w-[80px] rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-medium text-emerald-600 hover:bg-emerald-100">
+                        SPK
                     </a>
                 </div>
             </div>

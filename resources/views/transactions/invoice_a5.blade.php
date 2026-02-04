@@ -231,6 +231,11 @@
 
         <div class="footer">
             <div class="payment-info" style="width: 50%;">
+                <div style="margin-bottom: 20px; font-size: 10px; color: #475569;">
+                    <div style="font-weight: 600;">Rek BCA :</div>
+                    <div style="font-weight: 700; font-size: 12px; margin: 2px 0;">3261602057</div>
+                    <div>a/n Arif Fibriyanto</div>
+                </div>
                 <div class="signature">
                     <div style="margin-bottom: 40px; font-size: 10px; color: #64748b;">Hormat Kami,</div>
                     <div style="font-weight: 600;">{{ $settings['store_name'] ?? 'Admin' }}</div>

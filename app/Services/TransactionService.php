@@ -29,6 +29,12 @@ class TransactionService
                     'quantity' => (int) $item['quantity'],
                     'price' => (float) $item['price'],
                     'cost_price' => isset($item['cost_price']) ? (float) $item['cost_price'] : (float) $product->cost_price,
+                    'finishing_id' => $item['finishing_id'] ?? null,
+                    'material_id' => $item['material_id'] ?? null,
+                    'display_id' => $item['display_id'] ?? null,
+                    'width' => isset($item['width']) ? (float) $item['width'] : 0,
+                    'length' => isset($item['length']) ? (float) $item['length'] : 0,
+                    'notes' => $item['notes'] ?? null,
                 ];
             });
 
@@ -87,6 +93,7 @@ class TransactionService
                 'profit' => $profit,
                 'payment_method' => Arr::get($payload, 'payment_method', 'cash'),
                 'status' => Arr::get($payload, 'status', 'completed'),
+                'due_date' => Arr::get($payload, 'due_date'),
                 'notes' => Arr::get($payload, 'notes'),
             ]);
 
@@ -100,6 +107,12 @@ class TransactionService
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'cost_price' => $item['cost_price'],
+                    'finishing_id' => $item['finishing_id'],
+                    'material_id' => $item['material_id'],
+                    'display_id' => $item['display_id'],
+                    'width' => $item['width'],
+                    'length' => $item['length'],
+                    'notes' => $item['notes'],
                 ]);
 
                 $product->decrementStock($item['quantity']);

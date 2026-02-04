@@ -49,6 +49,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('transactions/{transaction}/receipt', [TransactionController::class, 'receipt'])->name('transactions.receipt');
         Route::get('transactions/{transaction}/invoice-a5', [TransactionController::class, 'invoiceA5'])->name('transactions.invoice_a5');
         Route::get('transactions/{transaction}/shipping-label', [TransactionController::class, 'shippingLabel'])->name('transactions.shipping_label');
+
+        // Payments
+        Route::post('transactions/{transaction}/pay', [TransactionController::class, 'storePayment'])->name('transactions.payments.store');
+
         Route::resource('transactions', TransactionController::class)->except('destroy');
     });
 
