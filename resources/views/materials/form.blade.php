@@ -63,8 +63,9 @@
                                 required
                             >
                         </div>
+
                         <div>
-                             <label class="text-sm font-medium text-slate-600">Harga Jual</label>
+                             <label class="text-sm font-medium text-slate-600">Harga Jual (Utama)</label>
                             <input
                                 type="number"
                                 min="0"
@@ -73,6 +74,28 @@
                                 value="{{ old('selling_price', $isEdit ? $material->selling_price : '') }}"
                                 class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                 required
+                            >
+                        </div>
+                        <div>
+                             <label class="text-sm font-medium text-slate-600">Harga Jual 2 <span class="text-slate-400 text-xs">(opsional)</span></label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                name="price_2"
+                                value="{{ old('price_2', $isEdit ? $material->price_2 : '') }}"
+                                class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            >
+                        </div>
+                        <div>
+                             <label class="text-sm font-medium text-slate-600">Harga Jual 3 <span class="text-slate-400 text-xs">(opsional)</span></label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                name="price_3"
+                                value="{{ old('price_3', $isEdit ? $material->price_3 : '') }}"
+                                class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                             >
                         </div>
                     </div>

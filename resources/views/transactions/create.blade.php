@@ -163,8 +163,29 @@
                                             placeholder="Tambahkan catatan khusus transaksi...">
                                     </td>
                                 </tr>
+
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-semibold text-slate-800">Detail Eksekusi</h2>
+                            <p class="text-xs text-slate-500">Pilih penanggung jawab pesanan ini</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <select name="eksekutor_id" id="eksekutor-select"
+                            class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0">
+                            <option value="">-- Pilih Eksekutor --</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}" @selected(old('eksekutor_id') == $user->id)>
+                                    {{ $user->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
@@ -272,10 +293,10 @@
                             <span id="summary-discount" class="font-medium">Rp 0</span>
                         </div>
                         <!-- <div>
-                                    <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Ongkir (Rp)</label>
-                                    <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}"
-                                        class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                                </div> -->
+                                                        <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Ongkir (Rp)</label>
+                                                        <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}"
+                                                            class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                                    </div> -->
 
                         <div class="py-3 border-y border-dashed border-slate-200">
                             <div class="flex items-center justify-between text-lg font-bold text-slate-800">
@@ -466,6 +487,14 @@
                             class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
 
+                    <div id="modal-product-price-tier-wrapper" class="col-span-2 hidden">
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Harga Satuan</label>
+                        <select id="modal-product-price-tier"
+                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <!-- Options populated via JS -->
+                        </select>
+                    </div>
+
                     <!-- Dimensions -->
                     <div id="modal-dimensions-wrapper" class="col-span-2 grid grid-cols-2 gap-4">
                         <div>
@@ -502,6 +531,15 @@
                                 @foreach($materials as $m)
                                     <option value="{{ $m->id }}">{{ $m->name }}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div id="modal-material-tier-wrapper" class="hidden">
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Harga Material</label>
+                            <select id="modal-material-tier"
+                                class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="1">Harga Utama</option>
+                                <option value="2">Harga 2</option>
+                                <option value="3">Harga 3</option>
                             </select>
                         </div>
                         <div>
@@ -680,83 +718,85 @@
 
                 // Desktop Row
                 const row = $(`
-                                                                                                    <tr>
-                                                                                                        <td class="px-4 py-3">
-                                                                                                            <div class="font-medium text-slate-700">${item.name}</div>
-                                                                                                            <div class="text-xs text-slate-400">Stok: ${item.stock}</div>
-                                                                                                            ${detailsText}
-                                                                                                        </td>
-                                                                                                        <td class="px-4 py-3 text-center">
-                                                                                                            <span class="inline-flex items-center rounded-md ${item.pricing_type === 'per_dimension' ? 'bg-blue-50 text-blue-700 ring-blue-700/10' : 'bg-slate-50 text-slate-600 ring-slate-200'} px-2 py-1 text-[10px] font-medium ring-1 ring-inset">
-                                                                                                                ${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}
-                                                                                                            </span>
-                                                                                                        </td>
-                                                                                                        <td class="px-4 py-3 text-center">
-                                                                                                            ${formatCurrency(item.price)}
-                                                                                                        </td>
-                                                                                                        <td class="px-4 py-3 text-center">
-                                                                                                            ${item.quantity}
-                                                                                                        </td>
-                                                                                                        <td class="px-4 py-3 text-right font-semibold text-slate-700">
-                                                                                                            ${formatCurrency(subtotal)}
-                                                                                                        </td>
-                                                                                                        <td class="px-4 py-3 text-right">
-                                                                                                            <div class="flex justify-end gap-2">
-                                                                                                                <button type="button" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-edit-item" data-index="${index}">Edit</button>
-                                                                                                                <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 rounded-md px-2 py-1 text-xs font-medium transition-colors remove-item" data-index="${index}">Hapus</button>
-                                                                                                            </div>
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                `);
+                                                                                                                        <tr>
+                                                                                                                            <td class="px-4 py-3">
+                                                                                                                                <div class="font-medium text-slate-700">${item.name}</div>
+                                                                                                                                <div class="text-xs text-slate-400">Stok: ${item.stock}</div>
+                                                                                                                                ${detailsText}
+                                                                                                                            </td>
+                                                                                                                            <td class="px-4 py-3 text-center">
+                                                                                                                                <span class="inline-flex items-center rounded-md ${item.pricing_type === 'per_dimension' ? 'bg-blue-50 text-blue-700 ring-blue-700/10' : 'bg-slate-50 text-slate-600 ring-slate-200'} px-2 py-1 text-[10px] font-medium ring-1 ring-inset">
+                                                                                                                                    ${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}
+                                                                                                                                </span>
+                                                                                                                            </td>
+                                                                                                                            <td class="px-4 py-3 text-center">
+                                                                                                                                ${formatCurrency(item.price)}
+                                                                                                                            </td>
+                                                                                                                            <td class="px-4 py-3 text-center">
+                                                                                                                                ${item.quantity}
+                                                                                                                            </td>
+                                                                                                                            <td class="px-4 py-3 text-right font-semibold text-slate-700">
+                                                                                                                                ${formatCurrency(subtotal)}
+                                                                                                                            </td>
+                                                                                                                            <td class="px-4 py-3 text-right">
+                                                                                                                                <div class="flex justify-end gap-2">
+                                                                                                                                    <button type="button" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-edit-item" data-index="${index}">Edit</button>
+                                                                                                                                    <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 rounded-md px-2 py-1 text-xs font-medium transition-colors remove-item" data-index="${index}">Hapus</button>
+                                                                                                                                </div>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                    `);
 
                 tbody.append(row);
 
                 // Mobile list
                 const mobileItem = $(`
-                                                                                                    <div class="p-4">
-                                                                                                        <div class="flex justify-between items-start mb-2">
-                                                                                                            <div>
-                                                                                                                <p class="font-medium text-slate-700">${item.name}</p>
-                                                                                                                ${detailsText}
-                                                                                                            </div>
-                                                                                                            <div class="flex gap-3">
-                                                                                                                <button type="button" class="text-xs text-indigo-600 font-medium btn-edit-item" data-index="${index}">Edit</button>
-                                                                                                                <button type="button" class="remove-item text-xs text-red-500 font-medium" data-index="${index}">Hapus</button>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                        <div class="flex flex-col gap-2">
-                                                                                                            <div class="flex items-center justify-between text-sm">
-                                                                                                                <span class="text-slate-500">Tipe Harga</span>
-                                                                                                                <span class="font-medium ${item.pricing_type === 'per_dimension' ? 'text-blue-600' : 'text-slate-600'}">${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}</span>
-                                                                                                            </div>
-                                                                                                            <div class="flex items-center justify-between text-sm">
-                                                                                                                <span class="text-slate-500">Harga</span>
-                                                                                                                <span>${formatCurrency(item.price)}</span>
-                                                                                                            </div>
-                                                                                                            <div class="flex items-center justify-between text-sm">
-                                                                                                                <span class="text-slate-500">Qty</span>
-                                                                                                                <span>${item.quantity}</span>
-                                                                                                            </div>
-                                                                                                             <div class="flex items-center justify-between pt-2 border-t border-slate-50">
-                                                                                                                <span class="text-xs font-semibold text-slate-500">Subtotal</span>
-                                                                                                                <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                `);
+                                                                                                                        <div class="p-4">
+                                                                                                                            <div class="flex justify-between items-start mb-2">
+                                                                                                                                <div>
+                                                                                                                                    <p class="font-medium text-slate-700">${item.name}</p>
+                                                                                                                                    ${detailsText}
+                                                                                                                                </div>
+                                                                                                                                <div class="flex gap-3">
+                                                                                                                                    <button type="button" class="text-xs text-indigo-600 font-medium btn-edit-item" data-index="${index}">Edit</button>
+                                                                                                                                    <button type="button" class="remove-item text-xs text-red-500 font-medium" data-index="${index}">Hapus</button>
+                                                                                                                                </div>
+                                                                                                                            </div>
+                                                                                                                            <div class="flex flex-col gap-2">
+                                                                                                                                <div class="flex items-center justify-between text-sm">
+                                                                                                                                    <span class="text-slate-500">Tipe Harga</span>
+                                                                                                                                    <span class="font-medium ${item.pricing_type === 'per_dimension' ? 'text-blue-600' : 'text-slate-600'}">${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}</span>
+                                                                                                                                </div>
+                                                                                                                                <div class="flex items-center justify-between text-sm">
+                                                                                                                                    <span class="text-slate-500">Harga</span>
+                                                                                                                                    <span>${formatCurrency(item.price)}</span>
+                                                                                                                                </div>
+                                                                                                                                <div class="flex items-center justify-between text-sm">
+                                                                                                                                    <span class="text-slate-500">Qty</span>
+                                                                                                                                    <span>${item.quantity}</span>
+                                                                                                                                </div>
+                                                                                                                                 <div class="flex items-center justify-between pt-2 border-t border-slate-50">
+                                                                                                                                    <span class="text-xs font-semibold text-slate-500">Subtotal</span>
+                                                                                                                                    <span class="font-semibold text-slate-700">${formatCurrency(subtotal)}</span>
+                                                                                                                                </div>
+                                                                                                                            </div>
+                                                                                                                        </div>
+                                                                                                                    `);
                 mobileList.append(mobileItem);
 
                 inputsWrapper.append(`
-                                                                                                    <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
-                                                                                                    <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
-                                                                                                    <input type="hidden" name="items[${index}][price]" value="${item.price}">
-                                                                                                    <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
-                                                                                                    <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
-                                                                                                    <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
-                                                                                                    <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
-                                                                                                    <input type="hidden" name="items[${index}][material_id]" value="${item.material_id || ''}">
-                                                                                                    <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
-                                                                                                `);
+                                                                                                                        <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
+                                                                                                                        <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
+                                                                                                                        <input type="hidden" name="items[${index}][price]" value="${item.price}">
+                                                                                                                        <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
+                                                                                                                        <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
+                                                                                                                        <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
+                                                                                                                        <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
+                                                                                                                    <input type="hidden" name="items[${index}][material_id]" value="${item.material_id || ''}">
+                                                                                                                    <input type="hidden" name="items[${index}][material_price_tier]" value="${item.material_price_tier || '1'}">
+                                                                                                                    <input type="hidden" name="items[${index}][product_price_tier]" value="${item.product_price_tier || '1'}">
+                                                                                                                    <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
+                                                                                                                    `);
             });
 
             updateSummary();
@@ -840,13 +880,55 @@
             $('#modal-finishing').val(item.finishing_id || '');
             $('#modal-material').val(item.material_id || '');
             $('#modal-display').val(item.display_id || '');
+            // Update Material Tier options based on selection
+            updateMaterialTierLabels();
+            $('#modal-material-tier').val(item.material_price_tier || '1');
+
             // Toggle Dimensions based on pricing type
             if (item.pricing_type === 'per_dimension') {
                 $('#modal-dimensions-wrapper').removeClass('hidden').addClass('grid');
                 $('#modal-options-wrapper').removeClass('hidden').addClass('grid');
+                $('#modal-product-price-tier-wrapper').addClass('hidden');
+                
+                if ($('#modal-material').val()) {
+                    $('#modal-material-tier-wrapper').removeClass('hidden');
+                } else {
+                    $('#modal-material-tier-wrapper').addClass('hidden');
+                }
             } else {
                 $('#modal-dimensions-wrapper').addClass('hidden').removeClass('grid');
                 $('#modal-options-wrapper').addClass('hidden').removeClass('grid');
+                $('#modal-material-tier-wrapper').addClass('hidden');
+                
+                // Show Product Price Tier
+                 $('#modal-product-price-tier-wrapper').removeClass('hidden');
+                 
+                 // Populate options
+                 const $tierSelect = $('#modal-product-price-tier');
+                 $tierSelect.empty();
+                 
+                 const p1 = parseFloat(item.price_1 || 0);
+                 const p2 = parseFloat(item.price_2 || 0);
+                 const p3 = parseFloat(item.price_3 || 0);
+                 
+                 $tierSelect.append(new Option(`Harga Utama (${formatCurrency(p1)})`, '1'));
+                 
+                 if (p2 > 0) $tierSelect.append(new Option(`Harga 2 (${formatCurrency(p2)})`, '2'));
+                 if (p3 > 0) $tierSelect.append(new Option(`Harga 3 (${formatCurrency(p3)})`, '3'));
+                 
+                 // Set selected value based on stored tier or current price match
+                 // If item.product_price_tier exists use it, else try to match current price
+                 let selectedTier = item.product_price_tier || '1';
+                 
+                 // If no stored tier, maybe infer from price? Or default to customer tier?
+                 if (!item.product_price_tier) {
+                     if (item.price == p2) selectedTier = '2';
+                     else if (item.price == p3) selectedTier = '3';
+                     else if (currentPriceTier == 2 && p2 > 0) selectedTier = '2';
+                     else if (currentPriceTier == 3 && p3 > 0) selectedTier = '3';
+                 }
+                 
+                 $tierSelect.val(selectedTier);
             }
 
             // Recalculate estimated price for display
@@ -859,6 +941,41 @@
         function closeItemDetail() {
             $itemDetailModal.addClass('hidden').removeClass('flex');
             $itemDetailForm[0].reset();
+            $('#modal-material-tier-wrapper').addClass('hidden');
+        }
+
+        function updateMaterialTierLabels() {
+            const materialId = $('#modal-material').val();
+            const $tierSelect = $('#modal-material-tier');
+
+            if (!materialId) {
+                // Reset to defaults if no material
+                $tierSelect.find('option[value="1"]').text('Harga Utama');
+                $tierSelect.find('option[value="2"]').text('Harga 2');
+                $tierSelect.find('option[value="3"]').text('Harga 3');
+                return;
+            }
+
+            const material = materialsData.find(m => m.id == materialId);
+            if (material) {
+                $tierSelect.find('option[value="1"]').text(formatCurrency(material.selling_price || 0));
+
+                // Show/Update Price 2
+                const price2 = parseFloat(material.price_2 || 0);
+                if (price2 > 0) {
+                    $tierSelect.find('option[value="2"]').text(formatCurrency(price2)).show();
+                } else {
+                    $tierSelect.find('option[value="2"]').text('-').hide();
+                }
+
+                // Show/Update Price 3
+                const price3 = parseFloat(material.price_3 || 0);
+                if (price3 > 0) {
+                    $tierSelect.find('option[value="3"]').text(formatCurrency(price3)).show();
+                } else {
+                    $tierSelect.find('option[value="3"]').text('-').hide();
+                }
+            }
         }
 
         function calculateModalPrice() {
@@ -872,9 +989,22 @@
             const area = (w / 100) * (l / 100);
 
             let productPrice = item.price_1;
-            if (currentPriceTier === 2 && item.price_2 > 0) productPrice = item.price_2;
-            if (currentPriceTier === 3 && item.price_3 > 0) productPrice = item.price_3;
-            if (item.pricing_type === 'per_dimension') productPrice = item.price_per_meter || item.price_1;
+            
+            // Override with selected tier if Unit Pricing
+            if (item.pricing_type !== 'per_dimension') {
+                const selectedTier = $('#modal-product-price-tier').val();
+                if (selectedTier == '2' && item.price_2 > 0) productPrice = item.price_2;
+                else if (selectedTier == '3' && item.price_3 > 0) productPrice = item.price_3;
+                // else remain price_1
+            } else {
+                // Per dimension logic uses global tier or defaults? 
+                // The prompt was specific about "jika harga per unit". 
+                // For dimension items, we might still respect global customer tier or let logic flow.
+                // Existing logic:
+                if (currentPriceTier === 2 && item.price_2 > 0) productPrice = item.price_2;
+                if (currentPriceTier === 3 && item.price_3 > 0) productPrice = item.price_3;
+                productPrice = item.price_per_meter || productPrice;
+            }
 
             let unitPrice = 0;
             if (item.pricing_type === 'per_dimension') {
@@ -885,16 +1015,27 @@
 
             // Add Material Price
             const materialId = $('#modal-material').val();
+            const materialTier = $('#modal-material-tier').val();
+
             if (materialId) {
+                if (item.pricing_type === 'per_dimension') {
+                    $('#modal-material-tier-wrapper').removeClass('hidden');
+                }
+
                 const material = materialsData.find(m => m.id == materialId);
                 if (material) {
-                    const matPrice = parseFloat(material.selling_price) || 0;
+                    let matPrice = parseFloat(material.selling_price) || 0;
+                    if (materialTier == '2' && material.price_2 > 0) matPrice = parseFloat(material.price_2);
+                    if (materialTier == '3' && material.price_3 > 0) matPrice = parseFloat(material.price_3);
+
                     if (item.pricing_type === 'per_dimension') {
                         unitPrice += (matPrice * area);
                     } else {
                         unitPrice += matPrice;
                     }
                 }
+            } else {
+                $('#modal-material-tier-wrapper').addClass('hidden');
             }
 
             // Add Finishing Price
@@ -981,6 +1122,8 @@
                 area: 0,
                 finishing_id: null,
                 material_id: null,
+                material_price_tier: '1',
+                product_price_tier: '1',
                 display_id: null
             });
 
@@ -1027,6 +1170,11 @@
                 allowClear: true,
                 width: '100%',
             });
+            // $('#eksekutor-select').select2({
+            //     placeholder: '-- Pilih Eksekutor --',
+            //     allowClear: true,
+            //     width: '100%',
+            // });
             $addProductButton = $('#add-product');
             $submitButton = $('#transaction-submit');
             $printInvoiceInput = $('#print-invoice');
@@ -1121,6 +1269,7 @@
             $cancelItemDetail.on('click', closeItemDetail);
 
             $('#item-detail-form input, #item-detail-form select').on('input change', calculateModalPrice);
+            $('#modal-material').on('change', updateMaterialTierLabels);
 
             $itemDetailForm.on('submit', function (e) {
                 e.preventDefault();
@@ -1140,13 +1289,27 @@
                 item.area = area;
                 item.finishing_id = $('#modal-finishing').val() || null;
                 item.material_id = $('#modal-material').val() || null;
+                item.material_price_tier = $('#modal-material-tier').val() || '1';
                 item.display_id = $('#modal-display').val() || null;
+                item.product_price_tier = $('#modal-product-price-tier').val() || '1'; // Store for Unit Items
 
                 // Final Unit Price Calculation (Mirror calculateModalPrice logic)
                 let productPrice = item.price_1;
-                if (currentPriceTier === 2 && item.price_2 > 0) productPrice = item.price_2;
-                if (currentPriceTier === 3 && item.price_3 > 0) productPrice = item.price_3;
-                if (item.pricing_type === 'per_dimension') productPrice = item.price_per_meter || item.price_1;
+                
+                if (item.pricing_type !== 'per_dimension') {
+                     const selectedTier = item.product_price_tier;
+                     if (selectedTier == '2' && item.price_2 > 0) productPrice = item.price_2;
+                     else if (selectedTier == '3' && item.price_3 > 0) productPrice = item.price_3;
+                } else {
+                    if (currentPriceTier === 2 && item.price_2 > 0) productPrice = item.price_2;
+                    if (currentPriceTier === 3 && item.price_3 > 0) productPrice = item.price_3;
+                    productPrice = item.price_per_meter || productPrice; // Ensure Per Meter price is used if set? Or base price? 
+                    // Original logic: productPrice = item.price_per_meter || item.price_1; 
+                    // But if price_2 is set on product and it IS per_meter/dimension? 
+                    // Usually per_dimension products use price_per_meter field, not price_1/2/3 which are for units?
+                    // Assuming price_per_meter is primary for dimension products.
+                     productPrice = item.price_per_meter || productPrice;
+                }
 
                 let unitPrice = 0;
                 if (item.pricing_type === 'per_dimension') {
@@ -1159,7 +1322,10 @@
                 if (item.material_id) {
                     const material = materialsData.find(m => m.id == item.material_id);
                     if (material) {
-                        const matPrice = parseFloat(material.selling_price) || 0;
+                        let matPrice = parseFloat(material.selling_price) || 0;
+                        if (item.material_price_tier == '2' && material.price_2 > 0) matPrice = parseFloat(material.price_2);
+                        if (item.material_price_tier == '3' && material.price_3 > 0) matPrice = parseFloat(material.price_3);
+
                         unitPrice += (item.pricing_type === 'per_dimension') ? (matPrice * area) : matPrice;
                     }
                 }

@@ -50,6 +50,38 @@
             text-align: center;
             font-size: 10px;
         }
+
+        .qc-container {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .qc-list {
+            flex: 1;
+        }
+
+        .qc-item {
+            margin-bottom: 2px;
+        }
+
+        .sign-box {
+            border: 1px solid black;
+            width: 80px;
+            height: 40px;
+            text-align: center;
+            padding-top: 2px;
+            margin-left: 10px;
+            position: relative;
+        }
+
+        .sign-box span {
+            display: block;
+            border-bottom: 1px solid transparent;
+        }
     </style>
 </head>
 
@@ -63,6 +95,7 @@
     <div class="meta">
         <strong>Customer:</strong> {{ $transaction->customer->name ?? 'Pelanggan Umum' }}<br>
         <strong>CS:</strong> {{ $transaction->user->name ?? '-' }}<br>
+        <strong>Eksekutor:</strong> {{ $transaction->eksekutor->name ?? '-' }}<br>
         <strong>Deadline:</strong> {{ $transaction->due_date ? date('d/m/Y', strtotime($transaction->due_date)) : '-' }}
     </div>
 
@@ -93,6 +126,19 @@
             @endforeach
         </div>
     @endif
+
+    <div class="qc-container">
+        <div class="qc-list">
+            <div style="margin-bottom: 2px;">QC CHECKLIST</div>
+            <div class="qc-item">&#9744; BAHAN CETAK</div>
+            <div class="qc-item">&#9744; UKURAN</div>
+            <div class="qc-item">&#9744; HASIL CETAK</div>
+            <div class="qc-item">&#9744; HASIL FINISHING</div>
+        </div>
+        <div class="sign-box">
+            <span>PEMERIKSA</span>
+        </div>
+    </div>
 
     <div class="footer">
         --- Internal Use Only ---

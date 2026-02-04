@@ -39,6 +39,8 @@ class ProdukSeeder extends Seeder
                 'pricing_type' => 'per_dimension',
                 'unit' => 'm²',
                 'price' => 20000,
+                'price_2' => 18000,
+                'price_3' => 16000,
                 'price_per_meter' => 25000, // Harga jual per meternya
                 'cost_price' => 15000,
                 'stock' => 1000,
@@ -51,6 +53,8 @@ class ProdukSeeder extends Seeder
                 'pricing_type' => 'per_dimension',
                 'unit' => 'm²',
                 'price' => 30000,
+                'price_2' => 28000,
+                'price_3' => 26000,
                 'price_per_meter' => 35000,
                 'cost_price' => 22000,
                 'stock' => 1000,
@@ -63,6 +67,8 @@ class ProdukSeeder extends Seeder
                 'pricing_type' => 'per_dimension',
                 'unit' => 'm²',
                 'price' => 80000,
+                'price_2' => 75000,
+                'price_3' => 70000,
                 'price_per_meter' => 85000,
                 'cost_price' => 50000,
                 'stock' => 500,
@@ -77,6 +83,8 @@ class ProdukSeeder extends Seeder
                 'pricing_type' => 'per_unit',
                 'unit' => 'lembar',
                 'price' => 5000,
+                'price_2' => 4500,
+                'price_3' => 4000,
                 'cost_price' => 2500,
                 'stock' => 1000,
                 'description' => 'Cetak A3+ full color bahan Art Paper 260gr',
@@ -88,6 +96,8 @@ class ProdukSeeder extends Seeder
                 'pricing_type' => 'per_unit',
                 'unit' => 'box',
                 'price' => 35000,
+                'price_2' => 32000,
+                'price_3' => 30000,
                 'cost_price' => 15000,
                 'stock' => 100,
                 'description' => 'Cetak kartu nama 1 box isi 100 lembar + box',
@@ -99,6 +109,8 @@ class ProdukSeeder extends Seeder
                 'pricing_type' => 'per_unit',
                 'unit' => 'pcs',
                 'price' => 25000,
+                'price_2' => 22000,
+                'price_3' => 20000,
                 'cost_price' => 15000,
                 'stock' => 50,
                 'description' => 'Cetak mug custom full color',
@@ -110,6 +122,8 @@ class ProdukSeeder extends Seeder
                 'pricing_type' => 'per_unit',
                 'unit' => 'set',
                 'price' => 85000,
+                'price_2' => 80000,
+                'price_3' => 75000,
                 'cost_price' => 55000,
                 'stock' => 20,
                 'description' => 'Paket X-Banner ukuran 60x160cm (Tiang + Cetak)',
@@ -117,7 +131,7 @@ class ProdukSeeder extends Seeder
         ];
 
         foreach ($products as $productData) {
-            Product::firstOrCreate(
+            Product::updateOrCreate(
                 ['sku' => $productData['sku']],
                 $productData
             );

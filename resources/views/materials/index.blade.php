@@ -40,6 +40,8 @@
                     <th class="px-6 py-4">Stok</th>
                     <th class="px-6 py-4">Harga Beli</th>
                     <th class="px-6 py-4">Harga Jual</th>
+                    <th class="px-6 py-4">Harga 2</th>
+                    <th class="px-6 py-4">Harga 3</th>
                     <th class="px-6 py-4">Status</th>
                     <th class="px-6 py-4 text-right">Aksi</th>
                 </tr>
@@ -57,6 +59,20 @@
                         </td>
                         <td class="px-6 py-4 text-slate-600">Rp {{ number_format($material->cost_price, 0, ',', '.') }}</td>
                         <td class="px-6 py-4 text-slate-600">Rp {{ number_format($material->selling_price, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 text-slate-600">
+                            @if($material->price_2)
+                                Rp {{ number_format($material->price_2, 0, ',', '.') }}
+                            @else
+                                <span class="text-slate-400">-</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-slate-600">
+                            @if($material->price_3)
+                                Rp {{ number_format($material->price_3, 0, ',', '.') }}
+                            @else
+                                <span class="text-slate-400">-</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4">
                             <span
                                 class="rounded-full px-3 py-1 text-xs font-semibold {{ $material->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500' }}">
@@ -117,6 +133,20 @@
                         <span class="font-semibold text-slate-800">Rp
                             {{ number_format($material->selling_price, 0, ',', '.') }}</span>
                     </div>
+                    @if($material->price_2)
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-500">Harga 2:</span>
+                            <span class="font-semibold text-slate-800">Rp
+                                {{ number_format($material->price_2, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
+                    @if($material->price_3)
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-500">Harga 3:</span>
+                            <span class="font-semibold text-slate-800">Rp
+                                {{ number_format($material->price_3, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
                     <div class="flex items-center justify-between text-sm mt-2">
                         <span
                             class="rounded-full px-3 py-1 text-xs font-semibold {{ $material->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500' }}">

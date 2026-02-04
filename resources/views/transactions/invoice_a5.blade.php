@@ -126,10 +126,10 @@
         }
 
         .badge {
-            padding: 2px 6px;
+            padding: 4px 8px;
             border-radius: 4px;
-            font-size: 9px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 700;
         }
 
         .badge-paid {
@@ -162,10 +162,19 @@
 <body>
     <div class="invoice-container">
         <div class="header">
-            <div>
-                <div class="brand">{{ $settings['store_name'] ?? 'Kasir Percetakan' }}</div>
-                <div class="store-info">{{ $settings['store_address'] ?? 'Alamat Toko' }}</div>
-                <div class="store-info">{{ $settings['store_phone'] ?? '08123456789' }}</div>
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+                @if(isset($settings['store_logo']) && $settings['store_logo'])
+                    <img src="{{ asset('storage/' . $settings['store_logo']) }}" alt="Logo"
+                        style="height: 50px; width: auto; object-fit: contain;">
+                @else
+                    <img src="{{ asset('img/logo.png') }}" alt="Logo"
+                        style="height: 50px; width: auto; object-fit: contain;">
+                @endif
+                <div>
+                    <div class="brand">{{ $settings['store_name'] ?? 'Kasir Percetakan' }}</div>
+                    <div class="store-info">{{ $settings['store_address'] ?? 'Alamat Toko' }}</div>
+                    <div class="store-info">{{ $settings['store_phone'] ?? '08123456789' }}</div>
+                </div>
             </div>
             <div class="meta">
                 <div style="font-size: 14px; font-weight: 700;">INVOICE</div>

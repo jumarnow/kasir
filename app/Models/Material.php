@@ -17,6 +17,8 @@ class Material extends Model
         'unit',
         'cost_price',
         'selling_price',
+        'price_2',
+        'price_3',
         'stock',
         'stock_alert',
         'is_active',
@@ -25,6 +27,8 @@ class Material extends Model
     protected $casts = [
         'cost_price' => 'decimal:2',
         'selling_price' => 'decimal:2',
+        'price_2' => 'decimal:2',
+        'price_3' => 'decimal:2',
         'stock' => 'integer',
         'stock_alert' => 'integer',
         'is_active' => 'boolean',

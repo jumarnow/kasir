@@ -20,14 +20,18 @@ class TransactionController extends Controller
         $transactions = Transaction::with(['customer', 'user'])
             ->when($request->query('start_date'), fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($request->query('end_date'), fn($query, $date) => $query->whereDate('created_at', '<=', $date))
+            ->when($request->query('customer_id'), fn($query, $customerId) => $query->where('customer_id', $customerId))
             ->when($request->query('q'), fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'))
             ->orderByDesc('created_at')
             ->paginate(15)
             ->withQueryString();
 
+        $customers = \App\Models\Customer::orderBy('name')->get(['id', 'name']);
+
         return view('transactions.index', [
             'transactions' => $transactions,
-            'filters' => $request->only(['start_date', 'end_date', 'q']),
+            'customers' => $customers,
+            'filters' => $request->only(['start_date', 'end_date', 'q', 'customer_id']),
         ]);
     }
 
@@ -42,8 +46,9 @@ class TransactionController extends Controller
         $finishings = \App\Models\Finishing::all();
         $displays = \App\Models\Display::all();
         $materials = \App\Models\Material::all();
+        $users = \App\Models\User::orderBy('name')->get(['id', 'name']);
 
-        return view('transactions.create', compact('customers', 'products', 'finishings', 'displays', 'materials'));
+        return view('transactions.create', compact('customers', 'products', 'finishings', 'displays', 'materials', 'users'));
     }
 
     public function store(StoreTransactionRequest $request)

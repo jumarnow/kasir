@@ -24,6 +24,7 @@ class Transaction extends Model
     protected $fillable = [
         'invoice_number',
         'user_id',
+        'eksekutor_id',
         'customer_id',
         'subtotal',
         'discount_amount',
@@ -110,6 +111,11 @@ class Transaction extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function eksekutor()
+    {
+        return $this->belongsTo(User::class, 'eksekutor_id');
     }
 
     public function items()

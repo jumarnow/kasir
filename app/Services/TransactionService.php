@@ -83,6 +83,7 @@ class TransactionService
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'customer_id' => Arr::get($payload, 'customer_id'),
+                'eksekutor_id' => Arr::get($payload, 'eksekutor_id'),
                 'subtotal' => $subtotal,
                 'discount_amount' => $discountAmount,
                 'discount_percent' => $discountPercent,
