@@ -9,18 +9,23 @@
             <h2 class="text-lg font-semibold text-slate-800">Daftar Pelanggan</h2>
             <p class="text-sm text-slate-500">Catat data pelanggan untuk program loyalti dan identifikasi transaksi</p>
         </div>
-        <a href="{{ route('customers.create') }}" class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
-            + Pelanggan Baru
-        </a>
+        @can('create_customers')
+            <a href="{{ route('customers.create') }}"
+                class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                + Pelanggan Baru
+            </a>
+        @endcan
     </div>
 
     <form method="GET" action="{{ route('customers.index') }}" class="mt-6">
         <div class="flex flex-col gap-3 md:flex-row md:items-center">
             <div class="relative flex-1">
-                <input type="text" name="q" placeholder="Cari nama / email / nomor telepon" value="{{ $search }}" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                <input type="text" name="q" placeholder="Cari nama / email / nomor telepon" value="{{ $search }}"
+                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                 <span class="absolute inset-y-0 right-4 flex items-center text-slate-400">⌕</span>
             </div>
-            <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">
+            <button type="submit"
+                class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">
                 Cari
             </button>
         </div>
@@ -52,7 +57,8 @@
                         </td>
                         <td class="px-6 py-4 text-slate-600">
                             <p>{{ $customer->address ?? '—' }}</p>
-                            <p class="text-xs text-slate-500">{{ $customer->city }} {{ $customer->state }} {{ $customer->postal_code }}</p>
+                            <p class="text-xs text-slate-500">{{ $customer->city }} {{ $customer->state }}
+                                {{ $customer->postal_code }}</p>
                         </td>
                         <td class="px-6 py-4 text-slate-600">
                             @if ($customer->price_tier == 1)
@@ -65,22 +71,30 @@
                                 —
                             @endif
                         <td class="px-6 py-4">
-                            <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $customer->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200 text-slate-600' }}">
+                            <span
+                                class="rounded-full px-3 py-1 text-xs font-semibold {{ $customer->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200 text-slate-600' }}">
                                 {{ $customer->is_active ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="inline-flex items-center gap-2">
-                                <a href="{{ route('customers.edit', $customer) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
-                                    Edit
-                                </a>
-                                <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="delete-form inline" data-message="Hapus pelanggan {{ $customer->name }}?">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-500 hover:bg-red-50">
-                                        Hapus
-                                    </button>
-                                </form>
+                                @can('edit_customers')
+                                    <a href="{{ route('customers.edit', $customer) }}"
+                                        class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
+                                        Edit
+                                    </a>
+                                @endcan
+                                @can('delete_customers')
+                                    <form action="{{ route('customers.destroy', $customer) }}" method="POST"
+                                        class="delete-form inline" data-message="Hapus pelanggan {{ $customer->name }}?">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-500 hover:bg-red-50">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                @endcan
                             </div>
                         </td>
                     </tr>
@@ -104,7 +118,8 @@
                         <h3 class="font-semibold text-slate-800">{{ $customer->name }}</h3>
                         <p class="text-xs text-slate-500 mt-1">{{ $customer->notes ?? '-' }}</p>
                     </div>
-                    <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $customer->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200 text-slate-600' }}">
+                    <span
+                        class="rounded-full px-3 py-1 text-xs font-semibold {{ $customer->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200 text-slate-600' }}">
                         {{ $customer->is_active ? 'Aktif' : 'Nonaktif' }}
                     </span>
                 </div>
@@ -122,14 +137,15 @@
                         <div class="flex flex-col">
                             <span>{{ $customer->address ?? '-' }}</span>
                             @if($customer->city || $customer->state || $customer->postal_code)
-                                <span class="text-xs text-slate-500">{{ $customer->city }} {{ $customer->state }} {{ $customer->postal_code }}</span>
+                                <span class="text-xs text-slate-500">{{ $customer->city }} {{ $customer->state }}
+                                    {{ $customer->postal_code }}</span>
                             @endif
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-xs w-16 text-slate-400">Harga:</span>
                         <span class="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium">
-                             @if ($customer->price_tier == 1)
+                            @if ($customer->price_tier == 1)
                                 Regular
                             @elseif ($customer->price_tier == 2)
                                 Grosir
@@ -143,16 +159,23 @@
                 </div>
 
                 <div class="mt-4 flex items-center gap-2">
-                    <a href="{{ route('customers.edit', $customer) }}" class="flex-1 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
-                        Edit
-                    </a>
-                    <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="delete-form flex-1" data-message="Hapus pelanggan {{ $customer->name }}?">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100">
-                            Hapus
-                        </button>
-                    </form>
+                    @can('edit_customers')
+                        <a href="{{ route('customers.edit', $customer) }}"
+                            class="flex-1 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
+                            Edit
+                        </a>
+                    @endcan
+                    @can('delete_customers')
+                        <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="delete-form flex-1"
+                            data-message="Hapus pelanggan {{ $customer->name }}?">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100">
+                                Hapus
+                            </button>
+                        </form>
+                    @endcan
                 </div>
             </div>
         @empty

@@ -38,8 +38,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('categories', CategoryController::class)->except('show');
     });
 
-    Route::middleware('permission:manage_customers')->group(function () {
-        Route::resource('customers', CustomerController::class)->except('show');
+    Route::middleware('permission:view_customers')->group(function () {
+        Route::resource('customers', CustomerController::class);
     });
 
     Route::middleware('permission:manage_transactions')->group(function () {
@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
         // Payments
         Route::post('transactions/{transaction}/pay', [TransactionController::class, 'storePayment'])->name('transactions.payments.store');
 
-        Route::resource('transactions', TransactionController::class)->except('destroy');
+        Route::resource('transactions', TransactionController::class);
     });
 
     Route::middleware('permission:manage_roles')->group(function () {

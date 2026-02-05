@@ -174,4 +174,77 @@ class TransactionController extends Controller
         return redirect()->route('transactions.show', $transaction)
             ->with('success', 'Pembayaran berhasil dicatat.');
     }
+
+    public function edit(Transaction $transaction)
+    {
+        $this->authorize('edit_transactions');
+
+
+
+        $transaction->load(['items.product', 'items.finishing', 'items.material', 'items.display', 'customer']);
+
+        $customers = Customer::orderBy('name')->get(['id', 'name', 'price_tier']);
+        $products = Product::where('is_active', true)
+            ->orderBy('name')
+            ->take(50)
+            ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'price_unit', 'min_width', 'min_length']);
+
+        $finishings = \App\Models\Finishing::all();
+        $displays = \App\Models\Display::all();
+        $materials = \App\Models\Material::all();
+        $users = \App\Models\User::orderBy('name')->get(['id', 'name']);
+
+        return view('transactions.edit', compact('transaction', 'customers', 'products', 'finishings', 'displays', 'materials', 'users'));
+    }
+
+    public function update(StoreTransactionRequest $request, Transaction $transaction)
+    {
+        $this->authorize('edit_transactions');
+
+
+
+        // Restore stock from old items
+        foreach ($transaction->items as $item) {
+            if ($item->product) {
+                $item->product->incrementStock($item->quantity);
+            }
+        }
+
+        // Delete old items
+        $transaction->items()->delete();
+
+        // Use transaction service to update
+        $user = $request->user() ?? auth()->user();
+        $this->transactionService->update($transaction, $user, $request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transaksi berhasil diperbarui.',
+                'transaction_id' => $transaction->id,
+            ]);
+        }
+
+        return redirect()->route('transactions.show', $transaction)
+            ->with('success', 'Transaksi berhasil diperbarui.');
+    }
+
+    public function destroy(Transaction $transaction)
+    {
+        $this->authorize('delete_transactions');
+
+
+
+        // Restore stock
+        foreach ($transaction->items as $item) {
+            if ($item->product) {
+                $item->product->incrementStock($item->quantity);
+            }
+        }
+
+        $transaction->delete(); // Soft delete
+
+        return redirect()->route('transactions.index')
+            ->with('success', 'Transaksi berhasil dibatalkan dan stok dikembalikan.');
+    }
 }

@@ -117,6 +117,21 @@
                                     class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-emerald-200 hover:text-emerald-600">
                                     SPK
                                 </a>
+                                @can('edit_transactions')
+                                <a href="{{ route('transactions.edit', $transaction) }}"
+                                    class="rounded-full border border-amber-200 px-3 py-1 text-xs text-amber-600 hover:bg-amber-50">
+                                    Edit
+                                </a>
+                                @endcan
+                                @can('delete_transactions')
+                                <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini? Stok akan dikembalikan.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50">
+                                        Hapus
+                                    </button>
+                                </form>
+                                @endcan
                             </div>
                         </td>
                     </tr>
@@ -180,6 +195,21 @@
                         class="flex-1 min-w-[80px] rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-medium text-emerald-600 hover:bg-emerald-100">
                         SPK
                     </a>
+                    @can('edit_transactions')
+                    <a href="{{ route('transactions.edit', $transaction) }}"
+                        class="flex-1 min-w-[80px] rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-600 hover:bg-amber-100">
+                        Edit
+                    </a>
+                    @endcan
+                    @can('delete_transactions')
+                    <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="flex-1 min-w-[80px]" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600 hover:bg-red-100">
+                            Hapus
+                        </button>
+                    </form>
+                    @endcan
                 </div>
             </div>
         @empty

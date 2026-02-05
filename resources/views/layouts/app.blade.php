@@ -133,7 +133,7 @@
                 'dashboard' => $isAdmin || $permissionNames->contains('manage_dashboard'),
                 'products' => $isAdmin || $permissionNames->contains('manage_products'),
                 'categories' => $isAdmin || $permissionNames->contains('manage_categories'),
-                'customers' => $isAdmin || $permissionNames->contains('manage_customers'),
+                'customers' => $isAdmin || $permissionNames->contains('view_customers'),
                 'transactions' => $isAdmin || $permissionNames->contains('manage_transactions'),
                 'users' => $isAdmin || $permissionNames->contains('manage_users'),
                 'roles' => $isAdmin || $permissionNames->contains('manage_roles'),

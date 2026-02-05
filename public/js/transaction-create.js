@@ -1017,6 +1017,44 @@ function initTransactionApp(config) {
     ItemDetailModal.init();
     PrintModal.init();
     FormHandler.init();
+
+    // Load existing items for edit mode
+    if (config.existingItems && config.existingItems.length > 0) {
+        app.cart = config.existingItems;
+        Cart.render();
+    }
+
+    // Pre-fill form values for edit mode
+    if (config.existingCustomerId) {
+        $('#customer-select').val(config.existingCustomerId).trigger('change');
+    }
+    if (config.existingEksekutorId) {
+        $('#eksekutor-select').val(config.existingEksekutorId);
+    }
+    if (config.existingPaymentMethod) {
+        $('#payment-method').val(config.existingPaymentMethod).trigger('change');
+    }
+    if (config.existingNotes) {
+        $('textarea[name="notes"]').val(config.existingNotes);
+    }
+    if (config.existingDiscountPercent) {
+        $('#discount-percent').val(config.existingDiscountPercent);
+    }
+    if (config.existingDiscountAmount) {
+        $('#discount-amount').val(Utils.formatCurrency(config.existingDiscountAmount));
+    }
+    if (config.existingShippingCost) {
+        $('#shipping-cost').val(Utils.formatCurrency(config.existingShippingCost));
+    }
+    if (config.existingAmountPaid) {
+        $('#amount-paid').val(Utils.formatCurrency(config.existingAmountPaid));
+    }
+    if (config.existingDueDate) {
+        $('#due-date').val(config.existingDueDate);
+    }
+
+    // Update summary after loading existing data
+    Summary.update();
 }
 
 // Export for global access
