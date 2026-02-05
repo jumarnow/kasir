@@ -116,15 +116,29 @@
 
                     <!-- Dimension Fields (Hidden by default) -->
                     <div id="dimension-fields" class="space-y-4 {{ old('pricing_type', $isEdit ? $product->pricing_type : 'per_unit') == 'per_dimension' ? '' : 'hidden' }}">
-                         <div>
-                            <label class="text-sm font-medium text-slate-600">Harga Jual per m²</label>
-                            <input
-                                type="text"
-                                min="0"
-                                name="price_per_meter"
-                                value="{{ old('price_per_meter', $isEdit ? formatNumber($product->price_per_meter) : '') }}"
-                                class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                            >
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-slate-600">Satuan Harga Dimensi</label>
+                                <select name="price_unit" id="price-unit-select" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                    <option value="per_m2" {{ old('price_unit', $isEdit ? ($product->price_unit ?? 'per_m2') : 'per_m2') == 'per_m2' ? 'selected' : '' }}>Per Meter Persegi (m²)</option>
+                                    <option value="per_cm2" {{ old('price_unit', $isEdit ? ($product->price_unit ?? 'per_m2') : 'per_m2') == 'per_cm2' ? 'selected' : '' }}>Per Centimeter Persegi (cm²)</option>
+                                </select>
+                                <p class="mt-1 text-xs text-slate-400">Gunakan cm² untuk produk berukuran kecil.</p>
+                            </div>
+                            <div>
+                                @php
+                                    $currentPriceUnit = old('price_unit', $isEdit ? ($product->price_unit ?? 'per_m2') : 'per_m2');
+                                    $labelText = $currentPriceUnit === 'per_cm2' ? 'Harga Jual per cm²' : 'Harga Jual per m²';
+                                @endphp
+                                <label class="text-sm font-medium text-slate-600" id="price-per-dimension-label">{{ $labelText }}</label>
+                                <input
+                                    type="text"
+                                    min="0"
+                                    name="price_per_meter"
+                                    value="{{ old('price_per_meter', $isEdit ? formatNumber($product->price_per_meter) : '') }}"
+                                    class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                >
+                            </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
@@ -233,23 +247,44 @@
                         const dimensionFields = document.getElementById('dimension-fields');
                         const unitPriceFields = document.getElementById('unit-price-fields');
                         const unitInput = document.querySelector('input[name="unit"]');
+                        const priceUnitSelect = document.getElementById('price-unit-select');
+                        const priceLabel = document.getElementById('price-per-dimension-label');
 
                         function toggleFields() {
                             const selectedType = document.querySelector('input[name="pricing_type"]:checked').value;
                             if (selectedType === 'per_dimension') {
                                 dimensionFields.classList.remove('hidden');
                                 unitPriceFields.classList.add('hidden');
-                                if(unitInput.value === 'pcs') unitInput.value = 'm2'; // Auto suggest unit
+                                updatePriceLabel();
                             } else {
                                 dimensionFields.classList.add('hidden');
                                 unitPriceFields.classList.remove('hidden');
-                                if(unitInput.value === 'm2') unitInput.value = 'pcs'; 
+                                if(unitInput.value === 'm2' || unitInput.value === 'cm2') unitInput.value = 'pcs'; 
+                            }
+                        }
+
+                        function updatePriceLabel() {
+                            if (priceUnitSelect && priceLabel) {
+                                const priceUnit = priceUnitSelect.value;
+                                if (priceUnit === 'per_cm2') {
+                                    priceLabel.textContent = 'Harga Jual per cm²';
+                                    if(unitInput.value === 'pcs' || unitInput.value === 'm2') unitInput.value = 'cm2';
+                                } else {
+                                    priceLabel.textContent = 'Harga Jual per m²';
+                                    if(unitInput.value === 'pcs' || unitInput.value === 'cm2') unitInput.value = 'm2';
+                                }
                             }
                         }
 
                         pricingTypeRadios.forEach(radio => {
                             radio.addEventListener('change', toggleFields);
                         });
+
+                        if (priceUnitSelect) {
+                            priceUnitSelect.addEventListener('change', updatePriceLabel);
+                            // Initialize label on page load
+                            updatePriceLabel();
+                        }
                     });
                 </script>
             </div>

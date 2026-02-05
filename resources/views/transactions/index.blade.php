@@ -15,7 +15,7 @@
         </a>
     </div>
 
-    <form method="GET" action="{{ route('transactions.index') }}" class="mt-6 grid gap-4 md:grid-cols-5">
+    <form method="GET" action="{{ route('transactions.index') }}" class="mt-6 grid gap-4 md:grid-cols-6">
         <div>
             <label class="text-xs uppercase text-slate-500">Tanggal Mulai</label>
             <input type="date" name="start_date" value="{{ $filters['start_date'] ?? '' }}"
@@ -36,6 +36,16 @@
                         {{ $customer->name }}
                     </option>
                 @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="text-xs uppercase text-slate-500">Status Pembayaran</label>
+            <select name="payment_status" 
+                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                <option value="">Semua Status</option>
+                <option value="paid" {{ ($filters['payment_status'] ?? '') == 'paid' ? 'selected' : '' }}>Lunas</option>
+                <option value="dp" {{ ($filters['payment_status'] ?? '') == 'dp' ? 'selected' : '' }}>DP (Kurang Bayar)</option>
+                <option value="pending" {{ ($filters['payment_status'] ?? '') == 'pending' ? 'selected' : '' }}>Pending (Belum Bayar)</option>
             </select>
         </div>
         <div>
@@ -67,7 +77,14 @@
                     <tr>
                         <td class="px-6 py-4">
                             <p class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</p>
-                            <p class="text-xs text-slate-500">Status: {{ ucfirst($transaction->status) }}</p>
+                            <p class="text-xs text-slate-500">Status: {{ 
+                                match($transaction->payment_status) {
+                                    'dp' => 'DP (Kurang Bayar)',
+                                    'paid' => 'Lunas',
+                                    'pending' => 'Pending (Belum Bayar)',
+                                    default => ucfirst($transaction->payment_status)
+                                }
+                            }}</p>
                         </td>
                         <td class="px-6 py-4 text-slate-600">
                             {{ $transaction->user?->name ?? '—' }}

@@ -23,6 +23,7 @@ class Product extends Model
         'price_3',
         'cost_price',
         'price_per_meter',
+        'price_unit',
         'min_width',
         'min_length',
         'stock',

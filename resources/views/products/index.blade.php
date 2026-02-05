@@ -113,7 +113,7 @@
                         <td class="px-6 py-4">
                             <div class="font-semibold text-slate-800">
                                 @if($product->pricing_type === 'per_dimension')
-                                    Rp {{ number_format($product->price_per_meter ?? $product->price, 0, ',', '.') }} <span class="text-xs font-normal text-slate-500">/ m²</span>
+                                    Rp {{ number_format($product->price_per_meter ?? $product->price, 0, ',', '.') }} <span class="text-xs font-normal text-slate-500">/ {{ $product->unit }}</span>
                                 @else
                                     Rp {{ number_format($product->price, 0, ',', '.') }}
                                 @endif

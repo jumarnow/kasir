@@ -52,6 +52,7 @@
                     <textarea name="notes" rows="3" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">{{ old('notes', $isEdit ? $customer->notes : '') }}</textarea>
                 </div>
                 <div class="flex items-center gap-2">
+                    <input type="hidden" name="is_active" value="0">
                     <input
                         type="checkbox"
                         name="is_active"

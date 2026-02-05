@@ -1,0 +1,73 @@
+/**
+ * Transaction Create Page - Custom Styles
+ * ========================================
+ * Custom styling for Select2 and Slim Select components
+ */
+
+/* =========================================
+   Select2 Custom Styling
+   ========================================= */
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container .select2-selection--single {
+    height: auto;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(226 232 240);
+    display: flex;
+    align-items: center;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: rgb(51 65 85);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding: 0;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100%;
+    right: 0.75rem;
+}
+
+.select2-dropdown {
+    border-radius: 0.75rem;
+    border: 1px solid rgb(226 232 240);
+}
+
+.select2-results__option {
+    font-size: 1rem;
+}
+
+/* =========================================
+   Slim Select Custom Styling
+   ========================================= */
+.ss-main {
+    padding: 0.15rem 0.5rem !important;
+    border-radius: 0.75rem !important;
+    border: 1px solid rgb(226 232 240) !important;
+    min-height: 42px;
+}
+
+.ss-main:focus {
+    box-shadow: 0 0 0 2px rgb(199 210 254) !important;
+    border-color: rgb(99 102 241) !important;
+}
+
+.ss-content {
+    border-radius: 0.75rem !important;
+    border: 1px solid rgb(226 232 240) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ss-list .ss-option:hover {
+    background-color: rgb(248 250 252) !important;
+    color: rgb(79 70 229) !important;
+}
+
+.ss-list .ss-option.ss-selected {
+    background-color: rgb(238 242 255) !important;
+    color: rgb(79 70 229) !important;
+}

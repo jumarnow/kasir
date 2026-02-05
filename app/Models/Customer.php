@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -37,7 +38,7 @@ class Customer extends Model
      */
     public function getPriceField(): string
     {
-        return match($this->price_tier) {
+        return match ($this->price_tier) {
             2 => 'price_2',
             3 => 'price_3',
             default => 'price'

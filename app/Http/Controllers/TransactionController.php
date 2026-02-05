@@ -21,6 +21,7 @@ class TransactionController extends Controller
             ->when($request->query('start_date'), fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($request->query('end_date'), fn($query, $date) => $query->whereDate('created_at', '<=', $date))
             ->when($request->query('customer_id'), fn($query, $customerId) => $query->where('customer_id', $customerId))
+            ->when($request->query('payment_status'), fn($query, $status) => $query->where('payment_status', $status))
             ->when($request->query('q'), fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'))
             ->orderByDesc('created_at')
             ->paginate(15)
@@ -31,7 +32,7 @@ class TransactionController extends Controller
         return view('transactions.index', [
             'transactions' => $transactions,
             'customers' => $customers,
-            'filters' => $request->only(['start_date', 'end_date', 'q', 'customer_id']),
+            'filters' => $request->only(['start_date', 'end_date', 'q', 'customer_id', 'payment_status']),
         ]);
     }
 
@@ -41,7 +42,7 @@ class TransactionController extends Controller
         $products = Product::where('is_active', true)
             ->orderBy('name')
             ->take(50)
-            ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'min_width', 'min_length']);
+            ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'price_unit', 'min_width', 'min_length']);
 
         $finishings = \App\Models\Finishing::all();
         $displays = \App\Models\Display::all();
@@ -147,6 +148,11 @@ class TransactionController extends Controller
             'stock' => (int) $product->stock,
             'stock_alert' => (int) ($product->stock_alert ?? 0),
             'cost_price' => (float) $product->cost_price,
+            'pricing_type' => $product->pricing_type ?? 'per_unit',
+            'price_per_meter' => (float) ($product->price_per_meter ?? 0),
+            'price_unit' => $product->price_unit ?? 'per_m2',
+            'min_width' => (float) ($product->min_width ?? 0),
+            'min_length' => (float) ($product->min_length ?? 0),
         ]);
     }
     public function storePayment(Request $request, Transaction $transaction)

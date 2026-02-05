@@ -50,6 +50,7 @@ class ProductController extends Controller
         $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
         $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
         $payload['price_per_meter'] = !empty($payload['price_per_meter']) ? toNumeric($payload['price_per_meter']) : null;
+        $payload['price_unit'] = $payload['price_unit'] ?? 'per_m2';
         $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;
         $payload['min_length'] = !empty($payload['min_length']) ? toNumeric($payload['min_length']) : null;
         $payload['stock'] = $payload['stock'] ?? 0;
@@ -75,6 +76,7 @@ class ProductController extends Controller
         $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
         $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
         $payload['price_per_meter'] = !empty($payload['price_per_meter']) ? toNumeric($payload['price_per_meter']) : null;
+        $payload['price_unit'] = $payload['price_unit'] ?? 'per_m2';
         $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;
         $payload['min_length'] = !empty($payload['min_length']) ? toNumeric($payload['min_length']) : null;
 

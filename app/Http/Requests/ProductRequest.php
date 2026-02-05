@@ -36,6 +36,7 @@ class ProductRequest extends FormRequest
             'price_3' => ['nullable', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'price_per_meter' => ['nullable', 'numeric', 'min:0'],
+            'price_unit' => ['nullable', 'in:per_m2,per_cm2'],
             'min_width' => ['nullable', 'numeric', 'min:0'],
             'min_length' => ['nullable', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],

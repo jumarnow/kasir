@@ -1,329 +1,225 @@
-# Review Proyek Kasir untuk Support Percetakan
+# Analisis: Edit & Delete Transaksi
 
-Berdasarkan review struktur proyek, berikut adalah analisis fitur yang **sudah ada** dan yang **belum ada** untuk mendukung kebutuhan percetakan:
-
----
-
-## 📋 UPDATE INFORMASI DARI CUSTOMER (1 Feb 2026)
-
-### Jenis Produk & Perhitungan Harga
-
-Customer menjelaskan bahwa ada **2 tipe perhitungan harga**:
-
-| Tipe Produk | Perhitungan | Contoh |
-|-------------|-------------|--------|
-| **Per Lembar/Biji** | Harga × Qty | Print A4 = Rp3.000/lembar, Print A3 = Rp6.000/lembar, Kartu Nama |
-| **Per Dimensi (P×L)** | Harga × Panjang × Lebar | Banner, Spanduk, Stiker, Cutting Stiker |
-
-**Contoh Bahan Banner/Spanduk:**
-- Flexi 280 gram
-- Flexi 440 gram
-
-> ⚠️ **PENTING**: User harus bisa **menginput sendiri** produk dan memilih tipe perhitungan (per biji atau P×L)
-
-### Revisi Cetak Dokumen
-
-| No | Dokumen | Printer | Ukuran | Kegunaan |
-|----|---------|---------|--------|----------|
-| 1 | **SPK** | Thermal | - | Surat Perintah Kerja (internal produksi) |
-| 2 | **Nota Penjualan** | Thermal | - | Penjualan Cash/Tunai |
-| 3 | **Invoice** | Biasa | A5 | Pembayaran Tempo/Piutang |
+## 🤔 Pertanyaan
+Apakah edit transaksi sebaiknya menggunakan file yang sama dengan create (`create.blade.php`)?
 
 ---
 
-## ✅ Fitur yang SUDAH ADA
+## 📋 Rekomendasi: **TIDAK** - Buat File Terpisah
 
-### 1. Sistem User & Role Management ✅ UPDATED
-| Fitur | Status | Detail |
-|-------|--------|--------|
-| Model User | ✅ Ada | `app/Models/User.php` |
-| Model Role | ✅ Ada | `app/Models/Role.php` |
-| Model Permission | ✅ Ada | `app/Models/Permission.php` |
-| Relasi User-Role | ✅ Ada | Many-to-Many dengan pivot |
-| Relasi Role-Permission | ✅ Ada | Many-to-Many dengan pivot |
-| Cek hasRole() | ✅ Ada | Method di User model |
-| Cek hasPermission() | ✅ Ada | Method di User model |
+### Alasan:
 
-**Role yang sudah ada (5 role) ✅ SELESAI:**
-| Role | Display Name | Deskripsi | Akses Omset |
-|------|--------------|-----------|-------------|
-| `kasir` | Kasir | Hanya input transaksi | ❌ Tidak |
-| `admin` | Admin | Input, invoice, faktur, stok bahan | ❌ Tidak |
-| `kepala_toko` | Kepala Toko | Seperti admin + edit pesanan | ❌ Tidak |
-| `finance` | Finance | Akses penuh | ✅ Ya |
-| `manager` | Manager | Akses penuh | ✅ Ya |
+| Aspek | Create | Edit |
+|-------|--------|------|
+| **Data Flow** | Mulai dari kosong | Load dari database |
+| **Cart State** | Empty array | Pre-filled dari `transaction.items` |
+| **Invoice Number** | Generate baru | Sudah ada (readonly) |
+| **Stok Logic** | Decrement | Restore + Recalculate |
+| **Print Flow** | Setelah submit | Bisa langsung |
+| **Form Action** | `store` | `update` |
+
+### Kompleksitas Tinggi:
+1. **JavaScript cart** harus di-populate dari existing items
+2. **Stok produk** harus di-restore sebelum dihitung ulang
+3. **Payment status** tidak boleh sembarangan diubah (already paid)
+4. **Invoice number** harus readonly
 
 ---
 
-### 2. Sistem Transaksi
-| Fitur | Status | Detail |
-|-------|--------|--------|
-| Model Transaction | ✅ Ada | `app/Models/Transaction.php` |
-| Model TransactionItem | ✅ Ada | `app/Models/TransactionItem.php` |
-| Invoice Number Generator | ✅ Ada | Format: `INV-YYYYMMDD-XXXX` |
-| Relasi ke User (kasir) | ✅ Ada | `user_id` |
-| Relasi ke Customer | ✅ Ada | `customer_id` |
-| Subtotal, Diskon, Total | ✅ Ada | Field di transaction |
-| Profit (laba) per item | ✅ Ada | Otomatis dari `price - cost_price` |
-| Payment Method | ✅ Ada | Field payment_method |
-| Status Transaksi | ✅ Ada | Field status (generic) |
-| Notes | ✅ Ada | Field notes |
+## ✅ Solusi yang Direkomendasikan
 
-> ⚠️ **PERLU MODIFIKASI**: Status belum sesuai kebutuhan percetakan (pending, produksi, selesai belum bayar, DP, lunas)
+### Opsi 1: Edit Terbatas (Simple) ⭐ RECOMMENDED
+Buat halaman edit sederhana untuk mengubah:
+- Status pesanan (`order_status`)
+- Status pembayaran + tambah bayar
+- Catatan (`notes`)
+- Due date
 
----
+**Tidak mengizinkan** edit items/qty/harga setelah transaksi dibuat.
 
-### 3. Produk & Stok
-| Fitur | Status | Detail |
-|-------|--------|--------|
-| Model Product | ✅ Ada | `app/Models/Product.php` |
-| Kategori Produk | ✅ Ada | `app/Models/Category.php` |
-| HPP (cost_price) | ✅ Ada | Field `cost_price` untuk modal |
-| Multi Price Tier | ✅ Ada | `price`, `price_2`, `price_3` |
-| Stock Tracking | ✅ Ada | Field `stock` dan `stock_alert` |
-| Barcode & SKU | ✅ Ada | Field barcode dan sku |
-| Stock Increment/Decrement | ✅ Ada | Method di model |
+**Pro:** Aman, cepat implementasi, mencegah manipulasi data.
 
-> ⚠️ **PERLU MODIFIKASI**: Tambah field `pricing_type` (per_unit / per_dimension) dan `cost_per_unit` untuk perhitungan P×L
+### Opsi 2: Edit Penuh (Complex)
+Buat `edit.blade.php` terpisah dengan logic:
+1. Load existing transaction + items ke JavaScript
+2. Restore stok produk yang sudah dikurangi
+3. Allow edit items, qty, price
+4. Recalculate stok saat submit
+
+**Pro:** Fleksibel.
+**Con:** Kompleks, rawan error stok, butuh audit trail.
 
 ---
 
-### 4. Pelanggan
-| Fitur | Status | Detail |
-|-------|--------|--------|
-| Model Customer | ✅ Ada | `app/Models/Customer.php` |
-| Data Lengkap | ✅ Ada | Nama, email, phone, alamat |
-| Price Tier | ✅ Ada | Harga berbeda per tier customer |
-| Relasi ke Transaction | ✅ Ada | History pembelian |
+## � Kasus: Kasir Salah Input
 
----
+### Skenario Umum:
+- Salah pilih produk
+- Salah qty
+- Salah harga
+- Salah pelanggan
 
-### 5. Laporan
-| Fitur | Status | Detail |
-|-------|--------|--------|
-| Laporan Penjualan | ✅ Ada | `reports/sales.blade.php` |
-| Laporan Profit/Laba | ✅ Ada | `reports/profit.blade.php` |
-| Agregasi per Hari/Minggu/Bulan | ✅ Ada | `ReportService.php` |
-| Filter by User (kasir) | ✅ Ada | Parameter userId |
+### Solusi: **Edit Window + Approval**
 
-> ⚠️ **BELUM LENGKAP**: Belum ada laporan stok, piutang, pembukuan
+| Kondisi | Yang Boleh Edit | Approval |
+|---------|-----------------|----------|
+| < 30 menit setelah input | Kasir sendiri | Tidak perlu |
+| > 30 menit | Admin/Kepala Toko | Perlu |
+| Sudah lunas | Tidak boleh edit | Harus void + buat ulang |
+| Sudah DP | Admin only | Perlu |
 
----
+### Implementasi Hybrid (Recommended):
 
-### 6. Cetak Dokumen
-| Fitur | Status | Detail |
-|-------|--------|--------|
-| Invoice (A4) | ✅ Ada | `transactions/invoice.blade.php` |
-| Shipping Label | ✅ Ada | `transactions/shipping_label.blade.php` |
+```php
+public function canEdit(Transaction $transaction): bool
+{
+    // 1. Transaksi lunas tidak boleh edit
+    if ($transaction->payment_status === 'paid') {
+        return false;
+    }
+    
+    // 2. Dalam 30 menit, kasir bisa edit sendiri
+    $editWindow = $transaction->created_at->addMinutes(30);
+    if (now()->lessThan($editWindow) && auth()->id() === $transaction->user_id) {
+        return true;
+    }
+    
+    // 3. Setelah 30 menit, hanya admin/kepala_toko
+    return auth()->user()->hasAnyRole(['admin', 'kepala_toko', 'finance', 'manager']);
+}
+```
 
----
-
-## ❌ Fitur yang BELUM ADA (Perlu Dikembangkan)
-
-### A. Perhitungan & Transaksi
-
-| Fitur | Status | Keterangan |
-|-------|--------|------------|
-| **Tipe Harga Produk** | ✅ Selesai | Field `pricing_type`: `per_unit` atau `per_dimension` |
-| **Perhitungan P×L×Qty** | ✅ Selesai | `Product::calculatePrice()` dengan dimensi |
-| **Perhitungan Per Biji** | ✅ Selesai | Harga × qty dengan price tier support |
-| Status Pesanan Percetakan | ✅ Selesai | pending → production → completed → delivered |
-| Upload File Desain | ✅ Selesai | Model `OrderFile` type: design |
-| Upload File Cetak | ✅ Selesai | Model `OrderFile` type: print_ready |
-| Tracking DP (Down Payment) | ✅ Selesai | `dp_amount`, `remaining_amount` |
-| Piutang/Hutang | ✅ Selesai | `payment_status`, `due_date`, `hasDebt()` |
-
----
-
-### B. Master Data Percetakan
-
-| Fitur | Status | Keterangan |
-|-------|--------|------------|
-| Bahan/Material | ✅ Selesai | 9 data: Flexi 280gr, 440gr, Vinyl, Kertas HVS, dll |
-| Finishing | ✅ Selesai | 8 data: Laminasi, Cutting, Mounting, dll |
-| Display/Inventaris | ✅ Selesai | 7 data: Neon Box, Standing Banner, X Banner, dll |
-| Stok Bahan (keluar-masuk) | ❌ Belum | Tracking penggunaan bahan |
-
-> **💡 Konsep Produk vs Material:**
-> - **Product** (Menu Jualan): Apa yang dipilih kasir & masuk invoice. Contoh: _"Cetak Banner 280gr"_ (Jasa + Bahan).
-> - **Material** (Stok Gudang): Bahan baku fisik yang dibeli. Contoh: _"Roll Flexi 280gr"_.
-> - **Hubungan**: Menjual **Product** idealnya akan mengurangi stok **Material**. Untuk saat ini (Fase 2), keduanya berdiri masing-masing (diketik manual), link otomatis akan dikerjakan di fase polishing jika diminta.
-
----
-
-### C. Cetak Dokumen (REVISI)
-
-| No | Dokumen | Printer | Ukuran | Status | Keterangan |
-|----|---------|---------|--------|--------|------------|
-| 1 | **SPK** | Thermal | - | ❌ Belum | Surat Perintah Kerja untuk produksi internal |
-| 2 | **Nota Penjualan** | Thermal | - | ❌ Belum | Untuk penjualan cash/tunai |
-| 3 | **Invoice** | Biasa | A5 | ⚠️ Modifikasi | Untuk pembayaran tempo/piutang (ubah dari A4 ke A5) |
-
----
-
-### D. Laporan
-
-| Fitur | Status | Keterangan |
-|-------|--------|------------|
-| Laporan Stok Bahan | ❌ Belum | Stok masuk-keluar bahan |
-| Laporan Pembukuan | ❌ Belum | Kas masuk-keluar |
-| Laporan Piutang | ❌ Belum | Daftar hutang customer |
-| Laporan Omset | ⚠️ Perlu modifikasi | Sudah ada tapi perlu filter |
-| Export PDF | ❌ Belum | Ekspor laporan ke PDF |
-| Export Excel | ❌ Belum | Ekspor laporan ke Excel |
-
----
-
-### E. QR Code
-
-| Fitur | Status | Keterangan |
-|-------|--------|------------|
-| QR Code Transaksi | ❌ Belum | Generate QR per pesanan |
-| QR Code Bahan | ❌ Belum | Generate QR per bahan |
-| QR Code Display | ❌ Belum | Generate QR per display |
-
----
-
-### F. Level Login & Hak Akses
-
-| Role | Status | Keterangan |
-|------|--------|------------|
-| Kasir | ✅ Selesai | Input saja, tidak bisa lihat omset |
-| Admin | ✅ Selesai | Input, invoice belum lunas, faktur, stok (tanpa omset) |
-| Kepala Toko | ✅ Selesai | Sama seperti admin + edit pesanan |
-| Finance | ✅ Selesai | Akses penuh |
-| Manager | ✅ Selesai | Akses penuh |
-
----
-
-### G. UI/UX
-
-| Fitur | Status | Keterangan |
-|-------|--------|------------|
-| Dark Mode | ❌ Belum | Toggle tema gelap |
-| Light Mode | ✅ Ada | Default theme |
-| Responsive/Multiplatform | ⚠️ Perlu cek | Perlu review layout |
-
----
-
-## 📊 Ringkasan Persentase Kesiapan
+### Flow Koreksi Kesalahan:
 
 ```
-┌─────────────────────────────────┬───────────┐
-│ Modul                           │ Kesiapan  │
-├─────────────────────────────────┼───────────┤
-│ User & Auth                     │ 70%       │
-│ Role & Permission               │ 100% ✅   │
-│ Transaksi Dasar                 │ 80% ✅    │
-│ Produk & Kategori               │ 90% ✅    │
-│ Customer                        │ 80%       │
-│ Stok Produk                     │ 70%       │
-│ Cetak Invoice                   │ 40%       │
-│ Laporan                         │ 40%       │
-├─────────────────────────────────┼───────────┤
-│ Fitur Khusus Percetakan         │ 70% ✅    │
-│ (Material, Finishing, Pricing)  │           │
-├─────────────────────────────────┼───────────┤
-│ TOTAL ESTIMASI                  │ ~70%      │
-└─────────────────────────────────┴───────────┘
+┌─────────────────────────────────────────────────────────┐
+│ Kasir salah input                                       │
+├─────────────────────────────────────────────────────────┤
+│ < 30 menit? ──Yes──> Edit langsung (restore stok dulu) │
+│      │                                                  │
+│      No                                                 │
+│      ▼                                                  │
+│ Status pending? ──Yes──> Minta approval Admin          │
+│      │                                                  │
+│      No (DP/Lunas)                                      │
+│      ▼                                                  │
+│ VOID transaksi + Buat ulang yang benar                 │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Audit Trail (Penting!):
+```php
+// Log setiap perubahan
+TransactionLog::create([
+    'transaction_id' => $transaction->id,
+    'action' => 'edited',
+    'old_data' => json_encode($oldData),
+    'new_data' => json_encode($newData),
+    'user_id' => auth()->id(),
+    'reason' => $request->edit_reason, // Wajib isi alasan
+]);
 ```
 
 ---
 
-## 🎯 Rekomendasi Prioritas Pengerjaan (UPDATED)
+## �🗑️ Delete / Void Transaksi
 
-### Fase 1: Fondasi ✅ SELESAI
-1. ✅ Update Role sesuai kebutuhan (5 level) - **SELESAI**
-2. ✅ Update Permission matrix - **SELESAI**
-3. ✅ Buat model `Material` (bahan) - **SELESAI** (9 data)
-4. ✅ Buat model `Finishing` - **SELESAI** (8 data)
-5. ✅ Buat model `Display` - **SELESAI** (7 data)
+### Rekomendasi: **Soft Delete + Void**
 
-### Fase 2: Core Produk & Transaksi Percetakan ✅ SELESAI
-1. ✅ Modifikasi `Product` untuk support 2 tipe harga - **SELESAI**
-   - `pricing_type` = `per_unit` | `per_dimension`
-   - `calculatePrice()` method
-2. ✅ Modifikasi `TransactionItem` - **SELESAI** (+width, +length, +area)
-3. ✅ Modifikasi `Transaction` - **SELESAI** (order_status, payment_status, DP)
-4. ✅ Buat model `OrderFile` - **SELESAI**
-5. ✅ Sistem DP dan tracking piutang - **SELESAI**
+```php
+// TransactionController
+public function destroy(Transaction $transaction)
+{
+    // 1. Restore stok produk
+    foreach ($transaction->items as $item) {
+        $item->product->incrementStock($item->quantity);
+    }
+    
+    // 2. Void (bukan delete)
+    $transaction->update([
+        'status' => 'voided',
+        'voided_at' => now(),
+        'voided_by' => auth()->id(),
+    ]);
+    
+    // Atau soft delete
+    $transaction->delete();
+}
+```
 
-### Fase 3: Dokumen & Cetak (REVISI)
-1. ➕ **SPK (Thermal)** - Surat Perintah Kerja internal
-2. ➕ **Nota Penjualan (Thermal)** - Untuk cash
-3. ✏️ **Invoice (A5)** - Modifikasi dari A4 ke A5 untuk tempo
-
-### Fase 4: Laporan & Export
-1. ➕ Laporan Stok Bahan
-2. ➕ Laporan Piutang
-3. ➕ Laporan Pembukuan
-4. ➕ Export PDF & Excel
-
-### Fase 5: Polish
-1. ➕ Implementasi QR Code
-2. ➕ Dark Mode
-3. ✏️ Review responsive design
+### Syarat Delete:
+- Hanya transaksi dengan `payment_status = pending` yang boleh di-void
+- Transaksi lunas/DP tidak boleh di-void (harus buat retur)
 
 ---
 
-## 📁 File Struktur yang Perlu Dibuat
+## 📁 Struktur File Baru (Jika Opsi 1)
 
 ```
-app/Models/
-├── Material.php          [DONE] ✅
-├── Finishing.php         [DONE] ✅
-├── Display.php           [DONE] ✅
-├── OrderFile.php         [DONE] ✅
-├── CashFlow.php          [NEW] (kas masuk/keluar)
-├── Product.php           [DONE] ✅ + pricing_type, calculatePrice()
-├── TransactionItem.php   [DONE] ✅ + width, length, area
-└── Transaction.php       [DONE] ✅ + order_status, payment_status, DP
-
-database/migrations/
-├── create_materials_table.php      [DONE] ✅
-├── create_finishings_table.php     [DONE] ✅
-├── create_displays_table.php       [DONE] ✅
-├── create_order_files_table.php    [DONE] ✅
-├── create_cash_flows_table.php     [NEW]
-├── add_pricing_fields_to_products  [DONE] ✅
-├── add_dimension_fields_to_items   [DONE] ✅
-└── add_printing_status_to_trans    [DONE] ✅
-
-resources/views/
-├── materials/            [NEW]
-├── finishings/           [NEW]
-├── displays/             [NEW]
-├── transactions/
-│   ├── spk_thermal.blade.php       [NEW] - SPK thermal
-│   ├── receipt_thermal.blade.php   [NEW] - Nota cash thermal
-│   └── invoice_a5.blade.php        [NEW] - Invoice A5 tempo
-└── reports/
-    ├── stock.blade.php             [NEW]
-    ├── receivables.blade.php       [NEW]
-    └── cashflow.blade.php          [NEW]
+resources/views/transactions/
+├── index.blade.php      (existing)
+├── create.blade.php     (existing)
+├── show.blade.php       (existing - detail & print)
+├── edit.blade.php       [NEW - edit status/notes only]
+└── partials/
+    └── ... (existing)
 ```
 
 ---
 
-## 📝 Struktur Database Produk (PROPOSAL)
+## ⚡ Quick Implementation (Opsi 1)
 
-```sql
--- Modifikasi tabel products
-ALTER TABLE products ADD COLUMN pricing_type ENUM('per_unit', 'per_dimension') DEFAULT 'per_unit';
-ALTER TABLE products ADD COLUMN price_per_meter DECIMAL(12,2) NULL; -- harga per m² untuk P×L
-ALTER TABLE products ADD COLUMN min_width DECIMAL(8,2) NULL; -- lebar minimum (cm)
-ALTER TABLE products ADD COLUMN min_length DECIMAL(8,2) NULL; -- panjang minimum (cm)
-
--- Modifikasi tabel transaction_items
-ALTER TABLE transaction_items ADD COLUMN width DECIMAL(8,2) NULL; -- lebar (cm)
-ALTER TABLE transaction_items ADD COLUMN length DECIMAL(8,2) NULL; -- panjang (cm)
-ALTER TABLE transaction_items ADD COLUMN area DECIMAL(12,4) NULL; -- luas (m²)
+### 1. Tambah Route
+```php
+Route::get('transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
+Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
+Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 ```
 
-**Contoh Perhitungan (VERIFIED ✅):**
-- **Per Unit**: Print A4, Qty=100, Harga=3000 → Total = 100 × 3000 = **Rp300.000** ✅
-- **Per Dimensi**: Banner 200cm × 300cm, Harga=50.000/m² → Total = 6m² × 50.000 = **Rp300.000** ✅
+### 2. Controller Methods
+```php
+public function edit(Transaction $transaction)
+{
+    $transaction->load('items.product', 'customer');
+    return view('transactions.edit', compact('transaction'));
+}
+
+public function update(Request $request, Transaction $transaction)
+{
+    $transaction->update($request->validated());
+    return redirect()->route('transactions.show', $transaction)
+        ->with('success', 'Transaksi berhasil diperbarui.');
+}
+
+public function destroy(Transaction $transaction)
+{
+    // Restore stok
+    foreach ($transaction->items as $item) {
+        $item->product->incrementStock($item->quantity);
+    }
+    
+    $transaction->delete(); // soft delete
+    
+    return redirect()->route('transactions.index')
+        ->with('success', 'Transaksi berhasil dibatalkan.');
+}
+```
+
+### 3. Edit View (Simple)
+Form sederhana untuk edit:
+- Order Status dropdown
+- Payment Status + Amount Paid
+- Notes
+- Due Date
 
 ---
 
-Lanjut ke Fase 3: Dokumen & Cetak (SPK Thermal, Nota Thermal, Invoice A5)
+## 🎯 Kesimpulan
+
+| Pendekatan | Effort | Risk | Recommendation |
+|------------|--------|------|----------------|
+| Edit Status Only | Low | Low | ⭐ Start here |
+| Edit Full Items | High | High | Phase 2 if needed |
+| Soft Delete | Low | Low | ⭐ Implement |
+
+**Mulai dengan Opsi 1** (edit terbatas), evaluasi apakah edit items benar-benar diperlukan. Kebanyakan bisnis retail/percetakan tidak mengizinkan edit transaksi yang sudah di-input untuk mencegah manipulasi.
