@@ -22,15 +22,17 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::before(function ($user, string $ability) {
-            if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
+            // Admin memiliki semua akses
+            if (method_exists($user, 'hasRole') && $user->hasRole('manager')) {
                 return true;
             }
 
-            if (method_exists($user, 'hasPermission') && $user->hasPermission($ability)) {
-                return true;
+            // Cek apakah user punya permission
+            if (method_exists($user, 'hasPermission')) {
+                return $user->hasPermission($ability);
             }
 
-            return null;
+            return false;
         });
     }
 }

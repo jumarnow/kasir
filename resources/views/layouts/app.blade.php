@@ -125,24 +125,6 @@
                 $currentUser->loadMissing('roles.permissions');
             }
             $roleLabel = $currentUser ? $currentUser->roles->pluck('display_name')->join(', ') : null;
-            $permissionNames = $currentUser
-                ? $currentUser->roles->flatMap(fn($role) => $role->permissions)->pluck('name')->unique()
-                : collect();
-            $isAdmin = $currentUser?->hasRole('admin') ?? false;
-            $permissions = [
-                'dashboard' => $isAdmin || $permissionNames->contains('manage_dashboard'),
-                'products' => $isAdmin || $permissionNames->contains('manage_products'),
-                'categories' => $isAdmin || $permissionNames->contains('manage_categories'),
-                'customers' => $isAdmin || $permissionNames->contains('view_customers'),
-                'transactions' => $isAdmin || $permissionNames->contains('manage_transactions'),
-                'users' => $isAdmin || $permissionNames->contains('manage_users'),
-                'roles' => $isAdmin || $permissionNames->contains('manage_roles'),
-                'reports' => $isAdmin || $permissionNames->contains('view_reports'),
-                'view_profit' => $isAdmin || $permissionNames->contains('view_profit'),
-                'payroll_menu' => $isAdmin || $permissionNames->contains('menu_penggajian'),
-                'view_employees' => $isAdmin || $permissionNames->contains('view_employees'),
-                'view_payrolls' => $isAdmin || $permissionNames->contains('view_payrolls'),
-            ];
         @endphp
         <aside id="sidebar" class="sidebar hidden md:flex md:flex-col bg-white border-r border-slate-200">
             <div class="px-4 py-4 border-b border-slate-200 flex items-center gap-3 sidebar-brand">
@@ -159,13 +141,13 @@
                 </div>
             </div>
             <nav class="flex-1 px-4 py-6 space-y-1">
-                @if ($permissions['dashboard'])
+                @can('manage_dashboard')
                     <a href="{{ route('dashboard') }}" class="nav-link" title="Dashboard">
                         <span class="icon">📊</span> <span class="label">Dashboard</span>
                     </a>
-                @endif
+                @endcan
 
-                @if ($permissions['products'] || $permissions['categories'])
+                @canany(['manage_products', 'manage_categories'])
                     <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Inventaris</p>
 
                     {{-- Dropdown Toggle --}}
@@ -179,7 +161,7 @@
 
                     {{-- Dropdown Menu --}}
                     <div class="pl-4 space-y-1 mt-1 hidden" id="product-menu">
-                        @if ($permissions['products'])
+                        @can('manage_products')
                             <a href="{{ route('products.index') }}" class="nav-link text-sm" title="Daftar Produk">
                                 <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
                                     class="label">Daftar Produk</span>
@@ -196,24 +178,24 @@
                                 <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
                                     class="label">Display</span>
                             </a>
-                        @endif
-                        @if ($permissions['categories'])
+                        @endcan
+                        @can('manage_categories')
                             <a href="{{ route('categories.index') }}" class="nav-link text-sm" title="Kategori">
                                 <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
                                     class="label">Kategori</span>
                             </a>
-                        @endif
+                        @endcan
                     </div>
-                @endif
+                @endcanany
 
-                @if ($permissions['customers'])
+                @can('view_customers')
                     <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pelanggan</p>
                     <a href="{{ route('customers.index') }}" class="nav-link" title="Pelanggan">
                         <span class="icon">🧑‍🤝‍🧑</span> <span class="label">Pelanggan</span>
                     </a>
-                @endif
+                @endcan
 
-                @if ($permissions['transactions'])
+                @can('manage_transactions')
                     <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Transaksi</p>
                     <a href="{{ route('transactions.create') }}" class="nav-link" title="Transaksi Baru">
                         <span class="icon">➕</span> <span class="label">Transaksi Baru</span>
@@ -221,9 +203,9 @@
                     <a href="{{ route('transactions.index') }}" class="nav-link" title="Transaksi">
                         <span class="icon">🧾</span> <span class="label">Transaksi</span>
                     </a>
-                @endif
+                @endcan
 
-                @if ($permissions['payroll_menu'])
+                @can('menu_penggajian')
                     <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Penggajian</p>
 
                     {{-- Dropdown Toggle --}}
@@ -237,51 +219,53 @@
 
                     {{-- Dropdown Menu --}}
                     <div class="pl-4 space-y-1 mt-1 hidden" id="payroll-menu">
-                        @if ($permissions['view_employees'])
+                        @can('view_employees')
                             <a href="{{ route('employees.index') }}" class="nav-link text-sm" title="Pegawai">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> 
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span>
                                 <span class="label">Pegawai</span>
                             </a>
-                        @endif
-                        @if ($permissions['view_payrolls'])
+                        @endcan
+                        @can('view_payrolls')
                             <a href="{{ route('payrolls.index') }}" class="nav-link text-sm" title="Slip Gaji">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> 
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span>
                                 <span class="label">Slip Gaji</span>
                             </a>
-                        @endif
+                        @endcan
                     </div>
-                @endif
+                @endcan
 
-                @if ($permissions['users'] || $permissions['roles'])
+                @canany(['manage_users', 'manage_roles'])
                     <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Kendali Akses</p>
-                    @if ($permissions['users'])
+                    @can('manage_users')
                         <a href="{{ route('users.index') }}" class="nav-link" title="Pengguna">
                             <span class="icon">👥</span> <span class="label">Pengguna</span>
                         </a>
-                    @endif
-                    @if ($permissions['roles'])
+                    @endcan
+                    @can('manage_roles')
                         <a href="{{ route('roles.index') }}" class="nav-link" title="Role &amp; Izin">
                             <span class="icon">🔐</span> <span class="label">Role &amp; Izin</span>
                         </a>
-                    @endif
-                @endif
+                    @endcan
+                @endcanany
 
-                @if ($permissions['reports'])
+                @can('view_reports')
                     <a href="{{ route('reports.sales') }}" class="nav-link" title="Laporan Penjualan">
                         <span class="icon">💰</span> <span class="label">Penjualan</span>
                     </a>
-                    @if ($permissions['view_profit'])
+                    @can('view_profit')
                         <a href="{{ route('reports.profit') }}" class="nav-link" title="Laporan Profit">
                             <span class="icon">📈</span> <span class="label">Profit</span>
                         </a>
-                    @endif
-                @endif
+                    @endcan
+                @endcan
 
                 {{-- Settings --}}
-                <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pengaturan</p>
-                <a href="{{ route('settings.index') }}" class="nav-link" title="Pengaturan Toko">
-                    <span class="icon">⚙️</span> <span class="label">Pengaturan Toko</span>
-                </a>
+                @can('manage_settings')
+                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pengaturan</p>
+                    <a href="{{ route('settings.index') }}" class="nav-link" title="Pengaturan Toko">
+                        <span class="icon">⚙️</span> <span class="label">Pengaturan Toko</span>
+                    </a>
+                @endcan
             </nav>
             <div class="px-6 py-6 border-t border-slate-200 text-sm text-slate-500 sidebar-footer">
                 &copy; {{ date('Y') }} {{ $settings['store_name'] ?? 'Kasir Modern' }}
@@ -369,47 +353,51 @@
                 </button>
             </div>
             <div class="px-4 py-4 space-y-2">
-                @if ($permissions['dashboard'])
+                @can('manage_dashboard')
                     <a href="{{ route('dashboard') }}" class="mobile-nav-link">Dashboard</a>
-                @endif
-                @if ($permissions['products'])
+                @endcan
+                @can('manage_products')
                     <a href="{{ route('products.index') }}" class="mobile-nav-link">Produk</a>
                     <a href="{{ route('finishings.index') }}" class="mobile-nav-link">Finishing</a>
                     <a href="{{ route('materials.index') }}" class="mobile-nav-link">Material</a>
                     <a href="{{ route('displays.index') }}" class="mobile-nav-link">Display</a>
-                @endif
-                @if ($permissions['categories'])
+                @endcan
+                @can('manage_categories')
                     <a href="{{ route('categories.index') }}" class="mobile-nav-link">Kategori</a>
-                @endif
-                @if ($permissions['customers'])
+                @endcan
+                @can('view_customers')
                     <a href="{{ route('customers.index') }}" class="mobile-nav-link">Pelanggan</a>
-                @endif
-                @if ($permissions['transactions'])
+                @endcan
+                @can('manage_transactions')
                     <a href="{{ route('transactions.index') }}" class="mobile-nav-link">Transaksi</a>
                     <a href="{{ route('transactions.create') }}" class="mobile-nav-link">Transaksi Baru</a>
-                @endif
-                @if ($permissions['payroll_menu'])
+                @endcan
+                @can('menu_penggajian')
                     <div class="border-t border-slate-100 my-2 pt-2">
                         <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Penggajian</p>
-                        @if ($permissions['view_employees'])
+                        @can('view_employees')
                             <a href="{{ route('employees.index') }}" class="mobile-nav-link">Pegawai</a>
-                        @endif
-                        @if ($permissions['view_payrolls'])
+                        @endcan
+                        @can('view_payrolls')
                             <a href="{{ route('payrolls.index') }}" class="mobile-nav-link">Slip Gaji</a>
-                        @endif
+                        @endcan
                     </div>
-                @endif
-                @if ($permissions['users'])
+                @endcan
+                @can('manage_users')
                     <a href="{{ route('users.index') }}" class="mobile-nav-link">Pengguna</a>
-                @endif
-                @if ($permissions['roles'])
+                @endcan
+                @can('manage_roles')
                     <a href="{{ route('roles.index') }}" class="mobile-nav-link">Role &amp; Izin</a>
-                @endif
-                @if ($permissions['reports'])
+                @endcan
+                @can('view_reports')
                     <a href="{{ route('reports.sales') }}" class="mobile-nav-link">Laporan Penjualan</a>
-                    <a href="{{ route('reports.profit') }}" class="mobile-nav-link">Laporan Profit</a>
-                @endif
-                <a href="{{ route('settings.index') }}" class="mobile-nav-link">Pengaturan Toko</a>
+                    @can('view_profit')
+                        <a href="{{ route('reports.profit') }}" class="mobile-nav-link">Laporan Profit</a>
+                    @endcan
+                @endcan
+                @can('manage_settings')
+                    <a href="{{ route('settings.index') }}" class="mobile-nav-link">Pengaturan Toko</a>
+                @endcan
                 <form method="POST" action="{{ route('logout') }}" class="pt-3 border-t border-slate-200">
                     @csrf
                     <button type="submit"
