@@ -205,7 +205,7 @@
                     </a>
                 @endcan
 
-                @can('menu_penggajian')
+                @can('manage_salary')
                     <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Penggajian</p>
 
                     {{-- Dropdown Toggle --}}
@@ -372,7 +372,7 @@
                     <a href="{{ route('transactions.index') }}" class="mobile-nav-link">Transaksi</a>
                     <a href="{{ route('transactions.create') }}" class="mobile-nav-link">Transaksi Baru</a>
                 @endcan
-                @can('menu_penggajian')
+                @can('manage_salary')
                     <div class="border-t border-slate-100 my-2 pt-2">
                         <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Penggajian</p>
                         @can('view_employees')

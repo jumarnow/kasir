@@ -53,6 +53,11 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'manage_users', 'display_name' => 'Kelola Pengguna'],
             ['name' => 'manage_roles', 'display_name' => 'Kelola Role dan Izin'],
             ['name' => 'manage_settings', 'display_name' => 'Kelola Pengaturan'],
+
+            // Penggajian
+            ['name' => 'manage_salary', 'display_name' => 'Kelola Penggajian'],
+            ['name' => 'view_employees', 'display_name' => 'Lihat Pegawai'],
+            ['name' => 'view_payrolls', 'display_name' => 'Lihat Slip Gaji'],
         ];
 
         $permissionMap = collect($permissions)
