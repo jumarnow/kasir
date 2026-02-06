@@ -20,7 +20,7 @@ class TransactionController extends Controller
         $transactions = Transaction::with(['customer', 'user'])
             ->when($request->query('start_date'), fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($request->query('end_date'), fn($query, $date) => $query->whereDate('created_at', '<=', $date))
-            ->when($request->query('customer_id'), fn($query, $customerId) => $query->where('customer_id', $customerId))
+            ->when($request->query('customer'), fn($query, $term) => $query->whereHas('customer', fn($q) => $q->where('name', 'like', '%' . $term . '%')))
             ->when($request->query('payment_status'), fn($query, $status) => $query->where('payment_status', $status))
             ->when($request->query('q'), fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'))
             ->orderByDesc('created_at')
@@ -32,7 +32,7 @@ class TransactionController extends Controller
         return view('transactions.index', [
             'transactions' => $transactions,
             'customers' => $customers,
-            'filters' => $request->only(['start_date', 'end_date', 'q', 'customer_id', 'payment_status']),
+            'filters' => $request->only(['start_date', 'end_date', 'q', 'customer', 'payment_status']),
         ]);
     }
 
@@ -47,9 +47,9 @@ class TransactionController extends Controller
         $finishings = \App\Models\Finishing::all();
         $displays = \App\Models\Display::all();
         $materials = \App\Models\Material::all();
-        $users = \App\Models\User::orderBy('name')->get(['id', 'name']);
+        $employees = \App\Models\Employee::active()->orderBy('name')->get(['id', 'name']);
 
-        return view('transactions.create', compact('customers', 'products', 'finishings', 'displays', 'materials', 'users'));
+        return view('transactions.create', compact('customers', 'products', 'finishings', 'displays', 'materials', 'employees'));
     }
 
     public function store(StoreTransactionRequest $request)
@@ -192,9 +192,9 @@ class TransactionController extends Controller
         $finishings = \App\Models\Finishing::all();
         $displays = \App\Models\Display::all();
         $materials = \App\Models\Material::all();
-        $users = \App\Models\User::orderBy('name')->get(['id', 'name']);
+        $employees = \App\Models\Employee::active()->orderBy('name')->get(['id', 'name']);
 
-        return view('transactions.edit', compact('transaction', 'customers', 'products', 'finishings', 'displays', 'materials', 'users'));
+        return view('transactions.edit', compact('transaction', 'customers', 'products', 'finishings', 'displays', 'materials', 'employees'));
     }
 
     public function update(StoreTransactionRequest $request, Transaction $transaction)

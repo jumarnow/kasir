@@ -116,7 +116,7 @@ class Transaction extends Model
 
     public function eksekutor()
     {
-        return $this->belongsTo(User::class, 'eksekutor_id');
+        return $this->belongsTo(Employee::class, 'eksekutor_id');
     }
 
     public function items()

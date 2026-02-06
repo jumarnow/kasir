@@ -10,9 +10,9 @@
         <select name="eksekutor_id" id="eksekutor-select"
             class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0">
             <option value="">-- Pilih Eksekutor --</option>
-            @foreach ($users as $user)
-                <option value="{{ $user->id }}" @selected(old('eksekutor_id') == $user->id)>
-                    {{ $user->name }}
+            @foreach ($employees as $employee)
+                <option value="{{ $employee->id }}" @selected(old('eksekutor_id') == $employee->id)>
+                    {{ $employee->name }}
                 </option>
             @endforeach
         </select>

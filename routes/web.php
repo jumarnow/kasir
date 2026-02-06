@@ -66,7 +66,16 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:view_reports')->group(function () {
         Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+        Route::get('reports/sales/export', [ReportController::class, 'exportSalesExcel'])->name('reports.sales.export');
         Route::get('reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
+    });
+
+    Route::prefix('payroll')->group(function () {
+        Route::resource('employees', App\Http\Controllers\EmployeeController::class);
+
+        Route::post('payrolls/{payroll}/mark-paid', [App\Http\Controllers\PayrollController::class, 'markPaid'])->name('payrolls.mark-paid');
+        Route::get('payrolls/{payroll}/print', [App\Http\Controllers\PayrollController::class, 'print'])->name('payrolls.print');
+        Route::resource('payrolls', App\Http\Controllers\PayrollController::class);
     });
 });
 

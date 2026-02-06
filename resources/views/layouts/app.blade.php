@@ -139,6 +139,9 @@
                 'roles' => $isAdmin || $permissionNames->contains('manage_roles'),
                 'reports' => $isAdmin || $permissionNames->contains('view_reports'),
                 'view_profit' => $isAdmin || $permissionNames->contains('view_profit'),
+                'payroll_menu' => $isAdmin || $permissionNames->contains('menu_penggajian'),
+                'view_employees' => $isAdmin || $permissionNames->contains('view_employees'),
+                'view_payrolls' => $isAdmin || $permissionNames->contains('view_payrolls'),
             ];
         @endphp
         <aside id="sidebar" class="sidebar hidden md:flex md:flex-col bg-white border-r border-slate-200">
@@ -218,6 +221,35 @@
                     <a href="{{ route('transactions.index') }}" class="nav-link" title="Transaksi">
                         <span class="icon">🧾</span> <span class="label">Transaksi</span>
                     </a>
+                @endif
+
+                @if ($permissions['payroll_menu'])
+                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Penggajian</p>
+
+                    {{-- Dropdown Toggle --}}
+                    <button type="button" class="nav-link w-full flex items-center justify-between group select-none"
+                        onclick="$(this).next().slideToggle(200); $(this).find('.chevron').toggleClass('rotate-180')">
+                        <div class="flex items-center gap-2">
+                            <span class="icon">💸</span> <span class="label">Penggajian</span>
+                        </div>
+                        <span class="chevron text-xs text-slate-400 transition-transform duration-200">▼</span>
+                    </button>
+
+                    {{-- Dropdown Menu --}}
+                    <div class="pl-4 space-y-1 mt-1 hidden" id="payroll-menu">
+                        @if ($permissions['view_employees'])
+                            <a href="{{ route('employees.index') }}" class="nav-link text-sm" title="Pegawai">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> 
+                                <span class="label">Pegawai</span>
+                            </a>
+                        @endif
+                        @if ($permissions['view_payrolls'])
+                            <a href="{{ route('payrolls.index') }}" class="nav-link text-sm" title="Slip Gaji">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> 
+                                <span class="label">Slip Gaji</span>
+                            </a>
+                        @endif
+                    </div>
                 @endif
 
                 @if ($permissions['users'] || $permissions['roles'])
@@ -355,6 +387,17 @@
                 @if ($permissions['transactions'])
                     <a href="{{ route('transactions.index') }}" class="mobile-nav-link">Transaksi</a>
                     <a href="{{ route('transactions.create') }}" class="mobile-nav-link">Transaksi Baru</a>
+                @endif
+                @if ($permissions['payroll_menu'])
+                    <div class="border-t border-slate-100 my-2 pt-2">
+                        <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Penggajian</p>
+                        @if ($permissions['view_employees'])
+                            <a href="{{ route('employees.index') }}" class="mobile-nav-link">Pegawai</a>
+                        @endif
+                        @if ($permissions['view_payrolls'])
+                            <a href="{{ route('payrolls.index') }}" class="mobile-nav-link">Slip Gaji</a>
+                        @endif
+                    </div>
                 @endif
                 @if ($permissions['users'])
                     <a href="{{ route('users.index') }}" class="mobile-nav-link">Pengguna</a>

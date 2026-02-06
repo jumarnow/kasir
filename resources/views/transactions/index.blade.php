@@ -28,15 +28,9 @@
         </div>
         <div>
             <label class="text-xs uppercase text-slate-500">Pelanggan</label>
-            <select name="customer_id" 
+
+            <input type="text" name="customer" value="{{ $filters['customer'] ?? '' }}" placeholder="Cari pelanggan..."
                 class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                <option value="">Semua Pelanggan</option>
-                @foreach($customers as $customer)
-                    <option value="{{ $customer->id }}" {{ ($filters['customer_id'] ?? '') == $customer->id ? 'selected' : '' }}>
-                        {{ $customer->name }}
-                    </option>
-                @endforeach
-            </select>
         </div>
         <div>
             <label class="text-xs uppercase text-slate-500">Status Pembayaran</label>
