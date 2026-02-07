@@ -416,6 +416,9 @@ const ItemDetailModal = {
         $('#modal-material-tier').val(item.material_price_tier || '1');
 
         // Toggle Dimensions based on pricing type
+        // Finishing selalu muncul untuk semua tipe produk
+        $('#modal-finishing-wrapper').removeClass('hidden');
+
         if (item.pricing_type === 'per_dimension') {
             $('#modal-dimensions-wrapper').removeClass('hidden').addClass('grid');
             $('#modal-options-wrapper').removeClass('hidden').addClass('grid');
@@ -574,7 +577,10 @@ const ItemDetailModal = {
             const finishing = app.finishingsData.find(f => f.id == finishingId);
             if (finishing) {
                 const fPrice = parseFloat(finishing.price) || 0;
-                if (finishing.pricing_type === 'per_meter') {
+                // Untuk produk per pcs (bukan per_dimension), finishing langsung flat price
+                if (item.pricing_type !== 'per_dimension') {
+                    unitPrice += fPrice;
+                } else if (finishing.pricing_type === 'per_meter') {
                     unitPrice += (fPrice * (l / 100));
                 } else if (finishing.pricing_type === 'per_dimension') {
                     unitPrice += (fPrice * area);
@@ -655,7 +661,10 @@ const ItemDetailModal = {
             const finishing = app.finishingsData.find(f => f.id == item.finishing_id);
             if (finishing) {
                 const fPrice = parseFloat(finishing.price) || 0;
-                if (finishing.pricing_type === 'per_meter') {
+                // Untuk produk per pcs (bukan per_dimension), finishing langsung flat price
+                if (item.pricing_type !== 'per_dimension') {
+                    unitPrice += fPrice;
+                } else if (finishing.pricing_type === 'per_meter') {
                     unitPrice += (fPrice * (item.length / 100));
                 } else if (finishing.pricing_type === 'per_dimension') {
                     unitPrice += (fPrice * area);

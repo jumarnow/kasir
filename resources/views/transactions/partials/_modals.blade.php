@@ -166,18 +166,20 @@
                     </div>
                 </div>
 
-                <!-- Options -->
+                <!-- Finishing (selalu muncul untuk semua tipe produk) -->
+                <div id="modal-finishing-wrapper" class="col-span-2">
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Finishing</label>
+                    <select id="modal-finishing"
+                        class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">- Pilih Finishing -</option>
+                        @foreach($finishings as $f)
+                            <option value="{{ $f->id }}">{{ $f->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Options (khusus per_dimension) -->
                 <div id="modal-options-wrapper" class="col-span-2 grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Finishing</label>
-                        <select id="modal-finishing"
-                            class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">- Pilih Finishing -</option>
-                            @foreach($finishings as $f)
-                                <option value="{{ $f->id }}">{{ $f->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-700 mb-1">Material</label>
                         <select id="modal-material"

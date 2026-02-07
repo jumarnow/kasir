@@ -36,8 +36,7 @@ class PayrollPermissionSeeder extends Seeder
                 Permission::create([
                     'name' => $permission['name'],
                     'display_name' => $permission['display_name'],
-                    'group' => $permission['group'],
-                    'guard_name' => 'web'
+                    'description' => $permission['group'] ?? null,
                 ]);
             }
         }
@@ -45,7 +44,9 @@ class PayrollPermissionSeeder extends Seeder
         // Auto assign to admin role if exists
         $adminRole = Role::where('name', 'admin')->first();
         if ($adminRole) {
-            $adminRole->givePermissionTo(collect($permissions)->pluck('name')->toArray());
+            $permissionNames = collect($permissions)->pluck('name')->toArray();
+            $permissionIds = Permission::whereIn('name', $permissionNames)->pluck('id')->toArray();
+            $adminRole->permissions()->syncWithoutDetaching($permissionIds);
         }
     }
 }

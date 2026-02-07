@@ -15,21 +15,18 @@ class EnsureUserHasPermission
     {
         $user = $request->user();
 
-        if (! $user) {
+        if (!$user) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
-            return $next($request);
-        }
-
-        foreach ($permissions as $permission) {
-            if (method_exists($user, 'hasPermission') && $user->hasPermission($permission)) {
-                return $next($request);
+        foreach ($permissions as $ability) {
+            if (method_exists($user, 'hasPermission')) {
+                if ($user->hasPermission($ability)) {
+                    return $next($request);
+                }
             }
         }
 
         abort(Response::HTTP_FORBIDDEN);
     }
 }
-
