@@ -45,10 +45,12 @@ class ProductController extends Controller
     public function store(ProductRequest $request)
     {
         $payload = $request->validated();
-        $payload['price'] = toNumeric($payload['price']);
+
+        // Untuk per_dimension, price bisa kosong (default 0)
+        $payload['price'] = !empty($payload['price']) ? toNumeric($payload['price']) : 0;
         $payload['price_2'] = !empty($payload['price_2']) ? toNumeric($payload['price_2']) : null;
         $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
-        $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
+        $payload['cost_price'] = !empty($payload['cost_price']) ? toNumeric($payload['cost_price']) : ($payload['price'] ?? 0);
         $payload['price_per_meter'] = !empty($payload['price_per_meter']) ? toNumeric($payload['price_per_meter']) : null;
         $payload['price_unit'] = $payload['price_unit'] ?? 'per_m2';
         $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;
@@ -71,10 +73,12 @@ class ProductController extends Controller
     public function update(ProductRequest $request, Product $product)
     {
         $payload = $request->validated();
-        $payload['price'] = toNumeric($payload['price']);
+
+        // Untuk per_dimension, price bisa kosong (default 0)
+        $payload['price'] = !empty($payload['price']) ? toNumeric($payload['price']) : 0;
         $payload['price_2'] = !empty($payload['price_2']) ? toNumeric($payload['price_2']) : null;
         $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
-        $payload['cost_price'] = toNumeric($payload['cost_price']) ?? toNumeric($payload['price']);
+        $payload['cost_price'] = !empty($payload['cost_price']) ? toNumeric($payload['cost_price']) : ($payload['price'] ?? 0);
         $payload['price_per_meter'] = !empty($payload['price_per_meter']) ? toNumeric($payload['price_per_meter']) : null;
         $payload['price_unit'] = $payload['price_unit'] ?? 'per_m2';
         $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;

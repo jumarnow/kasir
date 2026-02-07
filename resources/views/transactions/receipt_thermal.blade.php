@@ -8,10 +8,12 @@
     <style>
         body {
             font-family: 'Courier New', monospace;
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: 600;
             margin: 0;
             padding: 10px;
             width: 80mm;
+            -webkit-print-color-adjust: exact;
         }
 
         .header {
@@ -22,22 +24,25 @@
         }
 
         .store-name {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
         }
 
         .meta {
             margin-bottom: 10px;
+            font-size: 13px;
         }
 
         .item {
             display: flex;
             justify-content: space-between;
             margin-bottom: 4px;
+            font-size: 13px;
         }
 
         .item-name {
             font-weight: bold;
+            font-size: 14px;
         }
 
         .total-section {
@@ -49,12 +54,13 @@
         .row {
             display: flex;
             justify-content: space-between;
+            font-size: 14px;
         }
 
         .footer {
             margin-top: 15px;
             text-align: center;
-            font-size: 10px;
+            font-size: 12px;
         }
     </style>
 </head>
