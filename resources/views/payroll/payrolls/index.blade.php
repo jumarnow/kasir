@@ -4,10 +4,10 @@
 
 @section('content')
     <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex gap-2 flex-wrap">
-            <form action="{{ route('payrolls.index') }}" method="GET" class="flex gap-2 flex-wrap">
+        <div class="w-full md:w-auto">
+            <form action="{{ route('payrolls.index') }}" method="GET" class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                 <select name="month"
-                    class="rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    class="w-full md:w-auto rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="">Semua Bulan</option>
                     @foreach(range(1, 12) as $m)
                         <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
@@ -17,7 +17,7 @@
                 </select>
 
                 <select name="year"
-                    class="rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    class="w-full md:w-auto rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="">Semua Tahun</option>
                     @foreach(range(date('Y'), 2024) as $y)
                         <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
@@ -25,7 +25,7 @@
                 </select>
 
                 <select name="employee_id"
-                    class="rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    class="w-full md:w-auto rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="">Semua Pegawai</option>
                     @foreach($employees as $emp)
                         <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>{{ $emp->name }}
@@ -34,7 +34,7 @@
                 </select>
 
                 <button type="submit"
-                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+                    class="w-full md:w-auto bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
                     Filter
                 </button>
             </form>
@@ -42,13 +42,17 @@
 
         @can('create_payrolls')
             <a href="{{ route('payrolls.create') }}"
-                class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
-                <span>➕</span> Buat Slip Gaji
+                class="w-full md:w-auto justify-center inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>Buat Slip Gaji</span>
             </a>
         @endcan
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <!-- Desktop View -->
+    <div class="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
@@ -142,10 +146,92 @@
                 </tbody>
             </table>
         </div>
-        @if($payrolls->hasPages())
-            <div class="px-4 py-3 border-t border-slate-200">
-                {{ $payrolls->withQueryString()->links() }}
-            </div>
-        @endif
     </div>
+
+    <!-- Mobile View -->
+    <div class="md:hidden space-y-4">
+        @forelse($payrolls as $payroll)
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-semibold text-slate-900">
+                            {{ DateTime::createFromFormat('!m', $payroll->period_month)->format('F') }} {{ $payroll->period_year }}
+                        </h3>
+                        <p class="text-xs text-slate-500">{{ $payroll->employee->name }}</p>
+                    </div>
+                    <div>
+                         @if($payroll->status == 'paid')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Sudah Dibayar
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Draft
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-sm text-slate-600 border-t border-slate-100 pt-3">
+                     <div class="flex justify-between">
+                        <span class="text-slate-500">Gaji Pokok:</span>
+                        <span class="font-medium">Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-green-600">
+                        <span>+ Tunjangan:</span>
+                        <span class="font-medium">Rp {{ number_format($payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-red-600">
+                        <span>- Potongan:</span>
+                        <span class="font-medium">Rp {{ number_format($payroll->potongan, 0, ',', '.') }}</span>
+                    </div>
+                     <div class="flex justify-between font-bold text-slate-900 border-t border-slate-100 pt-2 mt-2">
+                        <span>Total Bersih:</span>
+                        <span>Rp {{ number_format($payroll->net_salary, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex gap-2 pt-3 border-t border-slate-100">
+                     <a href="{{ route('payrolls.show', $payroll) }}" class="flex-1 text-center bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-indigo-50 border border-slate-200 transition">
+                        👁️ Detail
+                    </a>
+                    
+                    @if($payroll->status == 'draft')
+                        @can('edit_payrolls')
+                            <a href="{{ route('payrolls.edit', $payroll) }}" class="flex-1 text-center bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 border border-slate-200 transition">
+                                ✏️ Edit
+                            </a>
+                        @endcan
+                    @else
+                          <a href="{{ route('payrolls.print', $payroll) }}" target="_blank" class="flex-1 text-center bg-indigo-50 text-indigo-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-indigo-100 border border-indigo-200 transition">
+                            🖨️ PDF
+                        </a>
+                    @endif
+                </div>
+                 @if($payroll->status == 'draft')
+                    @can('delete_payrolls')
+                        <div class="mt-2">
+                            <form action="{{ route('payrolls.destroy', $payroll) }}" method="POST" class="delete-form w-full" data-message="Hapus slip gaji ini?">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="w-full bg-red-50 text-red-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-100 border border-red-200 transition">
+                                    🗑️ Hapus
+                                </button>
+                            </form>
+                        </div>
+                    @endcan
+                 @endif
+            </div>
+        @empty
+            <div class="text-center p-8 text-slate-500 bg-white rounded-xl border border-slate-200">
+                Belum ada data slip gaji.
+            </div>
+        @endforelse
+    </div>
+
+    @if($payrolls->hasPages())
+        <div class="mt-4">
+            {{ $payrolls->withQueryString()->links() }}
+        </div>
+    @endif
 @endsection
