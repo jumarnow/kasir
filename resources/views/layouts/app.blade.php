@@ -170,14 +170,6 @@
                                 <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
                                     class="label">Finishing</span>
                             </a>
-                            <a href="{{ route('materials.index') }}" class="nav-link text-sm" title="Material">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
-                                    class="label">Material</span>
-                            </a>
-                            <a href="{{ route('displays.index') }}" class="nav-link text-sm" title="Display">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
-                                    class="label">Display</span>
-                            </a>
                         @endcan
                         @can('manage_categories')
                             <a href="{{ route('categories.index') }}" class="nav-link text-sm" title="Kategori">
@@ -359,8 +351,6 @@
                 @can('manage_products')
                     <a href="{{ route('products.index') }}" class="mobile-nav-link">Produk</a>
                     <a href="{{ route('finishings.index') }}" class="mobile-nav-link">Finishing</a>
-                    <a href="{{ route('materials.index') }}" class="mobile-nav-link">Material</a>
-                    <a href="{{ route('displays.index') }}" class="mobile-nav-link">Display</a>
                 @endcan
                 @can('manage_categories')
                     <a href="{{ route('categories.index') }}" class="mobile-nav-link">Kategori</a>

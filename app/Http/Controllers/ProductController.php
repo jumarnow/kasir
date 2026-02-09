@@ -78,7 +78,7 @@ class ProductController extends Controller
         $payload['price'] = !empty($payload['price']) ? toNumeric($payload['price']) : 0;
         $payload['price_2'] = !empty($payload['price_2']) ? toNumeric($payload['price_2']) : null;
         $payload['price_3'] = !empty($payload['price_3']) ? toNumeric($payload['price_3']) : null;
-        $payload['cost_price'] = !empty($payload['cost_price']) ? toNumeric($payload['cost_price']) : ($payload['price'] ?? 0);
+        // $payload['cost_price'] = !empty($payload['cost_price']) ? toNumeric($payload['cost_price']) : ($payload['price'] ?? 0);
         $payload['price_per_meter'] = !empty($payload['price_per_meter']) ? toNumeric($payload['price_per_meter']) : null;
         $payload['price_unit'] = $payload['price_unit'] ?? 'per_m2';
         $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;
@@ -91,9 +91,9 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->transactionItems()->exists()) {
-            return back()->withErrors(['product' => 'Produk tidak dapat dihapus karena sudah digunakan pada transaksi.']);
-        }
+        // if ($product->transactionItems()->exists()) {
+        //     return back()->withErrors(['product' => 'Produk tidak dapat dihapus karena sudah digunakan pada transaksi.']);
+        // }
 
         $product->delete();
 

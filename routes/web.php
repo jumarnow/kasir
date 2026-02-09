@@ -30,8 +30,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('products', ProductController::class)->except('show');
 
         Route::resource('finishings', App\Http\Controllers\FinishingController::class)->except('show');
-        Route::resource('materials', App\Http\Controllers\MaterialController::class)->except('show');
-        Route::resource('displays', App\Http\Controllers\DisplayController::class)->except('show');
+        // Route::resource('materials', App\Http\Controllers\MaterialController::class)->except('show');
+        // Route::resource('displays', App\Http\Controllers\DisplayController::class)->except('show');
     });
 
     Route::middleware('permission:manage_categories')->group(function () {

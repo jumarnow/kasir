@@ -133,7 +133,11 @@
                     @endif
                     <div class="flex items-center justify-between border-t border-slate-100 pt-3 mt-3">
                         <dt class="text-slate-500">Status Pembayaran</dt>
-                        <dd class="font-bold {{ $transaction->payment_status === 'paid' ? 'text-emerald-600' : 'text-amber-600' }}">
+                        <dd class="font-bold {{ match($transaction->payment_status) {
+                            'paid' => 'text-emerald-600',
+                            'dp', 'unpaid', 'pending' => 'text-red-600',
+                            default => 'text-amber-600'
+                        } }}">
                             {{ $transaction->payment_status_label }}
                         </dd>
                     </div>

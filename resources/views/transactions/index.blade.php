@@ -71,14 +71,20 @@
                     <tr>
                         <td class="px-6 py-4">
                             <p class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</p>
-                            <p class="text-xs text-slate-500">Status: {{ 
+                            <p class="text-xs text-slate-500">Status: 
+                                <span class="font-bold {{ match($transaction->payment_status) {
+                                    'dp', 'pending', 'unpaid' => 'text-red-600',
+                                    'paid' => 'text-green-600',
+                                    default => 'text-slate-600'
+                                } }}">
+                                {{ 
                                 match($transaction->payment_status) {
                                     'dp' => 'DP (Kurang Bayar)',
                                     'paid' => 'Paid (Lunas)',
                                     'pending' => 'Unpaid (Belum Dibayar)',
                                     default => ucfirst($transaction->payment_status)
                                 }
-                            }}</p>
+                            }}</span></p>
                         </td>
                         <td class="px-6 py-4 text-slate-600">
                             {{ $transaction->user?->name ?? '—' }}

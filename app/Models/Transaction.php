@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Transaction extends Model
@@ -88,36 +89,39 @@ class Transaction extends Model
 
     public static function generateInvoiceNumber(): string
     {
-        $prefix = now()->format('Ymd');
-        $maxRetries = 5;
+        return DB::transaction(function () {
+            $today = now()->toDateString();
+            $prefix = now()->format('Ymd');
 
-        for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
-            $latestNumber = self::whereDate('created_at', today())
-                ->orderByDesc('id')
+            $row = DB::table('invoice_sequences')
+                ->where('date', $today)
                 ->lockForUpdate()
-                ->value('invoice_number');
+                ->first();
 
-            $sequence = 1;
+            if (!$row) {
+                DB::table('invoice_sequences')->insert([
+                    'date' => $today,
+                    'last_number' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
 
-            if ($latestNumber && str_starts_with($latestNumber, 'INV-' . $prefix)) {
-                $latestSequence = Str::afterLast($latestNumber, '-');
-                $sequence = ((int) $latestSequence) + 1;
+                $sequence = 1;
+            } else {
+                $sequence = $row->last_number + 1;
+
+                DB::table('invoice_sequences')
+                    ->where('date', $today)
+                    ->update([
+                        'last_number' => $sequence,
+                        'updated_at' => now(),
+                    ]);
             }
 
-            $invoiceNumber = sprintf('INV-%s-%04d', $prefix, $sequence);
-
-            // Check if this invoice number already exists
-            if (!self::where('invoice_number', $invoiceNumber)->exists()) {
-                return $invoiceNumber;
-            }
-
-            // If exists, increment sequence and try again
-            $sequence++;
-        }
-
-        // Fallback: use timestamp to ensure uniqueness
-        return sprintf('INV-%s-%s', $prefix, now()->format('His') . rand(100, 999));
+            return sprintf('INV-%s-%04d', $prefix, $sequence);
+        });
     }
+
 
     // Relationships
     public function user()

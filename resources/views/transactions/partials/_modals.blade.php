@@ -179,7 +179,7 @@
                 </div>
 
                 <!-- Options (khusus per_dimension) -->
-                <div id="modal-options-wrapper" class="col-span-2 grid grid-cols-2 gap-4">
+                <!-- <div id="modal-options-wrapper" class="col-span-2 grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-700 mb-1">Material</label>
                         <select id="modal-material"
@@ -209,7 +209,7 @@
                             @endforeach
                         </select>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="col-span-2 pt-2 border-t border-slate-100 mt-2">
                     <div class="flex justify-between items-center">

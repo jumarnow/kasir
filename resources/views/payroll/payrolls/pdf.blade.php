@@ -296,7 +296,7 @@
             </div>
             <br><br><br>
             <div style="border-top: 1px solid #333; display: inline-block; padding: 5px 20px;">
-                Finance / Admin
+                Finance
             </div>
         </div>
     </div>

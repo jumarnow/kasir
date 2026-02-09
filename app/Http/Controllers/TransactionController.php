@@ -41,7 +41,6 @@ class TransactionController extends Controller
         $customers = Customer::orderBy('name')->get(['id', 'name', 'price_tier']);
         $products = Product::where('is_active', true)
             ->orderBy('name')
-            ->take(50)
             ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'price_unit', 'min_width', 'min_length']);
 
         $finishings = \App\Models\Finishing::all();
@@ -186,7 +185,6 @@ class TransactionController extends Controller
         $customers = Customer::orderBy('name')->get(['id', 'name', 'price_tier']);
         $products = Product::where('is_active', true)
             ->orderBy('name')
-            ->take(50)
             ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'price_unit', 'min_width', 'min_length']);
 
         $finishings = \App\Models\Finishing::all();
