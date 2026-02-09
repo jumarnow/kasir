@@ -10,7 +10,8 @@
                 ◀ Kembali ke Daftar
             </a>
             <h1 class="text-2xl font-bold text-slate-900">
-                {{ isset($employee) ? 'Edit Data Pegawai' : 'Tambah Pegawai Baru' }}</h1>
+                {{ isset($employee) ? 'Edit Data Pegawai' : 'Tambah Pegawai Baru' }}
+            </h1>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
@@ -59,6 +60,22 @@
                                 required>
                         </div>
 
+                        <!-- Tipe Karyawan -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Tipe Karyawan <span
+                                    class="text-red-500">*</span></label>
+                            <select name="employee_type" id="employee_type"
+                                class="w-full rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
+                                required>
+                                @foreach(\App\Models\Employee::EMPLOYEE_TYPES as $value => $label)
+                                    <option value="{{ $value }}" {{ old('employee_type', $employee->employee_type ?? 'permanent') == $value ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-slate-500 mt-1" id="type_hint">Karyawan tetap dibayar bulanan</p>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">Tanggal Bergabung <span
                                     class="text-red-500">*</span></label>
@@ -82,17 +99,35 @@
                     <div class="space-y-4">
                         <h3 class="font-semibold text-slate-800 border-b pb-2">Gaji & Rekening</h3>
 
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Gaji Pokok (Rp) <span
+                        <!-- Gaji Bulanan (untuk permanent) -->
+                        <div id="monthly_salary_container">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Gaji Bulanan (Rp) <span
                                     class="text-red-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute left-3 top-2.5 text-slate-500">Rp</span>
-                                <input type="text" name="basic_salary"
+                                <input type="text" name="basic_salary" id="basic_salary_input"
                                     value="{{ old('basic_salary', isset($employee) ? number_format($employee->basic_salary, 0, ',', '.') : '') }}"
                                     class="w-full pl-10 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 currency-input"
-                                    required placeholder="0">
+                                    placeholder="0">
                             </div>
                             @error('basic_salary')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Gaji Harian (untuk intern/internship) -->
+                        <div id="daily_salary_container" class="hidden">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Gaji Harian (Rp) <span
+                                    class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-slate-500">Rp</span>
+                                <input type="text" name="daily_salary" id="daily_salary_input"
+                                    value="{{ old('daily_salary', isset($employee) ? number_format($employee->daily_salary, 0, ',', '.') : '') }}"
+                                    class="w-full pl-10 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 currency-input"
+                                    placeholder="0">
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Gaji akan dikalikan dengan jumlah hari kerja</p>
+                            @error('daily_salary')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -131,10 +166,31 @@
 
     @push('scripts')
         <script>
-            $('form').on('submit', function () {
-                $('.currency-input').each(function () {
-                    let val = $(this).val().replace(/[^0-9]/g, '');
-                    $(this).val(val);
+            $(function () {
+                const typeHints = {
+                    'permanent': 'Karyawan tetap dibayar bulanan',
+                    'intern': 'Karyawan magang dibayar harian',
+                    'internship': 'Internship (PKL) dibayar harian'
+                };
+
+                const toggleSalaryFields = function () {
+                    const type = $('#employee_type').val();
+                    const isDaily = type === 'intern' || type === 'internship';
+
+                    $('#monthly_salary_container').toggleClass('hidden', isDaily);
+                    $('#daily_salary_container').toggleClass('hidden', !isDaily);
+                    $('#type_hint').text(typeHints[type] || '');
+                };
+
+                $('#employee_type').on('change', toggleSalaryFields);
+                toggleSalaryFields(); // Initialize
+
+                // Strip non-numeric chars on submit
+                $('form').on('submit', function () {
+                    $('.currency-input').each(function () {
+                        let val = $(this).val().replace(/[^0-9]/g, '');
+                        $(this).val(val);
+                    });
                 });
             });
         </script>

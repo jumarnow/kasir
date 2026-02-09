@@ -5,9 +5,17 @@
 @section('content')
     <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="w-full md:w-auto">
-            <form action="{{ route('employees.index') }}" method="GET" class="flex gap-2 w-full md:w-auto">
+            <form action="{{ route('employees.index') }}" method="GET" class="flex gap-2 w-full md:w-auto flex-wrap">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari pegawai..."
                     class="w-full md:w-64 rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                <select name="employee_type" class="rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">Semua Tipe</option>
+                    @foreach(\App\Models\Employee::EMPLOYEE_TYPES as $value => $label)
+                        <option value="{{ $value }}" {{ request('employee_type') == $value ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
                 <button type="submit"
                     class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 shrink-0">
                     Cari
@@ -36,7 +44,8 @@
                         <th class="px-4 py-3">No ID</th>
                         <th class="px-4 py-3">Nama</th>
                         <th class="px-4 py-3">Jabatan</th>
-                        <th class="px-4 py-3">Gaji Pokok</th>
+                        <th class="px-4 py-3">Tipe</th>
+                        <th class="px-4 py-3">Gaji</th>
                         <th class="px-4 py-3">Tgl Bergabung</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3 text-right">Aksi</th>
@@ -44,6 +53,13 @@
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @forelse($employees as $employee)
+                        @php
+                            $badgeColors = [
+                                'permanent' => 'bg-blue-100 text-blue-800',
+                                'intern' => 'bg-amber-100 text-amber-800',
+                                'internship' => 'bg-green-100 text-green-800',
+                            ];
+                        @endphp
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-4 py-3 font-medium text-slate-900">{{ $employee->employee_id }}</td>
                             <td class="px-4 py-3">
@@ -52,7 +68,20 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3">{{ $employee->position }}</td>
-                            <td class="px-4 py-3">Rp {{ number_format($employee->basic_salary, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $badgeColors[$employee->employee_type] ?? 'bg-slate-100 text-slate-800' }}">
+                                    {{ $employee->employee_type_label }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                @if($employee->isDailyPaid())
+                                    <div class="text-slate-900">Rp {{ number_format($employee->daily_salary, 0, ',', '.') }}</div>
+                                    <div class="text-xs text-slate-500">per hari</div>
+                                @else
+                                    <div class="text-slate-900">Rp {{ number_format($employee->basic_salary, 0, ',', '.') }}</div>
+                                    <div class="text-xs text-slate-500">per bulan</div>
+                                @endif
+                            </td>
                             <td class="px-4 py-3">{{ $employee->join_date->format('d/m/Y') }}</td>
                             <td class="px-4 py-3">
                                 @if($employee->is_active)
@@ -91,7 +120,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-slate-500">
+                            <td colspan="8" class="px-4 py-8 text-center text-slate-500">
                                 Belum ada data pegawai.
                             </td>
                         </tr>
@@ -104,11 +133,21 @@
     <!-- Mobile View -->
     <div class="md:hidden space-y-4">
         @forelse($employees as $employee)
+            @php
+                $badgeColors = [
+                    'permanent' => 'bg-blue-100 text-blue-800',
+                    'intern' => 'bg-amber-100 text-amber-800',
+                    'internship' => 'bg-green-100 text-green-800',
+                ];
+            @endphp
             <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
                 <div class="flex justify-between items-start mb-3">
                     <div>
                         <h3 class="font-semibold text-slate-900">{{ $employee->name }}</h3>
                         <p class="text-xs text-slate-500">{{ $employee->position }}</p>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 {{ $badgeColors[$employee->employee_type] ?? 'bg-slate-100 text-slate-800' }}">
+                            {{ $employee->employee_type_label }}
+                        </span>
                     </div>
                     <div class="text-right">
                         @if($employee->is_active)
@@ -126,8 +165,12 @@
 
                 <div class="space-y-2 text-sm text-slate-600 border-t border-slate-100 pt-3">
                     <div class="flex justify-between">
-                        <span class="text-slate-500">Gaji Pokok:</span>
-                        <span class="font-medium">Rp {{ number_format($employee->basic_salary, 0, ',', '.') }}</span>
+                        <span class="text-slate-500">Gaji:</span>
+                        @if($employee->isDailyPaid())
+                            <span class="font-medium">Rp {{ number_format($employee->daily_salary, 0, ',', '.') }} / hari</span>
+                        @else
+                            <span class="font-medium">Rp {{ number_format($employee->basic_salary, 0, ',', '.') }} / bulan</span>
+                        @endif
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Bank:</span>

@@ -42,14 +42,24 @@
                                         required>
                                         <option value="">-- Pilih Pegawai --</option>
                                         @foreach($employees as $emp)
-                                            <option value="{{ $emp->id }}" data-salary="{{ $emp->basic_salary }}" {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
-                                                {{ $emp->name }} ({{ $emp->employee_id }})
+                                            <option value="{{ $emp->id }}" 
+                                                data-salary="{{ $emp->basic_salary }}"
+                                                data-daily-salary="{{ $emp->daily_salary }}"
+                                                data-employee-type="{{ $emp->employee_type }}"
+                                                {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
+                                                {{ $emp->name }} ({{ $emp->employee_id }}) - {{ $emp->employee_type_label }}
                                             </option>
                                         @endforeach
                                     </select>
                                     @error('employee_id')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
+                                    
+                                    <!-- Badge tipe karyawan -->
+                                    <div id="employee_type_badge" class="mt-2 hidden">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" id="type_badge_text">
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div>
@@ -80,6 +90,28 @@
                                 </div>
                             @endif
 
+                            <!-- Input Hari Kerja (hanya tampil untuk karyawan harian) -->
+                            <div id="working_days_container" class="md:col-span-2 {{ isset($payroll) && $payroll->isDailyPaid() ? '' : 'hidden' }}">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
+                                    Jumlah Hari Kerja <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex items-center gap-4">
+                                    <input type="number" name="working_days" id="working_days"
+                                        value="{{ old('working_days', isset($payroll) ? $payroll->working_days : 0) }}"
+                                        class="w-32 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
+                                        min="0" max="31">
+                                    <span class="text-sm text-slate-500">hari</span>
+                                    <span class="text-sm text-slate-500" id="daily_salary_info">
+                                        @if(isset($payroll) && $payroll->isDailyPaid())
+                                            × Rp {{ number_format($payroll->daily_salary, 0, ',', '.') }} per hari
+                                        @endif
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    Masukkan jumlah hari kerja untuk periode ini
+                                </p>
+                            </div>
+
                             <div class="{{ isset($payroll) ? 'md:col-span-1' : 'md:col-span-2' }}">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">Gaji Pokok (Rp) <span
                                         class="text-red-500">*</span></label>
@@ -90,9 +122,13 @@
                                         class="w-full pl-10 rounded-lg border-slate-200 bg-slate-50 font-semibold text-slate-700 focus:ring-indigo-500 focus:border-indigo-500 currency-input"
                                         required readonly>
                                 </div>
-                                @if(!isset($payroll))
-                                    <p class="text-xs text-slate-500 mt-1">Otomatis terisi dari data pegawai.</p>
-                                @endif
+                                <p class="text-xs text-slate-500 mt-1" id="basic_salary_note">
+                                    @if(isset($payroll) && $payroll->isDailyPaid())
+                                        Otomatis: Hari Kerja × Gaji Harian
+                                    @else
+                                        Otomatis terisi dari data pegawai.
+                                    @endif
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -250,6 +286,57 @@
                     return parseInt(str.toString().replace(/[^0-9]/g, '')) || 0;
                 };
 
+                // Employee type badges
+                const typeBadges = {
+                    'permanent': { text: 'Karyawan Tetap', class: 'bg-blue-100 text-blue-800' },
+                    'intern': { text: 'Karyawan Magang', class: 'bg-amber-100 text-amber-800' },
+                    'internship': { text: 'Internship (PKL)', class: 'bg-green-100 text-green-800' }
+                };
+
+                let currentEmployeeType = 'permanent';
+                let currentDailySalary = 0;
+
+                const updateEmployeeUI = (type, dailySalary, basicSalary) => {
+                    currentEmployeeType = type;
+                    currentDailySalary = dailySalary;
+
+                    const badge = typeBadges[type];
+                    const $badge = $('#employee_type_badge');
+                    const $badgeText = $('#type_badge_text');
+
+                    // Update badge
+                    if (badge) {
+                        $badge.removeClass('hidden');
+                        $badgeText.text(badge.text);
+                        $badgeText.removeClass().addClass(
+                            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + badge.class
+                        );
+                    }
+
+                    // Show/hide working days input
+                    const isDailyPaid = type === 'intern' || type === 'internship';
+                    $('#working_days_container').toggleClass('hidden', !isDailyPaid);
+                    
+                    if (isDailyPaid) {
+                        $('#daily_salary_info').text('× Rp ' + formatCurrency(dailySalary) + ' per hari');
+                        $('#basic_salary_note').text('Otomatis: Hari Kerja × Gaji Harian');
+                    } else {
+                        $('#daily_salary_info').text('');
+                        $('#basic_salary_note').text('Otomatis terisi dari data pegawai.');
+                    }
+
+                    // Calculate basic salary
+                    if (isDailyPaid) {
+                        const days = parseInt($('#working_days').val()) || 0;
+                        const salary = dailySalary * days;
+                        $('#basic_salary').val(formatCurrency(salary));
+                    } else {
+                        $('#basic_salary').val(formatCurrency(basicSalary));
+                    }
+
+                    calculateTotal();
+                };
+
                 const calculateTotal = () => {
                     const basic = parseCurrency($('#basic_salary').val());
 
@@ -273,10 +360,28 @@
                     $('#summary_net').text('Rp ' + formatCurrency(net));
                 };
 
-                // Auto filter salary on employee select
+                // On employee select (only for create mode)
                 $('#employee_select').on('change', function () {
-                    const salary = $(this).find(':selected').data('salary') || 0;
-                    // Format for display input
+                    const $selected = $(this).find(':selected');
+                    if (!$selected.val()) {
+                        $('#employee_type_badge').addClass('hidden');
+                        $('#working_days_container').addClass('hidden');
+                        $('#basic_salary').val(0);
+                        calculateTotal();
+                        return;
+                    }
+                    
+                    const basicSalary = parseFloat($selected.data('salary')) || 0;
+                    const dailySalary = parseFloat($selected.data('daily-salary')) || 0;
+                    const employeeType = $selected.data('employee-type') || 'permanent';
+
+                    updateEmployeeUI(employeeType, dailySalary, basicSalary);
+                });
+
+                // On working days change
+                $('#working_days').on('input', function () {
+                    const days = parseInt($(this).val()) || 0;
+                    const salary = currentDailySalary * days;
                     $('#basic_salary').val(formatCurrency(salary));
                     calculateTotal();
                 });
@@ -285,6 +390,18 @@
                 $(document).on('input', '.calc-input', function () {
                     calculateTotal();
                 });
+
+                // Initialize for edit mode
+                @if(isset($payroll))
+                    currentEmployeeType = '{{ $payroll->employee_type }}';
+                    currentDailySalary = {{ $payroll->daily_salary }};
+                    calculateTotal();
+                @else
+                    // Trigger change for selected employee on page load
+                    if ($('#employee_select').val()) {
+                        $('#employee_select').trigger('change');
+                    }
+                @endif
 
                 // Initial calc
                 calculateTotal();

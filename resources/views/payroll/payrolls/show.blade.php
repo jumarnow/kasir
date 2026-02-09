@@ -54,6 +54,17 @@
                     <p class="font-bold text-slate-900">{{ $payroll->employee->name }}</p>
                     <p class="text-sm text-slate-500">{{ $payroll->employee->employee_id }}</p>
                     <p class="text-sm text-slate-500">{{ $payroll->employee->position }}</p>
+                    <!-- Tipe Karyawan Badge -->
+                    @php
+                        $badgeColors = [
+                            'permanent' => 'bg-blue-100 text-blue-800',
+                            'intern' => 'bg-amber-100 text-amber-800',
+                            'internship' => 'bg-green-100 text-green-800',
+                        ];
+                    @endphp
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 {{ $badgeColors[$payroll->employee_type] ?? 'bg-slate-100 text-slate-800' }}">
+                        {{ $payroll->employee_type_label }}
+                    </span>
                     @if($payroll->employee->join_date)
                         <p class="text-xs text-slate-400 mt-1">Bergabung: {{ $payroll->employee->join_date->format('d M Y') }}
                         </p>
@@ -68,8 +79,27 @@
                         <h3 class="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">PENDAPATAN</h3>
 
                         <div class="space-y-3">
+                            <!-- Info Hari Kerja untuk karyawan harian -->
+                            @if($payroll->isDailyPaid())
+                                <div class="bg-amber-50 rounded-lg p-3 mb-4">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-amber-700">Hari Kerja</span>
+                                        <span class="font-medium text-amber-900">{{ $payroll->working_days }} hari</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm mt-1">
+                                        <span class="text-amber-700">Gaji per Hari</span>
+                                        <span class="font-medium text-amber-900">Rp {{ number_format($payroll->daily_salary, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="flex justify-between">
-                                <span class="text-slate-600">Gaji Pokok</span>
+                                <span class="text-slate-600">
+                                    Gaji Pokok
+                                    @if($payroll->isDailyPaid())
+                                        <span class="text-xs text-slate-400">({{ $payroll->working_days }} × Rp {{ number_format($payroll->daily_salary, 0, ',', '.') }})</span>
+                                    @endif
+                                </span>
                                 <span class="font-medium text-slate-900">Rp
                                     {{ number_format($payroll->basic_salary, 0, ',', '.') }}</span>
                             </div>

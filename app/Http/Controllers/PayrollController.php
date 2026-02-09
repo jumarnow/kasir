@@ -33,6 +33,11 @@ class PayrollController extends Controller
             $query->where('employee_id', $request->employee_id);
         }
 
+        // Filter by employee type
+        if ($request->filled('employee_type')) {
+            $query->where('employee_type', $request->employee_type);
+        }
+
         $payrolls = $query->latest()->paginate(10);
         $employees = Employee::orderBy('name')->get();
 
@@ -51,6 +56,7 @@ class PayrollController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'period_month' => 'required|integer|min:1|max:12',
             'period_year' => 'required|integer|min:2000|max:2099',
+            'working_days' => 'nullable|integer|min:0|max:31',
             'basic_salary' => 'required|numeric|min:0',
             'tunjangan_makan' => 'nullable|numeric|min:0',
             'tunjangan_transport' => 'nullable|numeric|min:0',
@@ -68,7 +74,20 @@ class PayrollController extends Controller
             ->exists();
 
         if ($exists) {
-            return back()->withErrors(['error' => 'Slip gaji untuk pegawai ini pada periode tersebut sudah ada.'])->withInput();
+            return back()
+                ->withErrors(['error' => 'Slip gaji untuk pegawai ini pada periode tersebut sudah ada.'])
+                ->withInput();
+        }
+
+        // Get employee data for snapshot
+        $employee = Employee::findOrFail($validated['employee_id']);
+        $validated['employee_type'] = $employee->employee_type;
+        $validated['daily_salary'] = $employee->daily_salary;
+        $validated['working_days'] = $validated['working_days'] ?? 0;
+
+        // Calculate basic salary based on employee type
+        if ($employee->isDailyPaid()) {
+            $validated['basic_salary'] = $employee->daily_salary * $validated['working_days'];
         }
 
         // Hitung net salary
@@ -80,7 +99,7 @@ class PayrollController extends Controller
             + ($validated['bonus_target'] ?? 0)
             - ($validated['potongan'] ?? 0);
 
-        $validated['status'] = $request->has('save_as_draft') ? 'draft' : 'draft'; // Default draft logic currently used, logic can be updated for immediate pay
+        $validated['status'] = 'draft';
 
         $payroll = Payroll::create($validated);
 
@@ -113,6 +132,7 @@ class PayrollController extends Controller
         }
 
         $validated = $request->validate([
+            'working_days' => 'nullable|integer|min:0|max:31',
             'basic_salary' => 'required|numeric|min:0',
             'tunjangan_makan' => 'nullable|numeric|min:0',
             'tunjangan_transport' => 'nullable|numeric|min:0',
@@ -122,6 +142,13 @@ class PayrollController extends Controller
             'potongan' => 'nullable|numeric|min:0',
             'potongan_notes' => 'nullable|string',
         ]);
+
+        // Recalculate basic salary for daily-paid employees
+        if ($payroll->isDailyPaid()) {
+            $workingDays = $validated['working_days'] ?? $payroll->working_days;
+            $validated['working_days'] = $workingDays;
+            $validated['basic_salary'] = $payroll->daily_salary * $workingDays;
+        }
 
         // Hitung net salary
         $validated['net_salary'] = $validated['basic_salary']
@@ -166,5 +193,21 @@ class PayrollController extends Controller
     {
         $pdf = Pdf::loadView('payroll.payrolls.pdf', compact('payroll'));
         return $pdf->stream("SLIP-{$payroll->period_month}-{$payroll->period_year}-{$payroll->employee->name}.pdf");
+    }
+
+    /**
+     * Get employee data via AJAX for form
+     */
+    public function getEmployeeData(Employee $employee)
+    {
+        return response()->json([
+            'id' => $employee->id,
+            'name' => $employee->name,
+            'employee_type' => $employee->employee_type,
+            'employee_type_label' => $employee->employee_type_label,
+            'basic_salary' => $employee->basic_salary,
+            'daily_salary' => $employee->daily_salary,
+            'is_daily_paid' => $employee->isDailyPaid(),
+        ]);
     }
 }

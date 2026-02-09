@@ -38,7 +38,7 @@
                     class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                     <option value="lunas">Lunas</option>
                     <option value="dp">DP</option>
-                    <option value="pending">Pending</option>
+                    <option value="pending">Belum Dibayar</option>
                 </select>
             </div>
             <div>

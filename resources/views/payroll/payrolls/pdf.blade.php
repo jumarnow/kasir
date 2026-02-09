@@ -106,13 +106,49 @@
         .date {
             margin-bottom: 60px;
         }
+
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .type-permanent {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .type-intern {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .type-internship {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .daily-info {
+            background-color: #fef3c7;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .daily-info-text {
+            font-size: 11px;
+            color: #92400e;
+        }
     </style>
 </head>
 
 <body>
     <div class="header">
         @if(isset($settings['store_logo']) && file_exists(public_path('storage/' . $settings['store_logo'])))
-            <img src="{{ public_path('storage/' . $settings['store_logo']) }}" style="max-height: 60px; margin-bottom: 5px; width: auto;">
+            <img src="{{ public_path('storage/' . $settings['store_logo']) }}"
+                style="max-height: 60px; margin-bottom: 5px; width: auto;">
         @endif
         <h1 class="title">{{ $settings['store_name'] ?? 'Kasir Modern' }}</h1>
         <p class="subtitle">{{ $settings['store_address'] ?? '' }}</p>
@@ -125,7 +161,8 @@
         <tr>
             <td class="label">Periode</td>
             <td>: {{ DateTime::createFromFormat('!m', $payroll->period_month)->format('F') }}
-                {{ $payroll->period_year }}</td>
+                {{ $payroll->period_year }}
+            </td>
             <td class="label">No ID</td>
             <td>: {{ $payroll->employee->employee_id }}</td>
         </tr>
@@ -136,10 +173,21 @@
             <td>: {{ $payroll->employee->position }}</td>
         </tr>
         <tr>
-            <td class="label">Tgl Gabung</td>
-            <td>: {{ $payroll->employee->join_date ? $payroll->employee->join_date->format('d/m/Y') : '-' }}</td>
+            <td class="label">Tipe Karyawan</td>
+            <td>:
+                @php
+                    $typeClass = 'type-' . $payroll->employee_type;
+                @endphp
+                <span class="type-badge {{ $typeClass }}">{{ $payroll->employee_type_label }}</span>
+            </td>
             <td class="label">Status</td>
             <td>: {{ strtoupper($payroll->status) }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tgl Gabung</td>
+            <td>: {{ $payroll->employee->join_date ? $payroll->employee->join_date->format('d/m/Y') : '-' }}</td>
+            <td></td>
+            <td></td>
         </tr>
     </table>
 
@@ -154,10 +202,30 @@
             <tr>
                 <td colspan="2" style="font-weight: bold; padding-top: 10px;">PENDAPATAN</td>
             </tr>
-            <tr>
-                <td>Gaji Pokok</td>
-                <td class="amount">{{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
-            </tr>
+
+            @if($payroll->isDailyPaid())
+                <tr>
+                    <td colspan="2">
+                        <div class="daily-info">
+                            <span class="daily-info-text">
+                                <strong>Hari Kerja:</strong> {{ $payroll->working_days }} hari ×
+                                <strong>Gaji/Hari:</strong> Rp {{ number_format($payroll->daily_salary, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Gaji Pokok <span style="font-size: 10px; color: #666;">({{ $payroll->working_days }} hari × Rp
+                            {{ number_format($payroll->daily_salary, 0, ',', '.') }})</span></td>
+                    <td class="amount">{{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
+                </tr>
+            @else
+                <tr>
+                    <td>Gaji Pokok</td>
+                    <td class="amount">{{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
+                </tr>
+            @endif
+
             @if($payroll->tunjangan_makan > 0)
                 <tr>
                     <td>Tunjangan Makan</td>
@@ -232,6 +300,7 @@
             </div>
         </div>
     </div>
+
 </body>
 
 </html>

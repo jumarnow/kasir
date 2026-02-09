@@ -39,7 +39,7 @@
                 <option value="">Semua Status</option>
                 <option value="paid" {{ ($filters['payment_status'] ?? '') == 'paid' ? 'selected' : '' }}>Lunas</option>
                 <option value="dp" {{ ($filters['payment_status'] ?? '') == 'dp' ? 'selected' : '' }}>DP (Kurang Bayar)</option>
-                <option value="pending" {{ ($filters['payment_status'] ?? '') == 'pending' ? 'selected' : '' }}>Pending (Belum Bayar)</option>
+                <option value="pending" {{ ($filters['payment_status'] ?? '') == 'pending' ? 'selected' : '' }}>Unpaid (Belum Dibayar)</option>
             </select>
         </div>
         <div>
@@ -74,8 +74,8 @@
                             <p class="text-xs text-slate-500">Status: {{ 
                                 match($transaction->payment_status) {
                                     'dp' => 'DP (Kurang Bayar)',
-                                    'paid' => 'Lunas',
-                                    'pending' => 'Pending (Belum Bayar)',
+                                    'paid' => 'Paid (Lunas)',
+                                    'pending' => 'Unpaid (Belum Dibayar)',
                                     default => ucfirst($transaction->payment_status)
                                 }
                             }}</p>
