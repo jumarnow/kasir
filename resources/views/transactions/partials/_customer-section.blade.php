@@ -5,12 +5,8 @@
             <h2 class="text-base font-semibold text-slate-800">Detail Pelanggan</h2>
             <p class="text-xs text-slate-500">Optional, kosongkan jika pelanggan umum</p>
         </div>
-        <button type="button" id="customer-section-toggle"
-            class="text-xs font-medium text-indigo-600 hover:text-indigo-500">
-            Tampilkan
-        </button>
     </div>
-    <div id="customer-section-body" class="mt-4 hidden overflow-hidden rounded-xl border border-slate-200">
+    <div id="customer-section-body" class="mt-4 overflow-hidden rounded-xl border border-slate-200">
         <table class="min-w-full divide-y divide-slate-200">
             <tbody class="divide-y divide-slate-100 bg-white">
                 <tr class="flex flex-col md:table-row">
