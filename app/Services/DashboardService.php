@@ -12,7 +12,7 @@ class DashboardService
     public function salesLastSevenDays(): array
     {
         $dates = collect(range(0, 6))
-            ->map(fn ($day) => Carbon::today()->subDays($day))
+            ->map(fn($day) => Carbon::today()->subDays($day))
             ->reverse();
 
         $sales = Transaction::selectRaw('DATE(created_at) as date, SUM(total) as total')
@@ -40,11 +40,27 @@ class DashboardService
         $today = Carbon::today();
 
         $transactions = Transaction::whereDate('created_at', $today)->get();
+        $totalSales = (float) $transactions->sum('total');
+
+        // Get today's expenses
+        $totalExpenses = (float) \App\Models\Expense::whereDate('expense_date', $today)
+            ->sum('amount');
+
+        // Get today's paid payrolls
+        $totalPayroll = (float) \App\Models\Payroll::where('status', 'paid')
+            ->whereNotNull('paid_at')
+            ->whereDate('paid_at', $today)
+            ->sum('net_salary');
+
+        // Calculate net profit: Sales - Expenses - Payroll
+        $netProfit = $totalSales - $totalExpenses - $totalPayroll;
 
         return [
-            'sales' => (float) $transactions->sum('total'),
-            'profit' => (float) $transactions->sum('profit'),
+            'sales' => $totalSales,
+            'profit' => $netProfit,
             'transactions' => $transactions->count(),
+            'expenses' => $totalExpenses,
+            'payroll' => $totalPayroll,
         ];
     }
 
@@ -93,7 +109,7 @@ class DashboardService
     public function dashboardData(): array
     {
         $stockAlerts = $this->lowStockProducts();
-        
+
         return [
             'chart' => $this->salesLastSevenDays(),
             'today' => $this->todaySummary(),

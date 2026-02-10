@@ -56,7 +56,6 @@ class SalesReportItemsSheet implements FromQuery, WithHeadings, ShouldAutoSize, 
             $item->dimensions ?? '-',
             $item->price,
             $item->total,
-            $item->profit,
             match ($item->transaction->payment_status) {
                 'paid' => 'Lunas',
                 'dp' => 'DP',
@@ -77,7 +76,6 @@ class SalesReportItemsSheet implements FromQuery, WithHeadings, ShouldAutoSize, 
             'Dimensi',
             'Harga (Rp)',
             'Total (Rp)',
-            'Profit (Rp)',
             'Status Pembayaran',
         ];
     }

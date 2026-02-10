@@ -38,20 +38,18 @@ class SalesReportSummarySheet implements FromArray, WithHeadings, ShouldAutoSize
             $rows[] = [
                 $row['label'],
                 $row['sales'],
-                $row['profit'],
                 $row['transactions'],
             ];
         }
 
         // Empty row before summary
-        $rows[] = ['', '', '', ''];
+        $rows[] = ['', '', ''];
 
         // Summary rows
-        $rows[] = ['RINGKASAN', '', '', ''];
-        $rows[] = ['Periode', $this->startDate . ' - ' . $this->endDate, '', ''];
-        $rows[] = ['Total Penjualan', $this->summary['sales'], '', ''];
-        $rows[] = ['Total Profit', $this->summary['profit'], '', ''];
-        $rows[] = ['Total Transaksi', $this->summary['transactions'], '', ''];
+        $rows[] = ['RINGKASAN', '', ''];
+        $rows[] = ['Periode', $this->startDate . ' - ' . $this->endDate, ''];
+        $rows[] = ['Total Penjualan', $this->summary['sales'], ''];
+        $rows[] = ['Total Transaksi', $this->summary['transactions'], ''];
 
         return $rows;
     }
@@ -61,7 +59,6 @@ class SalesReportSummarySheet implements FromArray, WithHeadings, ShouldAutoSize
         return [
             'Periode',
             'Penjualan (Rp)',
-            'Profit (Rp)',
             'Transaksi',
         ];
     }

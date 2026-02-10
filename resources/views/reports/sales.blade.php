@@ -37,16 +37,11 @@
         </form>
     </div>
 
-    <div class="mt-6 grid gap-3 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="mt-6 grid gap-3 md:gap-6 sm:grid-cols-2">
         <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
             <p class="text-xs uppercase text-slate-500">Total Penjualan</p>
             <p class="mt-2 text-3xl font-semibold text-indigo-600">Rp {{ number_format($report['summary']['sales'], 0, ',', '.') }}</p>
             <p class="mt-3 text-xs text-slate-400">Periode {{ $report['range']['start'] }} - {{ $report['range']['end'] }}</p>
-        </div>
-        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
-            <p class="text-xs uppercase text-slate-500">Total Profit</p>
-            <p class="mt-2 text-3xl font-semibold text-emerald-500">Rp {{ number_format($report['summary']['profit'], 0, ',', '.') }}</p>
-            <p class="mt-3 text-xs text-slate-400">Setelah diskon & biaya modal</p>
         </div>
         <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
             <p class="text-xs uppercase text-slate-500">Total Transaksi</p>
@@ -59,7 +54,7 @@
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-lg font-semibold text-slate-800">Grafik Penjualan</h2>
-                <p class="text-sm text-slate-500">Trend penjualan & profit</p>
+                <p class="text-sm text-slate-500">Trend penjualan per periode</p>
             </div>
             @if (!empty($filters['user_id']))
                 @php
@@ -96,7 +91,6 @@
                     <tr>
                         <th class="px-4 py-3">Periode</th>
                         <th class="px-4 py-3 text-right">Penjualan</th>
-                        <th class="px-4 py-3 text-right">Profit</th>
                         <th class="px-4 py-3 text-right">Transaksi</th>
                     </tr>
                 </thead>
@@ -105,12 +99,11 @@
                         <tr>
                             <td class="px-4 py-3 font-medium text-slate-700">{{ $row['label'] }}</td>
                             <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($row['sales'], 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right text-emerald-600">Rp {{ number_format($row['profit'], 0, ',', '.') }}</td>
                             <td class="px-4 py-3 text-right text-slate-600">{{ $row['transactions'] }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Tidak ada data untuk periode ini.</td>
+                            <td colspan="3" class="px-4 py-4 text-center text-sm text-slate-500">Tidak ada data untuk periode ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -125,15 +118,9 @@
                         <span class="font-bold text-slate-800">{{ $row['label'] }}</span>
                         <span class="text-xs text-indigo-600 font-semibold">{{ $row['transactions'] }} Tx</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-[10px] uppercase text-slate-400">Penjualan</p>
-                            <p class="text-sm font-semibold text-slate-700">Rp {{ number_format($row['sales'], 0, ',', '.') }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] uppercase text-slate-400">Profit</p>
-                            <p class="text-sm font-semibold text-emerald-600">Rp {{ number_format($row['profit'], 0, ',', '.') }}</p>
-                        </div>
+                    <div>
+                        <p class="text-[10px] uppercase text-slate-400">Penjualan</p>
+                        <p class="text-sm font-semibold text-slate-700">Rp {{ number_format($row['sales'], 0, ',', '.') }}</p>
                     </div>
                 </div>
             @empty
@@ -146,7 +133,7 @@
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-lg font-semibold text-slate-800">Performa Kasir</h2>
-                <p class="text-sm text-slate-500">Total penjualan & profit per kasir</p>
+                <p class="text-sm text-slate-500">Total penjualan per kasir</p>
             </div>
         </div>
 
@@ -158,7 +145,6 @@
                         <th class="px-4 py-3">Kasir</th>
                         <th class="px-4 py-3 text-right">Transaksi</th>
                         <th class="px-4 py-3 text-right">Penjualan</th>
-                        <th class="px-4 py-3 text-right">Profit</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -167,11 +153,10 @@
                             <td class="px-4 py-3 font-medium text-slate-700">{{ $cashier['name'] }}</td>
                             <td class="px-4 py-3 text-right text-slate-600">{{ $cashier['transactions'] }}</td>
                             <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($cashier['sales'], 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right text-emerald-600">Rp {{ number_format($cashier['profit'], 0, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Belum ada transaksi pada periode ini.</td>
+                            <td colspan="3" class="px-4 py-4 text-center text-sm text-slate-500">Belum ada transaksi pada periode ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -188,15 +173,9 @@
                             {{ $cashier['transactions'] }} Trx
                         </span>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-[10px] uppercase text-slate-400">Penjualan</p>
-                            <p class="text-sm font-semibold text-slate-700">Rp {{ number_format($cashier['sales'], 0, ',', '.') }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] uppercase text-slate-400">Profit</p>
-                            <p class="text-sm font-semibold text-emerald-600">Rp {{ number_format($cashier['profit'], 0, ',', '.') }}</p>
-                        </div>
+                    <div>
+                        <p class="text-[10px] uppercase text-slate-400">Penjualan</p>
+                        <p class="text-sm font-semibold text-slate-700">Rp {{ number_format($cashier['sales'], 0, ',', '.') }}</p>
                     </div>
                 </div>
             @empty
@@ -217,22 +196,13 @@
                     labels: salesReportData.map(item => item.label),
                     datasets: [
                         {
-                            type: 'line',
+                            type: 'bar',
                             label: 'Penjualan',
                             data: salesReportData.map(item => item.sales),
+                            backgroundColor: 'rgba(79,70,229,0.7)',
                             borderColor: '#4F46E5',
-                            backgroundColor: 'rgba(99,102,241,0.12)',
-                            tension: 0.3,
-                            fill: true,
-                            yAxisID: 'y',
-                        },
-                        {
-                            type: 'bar',
-                            label: 'Profit',
-                            data: salesReportData.map(item => item.profit),
-                            backgroundColor: 'rgba(16,185,129,0.5)',
+                            borderWidth: 1,
                             borderRadius: 8,
-                            yAxisID: 'y1',
                         }
                     ]
                 },
@@ -241,18 +211,10 @@
                     maintainAspectRatio: false,
                     scales: {
                         y: {
-                            position: 'left',
                             ticks: {
                                 callback: value => 'Rp ' + new Intl.NumberFormat('id-ID').format(value)
                             },
                             grid: { color: 'rgba(226,232,240,0.6)' }
-                        },
-                        y1: {
-                            position: 'right',
-                            ticks: {
-                                callback: value => 'Rp ' + new Intl.NumberFormat('id-ID').format(value)
-                            },
-                            grid: { drawOnChartArea: false }
                         },
                         x: {
                             grid: { display: false }
