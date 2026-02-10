@@ -67,7 +67,14 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:view_reports')->group(function () {
         Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('reports/sales/export', [ReportController::class, 'exportSalesExcel'])->name('reports.sales.export');
-        Route::get('reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
+        Route::get('reports/profit', [App\Http\Controllers\ProfitReportController::class, 'index'])->name('reports.profit');
+        Route::get('reports/profit/export', [App\Http\Controllers\ProfitReportController::class, 'export'])->name('reports.profit.export');
+    });
+
+    // Expense Management
+    Route::middleware('permission:manage_transactions')->group(function () {
+        Route::resource('expense-categories', App\Http\Controllers\ExpenseCategoryController::class)->except('show');
+        Route::resource('expenses', App\Http\Controllers\ExpenseController::class)->except('show');
     });
 
     Route::prefix('payroll')->group(function () {

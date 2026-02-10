@@ -195,6 +195,15 @@
                     <a href="{{ route('transactions.index') }}" class="nav-link" title="Transaksi">
                         <span class="icon">🧾</span> <span class="label">Transaksi</span>
                     </a>
+
+                    {{-- Expense Management --}}
+                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pengeluaran</p>
+                    <a href="{{ route('expenses.index') }}" class="nav-link" title="Pengeluaran">
+                        <span class="icon">💸</span> <span class="label">Pengeluaran</span>
+                    </a>
+                    <a href="{{ route('expense-categories.index') }}" class="nav-link" title="Kategori Pengeluaran">
+                        <span class="icon">🏷️</span> <span class="label">Kategori</span>
+                    </a>
                 @endcan
 
                 @can('manage_salary')
@@ -241,14 +250,13 @@
                 @endcanany
 
                 @can('view_reports')
+                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Laporan</p>
                     <a href="{{ route('reports.sales') }}" class="nav-link" title="Laporan Penjualan">
                         <span class="icon">💰</span> <span class="label">Penjualan</span>
                     </a>
-                    @can('view_profit')
-                        <a href="{{ route('reports.profit') }}" class="nav-link" title="Laporan Profit">
-                            <span class="icon">📈</span> <span class="label">Profit</span>
-                        </a>
-                    @endcan
+                    <a href="{{ route('reports.profit') }}" class="nav-link" title="Laporan Profit">
+                        <span class="icon">📈</span> <span class="label">Profit</span>
+                    </a>
                 @endcan
 
                 {{-- Settings --}}
@@ -361,6 +369,8 @@
                 @can('manage_transactions')
                     <a href="{{ route('transactions.index') }}" class="mobile-nav-link">Transaksi</a>
                     <a href="{{ route('transactions.create') }}" class="mobile-nav-link">Transaksi Baru</a>
+                       <a href="{{ route('expenses.index') }}" class="mobile-nav-link">Pengeluaran</a>
+                        <a href="{{ route('expense-categories.index') }}" class="mobile-nav-link">Kategori Pengeluaran</a>
                 @endcan
                 @can('manage_salary')
                     <div class="border-t border-slate-100 my-2 pt-2">
