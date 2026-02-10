@@ -126,7 +126,6 @@
                                     <div class="text-xs text-slate-500">Harga 3: Rp {{ number_format($product->price_3, 0, ',', '.') }}</div>
                                 @endif
                             @endif
-                            <div class="text-xs text-slate-400 mt-1">Modal: Rp {{ number_format($product->cost_price, 0, ',', '.') }}</div>
                         </td>
                         <td class="px-6 py-4">
                             <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $product->stock <= $product->stock_alert ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600' }}">
@@ -208,10 +207,6 @@
                             <span class="font-semibold text-slate-800">Rp {{ number_format($product->price_3, 0, ',', '.') }}</span>
                         </div>
                     @endif
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-slate-400">Modal:</span>
-                        <span class="text-slate-500">Rp {{ number_format($product->cost_price, 0, ',', '.') }}</span>
-                    </div>
                     @if($product->barcode)
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-slate-400">Barcode:</span>

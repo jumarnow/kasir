@@ -366,8 +366,11 @@ const Summary = {
             amountPaid = total;
         }
 
+        const shippingCost = Utils.parseCurrency($('#shipping-cost').val());
+
         $('#summary-subtotal').text(Utils.formatCurrency(subtotal));
         $('#summary-discount').text(Utils.formatCurrency(totalDiscount));
+        $('#summary-shipping').text(Utils.formatCurrency(shippingCost));
         $('#summary-total').text(Utils.formatCurrency(total));
         $('#summary-change').text(Utils.formatCurrency(Math.max(amountPaid - total, 0)));
 

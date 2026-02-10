@@ -24,6 +24,27 @@
             <span id="summary-discount" class="font-medium">Rp 0</span>
         </div>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pengiriman</label>
+                <select name="delivery_method" id="delivery-method"
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                    <option value="">Tidak Ada</option>
+                    <option value="cod_kurir">COD Kurir</option>
+                    <option value="kurir_online">Kurir Online</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Ongkir (Rp)</label>
+                <input type="text" name="shipping_cost" id="shipping-cost" value="{{ old('shipping_cost', 0) }}"
+                    class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            </div>
+        </div>
+        <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Ongkir</span>
+            <span id="summary-shipping" class="font-medium">Rp 0</span>
+        </div>
+
         <div class="py-3 border-y border-dashed border-slate-200">
             <div class="flex items-center justify-between text-lg font-bold text-slate-800">
                 <span>Total</span>

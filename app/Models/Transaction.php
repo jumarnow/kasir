@@ -32,6 +32,7 @@ class Transaction extends Model
         'discount_amount',
         'discount_percent',
         'shipping_cost',
+        'delivery_method',
         'total',
         'amount_paid',
         'change_due',
