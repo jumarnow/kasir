@@ -797,8 +797,7 @@ const FormHandler = {
         // Customer change
         $('#customer-select').on('change', () => this.handleCustomerChange());
 
-        // Customer section toggle
-        this.initCustomerSectionToggle();
+        // Customer section is now always visible
 
         // Form submit
         $('#transaction-form').on('submit', (e) => this.handleSubmit(e));
@@ -875,22 +874,7 @@ const FormHandler = {
         }
     },
 
-    initCustomerSectionToggle() {
-        const $toggle = $('#customer-section-toggle');
-        const $body = $('#customer-section-body');
-        let collapsed = true;
-
-        $toggle.on('click', function () {
-            collapsed = !collapsed;
-            if (collapsed) {
-                $body.slideUp(150);
-                $toggle.text('Tampilkan');
-            } else {
-                $body.slideDown(150);
-                $toggle.text('Sembunyikan');
-            }
-        });
-    },
+    // initCustomerSectionToggle removed as section is always visible
 
     toggleAddButton() {
         const app = TransactionApp;
