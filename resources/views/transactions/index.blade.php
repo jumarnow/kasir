@@ -85,12 +85,25 @@
                                     default => ucfirst($transaction->payment_status)
                                 }
                             }}</span></p>
+                            @if(in_array($transaction->payment_status, ['dp', 'unpaid']) && $transaction->due_date)
+                                <p class="mt-1 text-xs font-medium text-red-600">
+                                    Jatuh Tempo: {{ $transaction->due_date->format('d M Y') }}
+                                </p>
+                            @endif
                         </td>
                         <td class="px-6 py-4 text-slate-600">
                             {{ $transaction->user?->name ?? '—' }}
                         </td>
                         <td class="px-6 py-4 text-slate-600">
-                            {{ $transaction->customer?->name ?? 'Umum' }}
+                            <div class="font-medium text-slate-900">{{ $transaction->customer?->name ?? 'Umum' }}</div>
+                            <div class="mt-1 space-y-1 border-l-2 border-slate-100 pl-2">
+                                @foreach($transaction->items as $item)
+                                    <div class="text-xs">
+                                        <div class="text-slate-600">{{ $item->product?->name }}</div>
+                                        <div class="text-[10px] text-slate-400">SKU: {{ $item->product?->sku }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </td>
                         <td class="px-6 py-4 text-slate-600">
                             {{ $transaction->created_at->format('d M Y, H:i') }}
@@ -154,6 +167,11 @@
                     <div>
                         <h3 class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</h3>
                         <p class="text-xs text-slate-500 mt-1">{{ $transaction->created_at->format('d M Y, H:i') }}</p>
+                        @if(in_array($transaction->payment_status, ['dp', 'unpaid']) && $transaction->due_date)
+                            <p class="mt-1 text-xs font-medium text-red-600">
+                                Jatuh Tempo: {{ $transaction->due_date->format('d M Y') }}
+                            </p>
+                        @endif
                     </div>
                     <span class="rounded-full px-3 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600">
                         {{ ucfirst($transaction->status) }}
@@ -165,9 +183,19 @@
                         <span class="text-xs text-slate-400">Kasir:</span>
                         <span class="font-medium">{{ $transaction->user?->name ?? '—' }}</span>
                     </div>
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-start justify-between">
                         <span class="text-xs text-slate-400">Pelanggan:</span>
-                        <span class="font-medium">{{ $transaction->customer?->name ?? 'Umum' }}</span>
+                        <div class="text-right">
+                            <span class="font-medium block text-slate-800">{{ $transaction->customer?->name ?? 'Umum' }}</span>
+                            <div class="mt-1 space-y-1">
+                                @foreach($transaction->items as $item)
+                                    <div class="text-xs text-slate-500">
+                                        {{ $item->product?->name }}
+                                        <span class="text-slate-400">({{ $item->product?->sku }})</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
                     <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
                         <span class="font-semibold text-slate-800">Total</span>

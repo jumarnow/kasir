@@ -24,13 +24,16 @@
             <div
                 class="rounded-2xl bg-white p-4 md:p-5 shadow-sm border border-slate-200 hover:border-indigo-100 transition-all">
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Penjualan Hari Ini</p>
-                <p class="mt-3 text-2xl font-bold text-indigo-600">
+                <!-- <p class="mt-3 text-2xl font-bold text-indigo-600">
                     Rp {{ number_format($data['today']['sales'], 0, ',', '.') }}
+                </p> -->
+                <p class="mt-3 text-2xl font-bold text-indigo-600">
+                    {{ $data['today']['transactions'] }} transaksi
                 </p>
-                <div
+                <!-- <div
                     class="mt-4 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600">
                     {{ $data['today']['transactions'] }} transaksi
-                </div>
+                </div> -->
             </div>
 
             @if ($canViewProfit)
