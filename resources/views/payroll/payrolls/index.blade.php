@@ -75,8 +75,8 @@
                                 {{ $payroll->period_year }}
                             </td>
                             <td class="px-4 py-3">
-                                <div class="font-medium text-slate-900">{{ $payroll->employee->name }}</div>
-                                <div class="text-xs text-slate-500">{{ $payroll->employee->employee_id }}</div>
+                                <div class="font-medium text-slate-900">{{ $payroll->employee->name ?? "" }}</div>
+                                <div class="text-xs text-slate-500">{{ $payroll->employee->employee_id ?? "" }}</div>
                             </td>
                             <td class="px-4 py-3">Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
                             <td class="px-4 py-3 text-green-600">
@@ -157,7 +157,7 @@
                         <h3 class="font-semibold text-slate-900">
                             {{ DateTime::createFromFormat('!m', $payroll->period_month)->format('F') }} {{ $payroll->period_year }}
                         </h3>
-                        <p class="text-xs text-slate-500">{{ $payroll->employee->name }}</p>
+                        <p class="text-xs text-slate-500">{{ $payroll->employee->name ?? "" }}</p>
                     </div>
                     <div>
                          @if($payroll->status == 'paid')
