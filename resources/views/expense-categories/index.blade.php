@@ -7,7 +7,7 @@
             <h1 class="text-2xl font-bold text-slate-800">Kategori Pengeluaran</h1>
             <a href="{{ route('expense-categories.create') }}"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                <i class="fas fa-plus mr-2"></i>Tambah Kategori
+                <span class="mr-1">+</span> Tambah Kategori
             </a>
         </div>
 
@@ -38,10 +38,10 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        @if($category->type === 'daily') bg-blue-100 text-blue-800
-                                        @elseif($category->type === 'monthly') bg-purple-100 text-purple-800
-                                        @else bg-green-100 text-green-800
-                                        @endif">
+                                                @if($category->type === 'daily') bg-blue-100 text-blue-800
+                                                @elseif($category->type === 'monthly') bg-purple-100 text-purple-800
+                                                @else bg-green-100 text-green-800
+                                                @endif">
                                     @if($category->type === 'daily') Harian
                                     @elseif($category->type === 'monthly') Bulanan
                                     @else Bahan Baku
@@ -51,23 +51,26 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span
                                     class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        {{ $category->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                {{ $category->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                     {{ $category->is_active ? 'Aktif' : 'Nonaktif' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('expense-categories.edit', $category) }}"
-                                    class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                                <form action="{{ route('expense-categories.destroy', $category) }}" method="POST" class="inline"
-                                    onsubmit="return confirm('Yakin ingin menghapus kategori ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash"></i> Hapus
-                                    </button>
-                                </form>
+                                <div class="inline-flex items-center gap-2 justify-end">
+                                    <a href="{{ route('expense-categories.edit', $category) }}"
+                                        class="rounded-full border border-amber-200 px-3 py-1 text-xs text-amber-600 hover:bg-amber-50">
+                                        Edit
+                                    </a>
+                                    <form action="{{ route('expense-categories.destroy', $category) }}" method="POST"
+                                        class="inline" onsubmit="return confirm('Yakin ingin menghapus kategori ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

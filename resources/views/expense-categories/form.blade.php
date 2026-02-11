@@ -69,11 +69,11 @@
                 <div class="flex gap-3">
                     <button type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-                        <i class="fas fa-save mr-2"></i>Simpan
+                        Simpan
                     </button>
                     <a href="{{ route('expense-categories.index') }}"
                         class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">
-                        <i class="fas fa-times mr-2"></i>Batal
+                        Batal
                     </a>
                 </div>
             </form>

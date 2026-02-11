@@ -7,7 +7,7 @@
             <h1 class="text-2xl font-bold text-slate-800">Pengeluaran</h1>
             <a href="{{ route('expenses.create') }}"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                <i class="fas fa-plus mr-2"></i>Tambah Pengeluaran
+                <span class="mr-1">+</span> Tambah Pengeluaran
             </a>
         </div>
 
@@ -37,11 +37,11 @@
                 </div>
                 <div class="flex items-end gap-2">
                     <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex-1">
-                        <i class="fas fa-filter mr-2"></i>Filter
+                        Filter
                     </button>
                     <a href="{{ route('expenses.index') }}"
                         class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg">
-                        <i class="fas fa-redo"></i>
+                        Reset
                     </a>
                 </div>
             </form>
@@ -74,10 +74,10 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        @if($expense->category->type === 'daily') bg-blue-100 text-blue-800
-                                        @elseif($expense->category->type === 'monthly') bg-purple-100 text-purple-800
-                                        @else bg-green-100 text-green-800
-                                        @endif">
+                                                @if($expense->category->type === 'daily') bg-blue-100 text-blue-800
+                                                @elseif($expense->category->type === 'monthly') bg-purple-100 text-purple-800
+                                                @else bg-green-100 text-green-800
+                                                @endif">
                                     {{ $expense->category->name }}
                                 </span>
                             </td>
@@ -90,26 +90,29 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @if($expense->receipt_image)
                                     <a href="{{ asset('storage/' . $expense->receipt_image) }}" target="_blank"
-                                        class="text-indigo-600 hover:text-indigo-900">
-                                        <i class="fas fa-image"></i>
+                                        class="text-indigo-600 hover:text-indigo-900 text-xs font-medium border border-indigo-200 rounded-md px-2 py-1">
+                                        Lihat
                                     </a>
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('expenses.edit', $expense) }}"
-                                    class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ route('expenses.destroy', $expense) }}" method="POST" class="inline"
-                                    onsubmit="return confirm('Yakin ingin menghapus pengeluaran ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <div class="inline-flex items-center gap-2 justify-end">
+                                    <a href="{{ route('expenses.edit', $expense) }}"
+                                        class="rounded-full border border-amber-200 px-3 py-1 text-xs text-amber-600 hover:bg-amber-50">
+                                        Edit
+                                    </a>
+                                    <form action="{{ route('expenses.destroy', $expense) }}" method="POST" class="inline"
+                                        onsubmit="return confirm('Yakin ingin menghapus pengeluaran ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

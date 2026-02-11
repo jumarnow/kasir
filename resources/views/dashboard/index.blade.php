@@ -58,6 +58,7 @@
             </div>
         </div>
 
+
         <div
             class="lg:col-span-1 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-6 text-white shadow-lg shadow-indigo-100 relative overflow-hidden">
             <div class="relative z-10">
@@ -83,7 +84,11 @@
                 </svg>
             </div>
         </div>
+
     </div>
+
+
+        @if ($canViewProfit)
 
     <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-3">
         <div class="lg:col-span-2 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
@@ -128,6 +133,8 @@
         </div>
     </div>
 
+    @endif
+
     <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-2" id="stock-alerts-section">
         <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
             <div class="mb-6 flex items-center justify-between">
@@ -169,14 +176,14 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
+
+                @if ($canViewProfit)
                 <a href="{{ route('reports.sales') }}"
                     class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-100 hover:shadow-md transition-all group">
                     <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">💰</span>
                     <span class="font-bold text-sm text-slate-800">Laporan Penjualan</span>
                     <span class="text-xs text-slate-500 mt-1">Analisis histori transaksi</span>
                 </a>
-
-                @if ($canViewProfit)
                     <a href="{{ route('reports.profit') }}"
                         class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-emerald-100 hover:shadow-md transition-all group">
                         <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">📈</span>
