@@ -100,7 +100,7 @@
                                 @foreach($transaction->items as $item)
                                     <div class="text-xs">
                                         <div class="text-slate-600">{{ $item->product?->name }}</div>
-                                        <div class="text-[10px] text-slate-400">SKU: {{ $item->product?->sku }}</div>
+                                        <!-- <div class="text-[10px] text-slate-400">SKU: {{ $item->product?->sku }}</div> -->
                                     </div>
                                 @endforeach
                             </div>

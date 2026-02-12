@@ -24,16 +24,47 @@
             <div
                 class="rounded-2xl bg-white p-4 md:p-5 shadow-sm border border-slate-200 hover:border-indigo-100 transition-all">
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Penjualan Hari Ini</p>
-                <!-- <p class="mt-3 text-2xl font-bold text-indigo-600">
-                    Rp {{ number_format($data['today']['sales'], 0, ',', '.') }}
-                </p> -->
                 <p class="mt-3 text-2xl font-bold text-indigo-600">
                     {{ $data['today']['transactions'] }} transaksi
                 </p>
-                <!-- <div
-                    class="mt-4 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600">
-                    {{ $data['today']['transactions'] }} transaksi
-                </div> -->
+                @php
+                    $change = $data['today']['percentage_change'];
+                    $isIncrease = $change > 0;
+                    $isDecrease = $change < 0;
+                    $isNoChange = $change == 0;
+                @endphp
+                <div class="mt-4 flex items-center gap-2">
+                    @if ($isIncrease)
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            +{{ number_format(abs($change), 1) }}%
+                        </span>
+                    @elseif ($isDecrease)
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-red-600">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            {{ number_format(abs($change), 1) }}%
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-slate-500">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 10a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            0%
+                        </span>
+                    @endif
+                    <span class="text-[10px] sm:text-xs text-slate-500 font-medium">
+                        vs kemarin ({{ $data['today']['yesterday_transactions'] }} transaksi)
+                    </span>
+                </div>
             </div>
 
             @if ($canViewProfit)
@@ -54,8 +85,7 @@
                 class="rounded-2xl bg-white p-4 md:p-5 shadow-sm border border-slate-200 hover:border-slate-300 transition-all">
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Rata-rata Transaksi</p>
                 <p class="mt-3 text-2xl font-bold text-slate-800">
-                    Rp
-                    {{ $data['today']['transactions'] ? number_format($data['today']['sales'] / max(1, $data['today']['transactions']), 0, ',', '.') : 0 }}
+                    Rp {{ number_format($data['today']['average_transaction'], 0, ',', '.') }}
                 </p>
                 <p class="mt-4 text-[10px] sm:text-xs text-slate-500 font-medium">Nominal per transaksi</p>
             </div>
@@ -91,50 +121,51 @@
     </div>
 
 
-        @if ($canViewProfit)
+    @if ($canViewProfit)
 
-    <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-3">
-        <div class="lg:col-span-2 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h2 class="text-base font-bold text-slate-800">Grafik Penjualan</h2>
-                    <p class="text-xs text-slate-500">Tren penjualan 7 hari terakhir</p>
+        <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-3">
+            <div class="lg:col-span-2 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">Grafik Penjualan</h2>
+                        <p class="text-xs text-slate-500">Tren penjualan 7 hari terakhir</p>
+                    </div>
+                    <div class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></div>
                 </div>
-                <div class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                <div class="relative">
+                    <canvas id="salesChart" height="140"></canvas>
+                </div>
             </div>
-            <div class="relative">
-                <canvas id="salesChart" height="140"></canvas>
-            </div>
-        </div>
 
-        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
-            <div class="mb-6">
-                <h2 class="text-base font-bold text-slate-800">Produk Terlaris</h2>
-                <p class="text-xs text-slate-500">Berdasarkan kuantitas (30 hari)</p>
+            <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+                <div class="mb-6">
+                    <h2 class="text-base font-bold text-slate-800">Produk Terlaris</h2>
+                    <p class="text-xs text-slate-500">Berdasarkan kuantitas (30 hari)</p>
+                </div>
+                <ul class="space-y-3">
+                    @forelse ($data['top_products'] as $product)
+                        <li
+                            class="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-slate-50 hover:border-slate-200">
+                            <div class="flex-1 min-w-0 mr-4">
+                                <p class="text-sm font-bold text-slate-800 truncate">{{ $product['name'] }}</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">SKU:
+                                    {{ $product['sku'] }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold text-indigo-600 border border-indigo-50 shadow-sm">
+                                    {{ $product['quantity'] }}
+                                </span>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Terjual</p>
+                            </div>
+                        </li>
+                    @empty
+                        <div class="py-8 text-center text-sm text-slate-500 italic">Belum ada data transaksi.</div>
+                    @endforelse
+                </ul>
             </div>
-            <ul class="space-y-3">
-                @forelse ($data['top_products'] as $product)
-                    <li
-                        class="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-slate-50 hover:border-slate-200">
-                        <div class="flex-1 min-w-0 mr-4">
-                            <p class="text-sm font-bold text-slate-800 truncate">{{ $product['name'] }}</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">SKU:
-                                {{ $product['sku'] }}</p>
-                        </div>
-                        <div class="text-right">
-                            <span
-                                class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold text-indigo-600 border border-indigo-50 shadow-sm">
-                                {{ $product['quantity'] }}
-                            </span>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Terjual</p>
-                        </div>
-                    </li>
-                @empty
-                    <div class="py-8 text-center text-sm text-slate-500 italic">Belum ada data transaksi.</div>
-                @endforelse
-            </ul>
         </div>
-    </div>
 
     @endif
 
@@ -155,7 +186,8 @@
                         <div class="flex-1 min-w-0 mr-4">
                             <p class="text-sm font-bold text-slate-800 truncate">{{ $product['name'] }}</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">SKU:
-                                {{ $product['sku'] }}</p>
+                                {{ $product['sku'] }}
+                            </p>
                         </div>
                         <div class="text-right">
                             <p class="text-sm font-bold {{ $product['is_low'] ? 'text-red-500' : 'text-emerald-600' }}">
@@ -181,12 +213,12 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
 
                 @if ($canViewProfit)
-                <a href="{{ route('reports.sales') }}"
-                    class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-100 hover:shadow-md transition-all group">
-                    <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">💰</span>
-                    <span class="font-bold text-sm text-slate-800">Laporan Penjualan</span>
-                    <span class="text-xs text-slate-500 mt-1">Analisis histori transaksi</span>
-                </a>
+                    <a href="{{ route('reports.sales') }}"
+                        class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-100 hover:shadow-md transition-all group">
+                        <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">💰</span>
+                        <span class="font-bold text-sm text-slate-800">Laporan Penjualan</span>
+                        <span class="text-xs text-slate-500 mt-1">Analisis histori transaksi</span>
+                    </a>
                     <a href="{{ route('reports.profit') }}"
                         class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-emerald-100 hover:shadow-md transition-all group">
                         <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">📈</span>
