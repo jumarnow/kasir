@@ -14,6 +14,7 @@ const TransactionApp = {
     printChoiceConfirmed: false,
     pendingSubmitForm: null,
     preOpenedPrintWindow: null,
+    isInitializing: false, // New flag to track initialization state
 
     // Constants
     printWindowFeatures: 'width=360,height=600,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes',
@@ -872,6 +873,9 @@ const FormHandler = {
         const priceTier = parseInt(selectedOption.data('price-tier')) || 1;
         TransactionApp.currentPriceTier = priceTier;
 
+        // Prevent price update during initialization
+        if (TransactionApp.isInitializing) return;
+
         if (TransactionApp.cart.length > 0) {
             Cart.updatePrices(priceTier);
         }
@@ -949,6 +953,7 @@ const FormHandler = {
 // =========================================
 function initTransactionApp(config) {
     const app = TransactionApp;
+    app.isInitializing = true; // Set flag at start
 
     // Set data from server
     app.productsData = config.products || [];
@@ -1051,6 +1056,8 @@ function initTransactionApp(config) {
 
     // Update summary after loading existing data
     Summary.update();
+
+    app.isInitializing = false; // Clear flag at end
 }
 
 // Export for global access
