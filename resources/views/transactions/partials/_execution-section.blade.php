@@ -9,9 +9,21 @@
     <div class="mt-4">
         <select name="eksekutor_id" id="eksekutor-select"
             class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0">
-            <option value="">-- Pilih Eksekutor --</option>
+            <option value="">-- Pilih Eksekutor 1 --</option>
             @foreach ($employees as $employee)
                 <option value="{{ $employee->id }}" @selected(old('eksekutor_id') == $employee->id)>
+                    {{ $employee->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="mt-4 border-t border-dashed border-slate-200 pt-4">
+        <select name="eksekutor_2_id" id="eksekutor-2-select"
+            class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0">
+            <option value="">-- Pilih Eksekutor 2 (Opsional) --</option>
+            @foreach ($employees as $employee)
+                <option value="{{ $employee->id }}" @selected(old('eksekutor_2_id') == $employee->id)>
                     {{ $employee->name }}
                 </option>
             @endforeach

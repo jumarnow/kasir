@@ -26,16 +26,16 @@ class ReportController extends Controller
         $startDate = $filters['start_date'] ?? $report['range']['start'];
         $endDate = $filters['end_date'] ?? $report['range']['end'];
 
-        $employees = \App\Models\Employee::withCount([
-            'transactions' => function ($query) use ($startDate, $endDate) {
-                if ($startDate) {
-                    $query->whereDate('created_at', '>=', $startDate);
-                }
-                if ($endDate) {
-                    $query->whereDate('created_at', '<=', $endDate);
-                }
-            }
-        ])
+        $employees = \App\Models\Employee::select('employees.*')
+            ->addSelect([
+                'transactions_count' => \App\Models\Transaction::selectRaw('count(*)')
+                    ->where(function ($query) {
+                        $query->whereColumn('eksekutor_id', 'employees.id')
+                            ->orWhereColumn('eksekutor_2_id', 'employees.id');
+                    })
+                    ->when($startDate, fn($query) => $query->whereDate('created_at', '>=', $startDate))
+                    ->when($endDate, fn($query) => $query->whereDate('created_at', '<=', $endDate))
+            ])
             ->having('transactions_count', '>', 0)
             ->orderByDesc('transactions_count')
             ->get();

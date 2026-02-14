@@ -98,7 +98,11 @@
     <div class="meta">
         <strong>Customer:</strong> {{ $transaction->customer->name ?? 'Pelanggan Umum' }}<br>
         <strong>CS:</strong> {{ $transaction->user->name ?? '-' }}<br>
-        <strong>Eksekutor:</strong> {{ $transaction->eksekutor->name ?? '-' }}<br>
+        <strong>Eksekutor:</strong> {{ $transaction->eksekutor->name ?? '-' }}
+        @if($transaction->eksekutorTwo)
+            / {{ $transaction->eksekutorTwo->name }}
+        @endif
+        <br>
         <strong>Deadline:</strong> {{ $transaction->due_date ? date('d/m/Y', strtotime($transaction->due_date)) : '-' }}
     </div>
 

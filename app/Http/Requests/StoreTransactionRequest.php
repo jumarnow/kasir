@@ -23,7 +23,8 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             'customer_id' => ['nullable', 'exists:customers,id'],
-            'eksekutor_id' => ['nullable', 'exists:users,id'],
+            'eksekutor_id' => ['nullable', 'exists:employees,id'],
+            'eksekutor_2_id' => ['nullable', 'exists:employees,id'],
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
             'discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'shipping_cost' => ['nullable', 'numeric', 'min:0'],
