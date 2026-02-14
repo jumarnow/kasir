@@ -20,11 +20,14 @@
                         <p class="text-xs uppercase text-slate-500">Kasir</p>
                         <p class="font-medium text-slate-700">{{ $transaction->user?->name ?? '—' }}</p>
                         <div class="mt-1 flex flex-col items-end gap-1">
-                            <!-- <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium 
-                                {{ $transaction->payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
-                                {{ strtoupper($transaction->payment_status_label) }}
-                            </span> -->
                             <span class="text-[10px] text-slate-400 uppercase tracking-wider">{{ $transaction->status }}</span>
+                        </div>
+                        <div class="mt-3">
+                            <p class="text-xs uppercase text-slate-500">Eksekutor</p>
+                            <p class="font-medium text-slate-700">{{ $transaction->eksekutor?->name ?? '-' }}</p>
+                            @if($transaction->eksekutorTwo)
+                                <p class="font-medium text-slate-700">{{ $transaction->eksekutorTwo->name }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
