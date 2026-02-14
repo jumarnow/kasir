@@ -23,10 +23,28 @@ class ReportController extends Controller
             isset($filters['user_id']) ? (int) $filters['user_id'] : null
         );
 
+        $startDate = $filters['start_date'] ?? $report['range']['start'];
+        $endDate = $filters['end_date'] ?? $report['range']['end'];
+
+        $employees = \App\Models\Employee::withCount([
+            'transactions' => function ($query) use ($startDate, $endDate) {
+                if ($startDate) {
+                    $query->whereDate('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->whereDate('created_at', '<=', $endDate);
+                }
+            }
+        ])
+            ->having('transactions_count', '>', 0)
+            ->orderByDesc('transactions_count')
+            ->get();
+
         return view('reports.sales', [
             'report' => $report,
             'filters' => $filters,
             'users' => $users,
+            'employees' => $employees,
         ]);
     }
 

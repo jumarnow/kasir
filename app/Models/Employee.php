@@ -46,6 +46,11 @@ class Employee extends Model
         return $this->hasMany(Payroll::class);
     }
 
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'eksekutor_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

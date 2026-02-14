@@ -186,6 +186,7 @@ class TransactionService
                 'profit' => $profit,
                 'payment_method' => Arr::get($payload, 'payment_method', $transaction->payment_method),
                 'due_date' => Arr::get($payload, 'due_date'),
+                'created_at' => Arr::get($payload, 'created_at', $transaction->created_at),
                 'notes' => Arr::get($payload, 'notes'),
             ]);
 

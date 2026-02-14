@@ -51,6 +51,7 @@ class StoreTransactionRequest extends FormRequest
                     }
                 }
             ],
+            'created_at' => ['nullable', 'date'],
         ];
     }
 

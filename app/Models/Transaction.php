@@ -48,6 +48,7 @@ class Transaction extends Model
         'completed_at',
         'delivered_at',
         'notes',
+        'created_at',
     ];
 
     protected $casts = [

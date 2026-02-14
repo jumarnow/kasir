@@ -183,6 +183,57 @@
             @endforelse
         </div>
     </div>
+
+
+    <div class="mt-6 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-lg font-semibold text-slate-800">Performa Pegawai (SPK)</h2>
+                <p class="text-sm text-slate-500">Total SPK yang dikerjakan per pegawai</p>
+            </div>
+        </div>
+
+        <!-- Desktop Employee Table -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="mt-4 w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <tr>
+                        <th class="px-4 py-3">Pegawai</th>
+                        <th class="px-4 py-3 text-right">Jumlah SPK</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse ($employees as $employee)
+                        <tr>
+                            <td class="px-4 py-3 font-medium text-slate-700">{{ $employee->name }}</td>
+                            <td class="px-4 py-3 text-right text-slate-600">{{ $employee->transactions_count }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="px-4 py-4 text-center text-sm text-slate-500">Belum ada data SPK pada periode ini.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Employee Cards -->
+        <div class="mt-4 md:hidden space-y-3">
+            @forelse ($employees as $employee)
+                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+                        <span class="font-bold text-slate-800">{{ $employee->name }}</span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase text-slate-400">Jumlah SPK</p>
+                        <p class="text-sm font-semibold text-slate-700">{{ $employee->transactions_count }}</p>
+                    </div>
+                </div>
+            @empty
+                <p class="text-center text-sm text-slate-500 py-4">Belum ada data SPK.</p>
+            @endforelse
+        </div>
+    </div>
 @endsection
 
 @push('scripts')

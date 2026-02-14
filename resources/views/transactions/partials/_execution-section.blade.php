@@ -17,4 +17,18 @@
             @endforeach
         </select>
     </div>
+
+    @if(isset($transaction))
+        <div class="mt-4 border-t border-dashed border-slate-200 pt-4">
+            <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Tanggal Transaksi</label>
+            @if(auth()->user()->hasRole('finance') || auth()->user()->hasRole('manager'))
+                <input type="datetime-local" name="created_at" value="{{ $transaction->created_at->format('Y-m-d\TH:i') }}"
+                    class="w-full rounded-lg border-none bg-transparent px-0 py-1 text-base md:text-sm focus:ring-0">
+            @else
+                <div class="w-full px-0 py-1 text-base md:text-sm text-slate-600">
+                    {{ $transaction->created_at->format('d M Y H:i') }}
+                </div>
+            @endif
+        </div>
+    @endif
 </div>
