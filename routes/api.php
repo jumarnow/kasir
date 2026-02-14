@@ -13,7 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [AuthController::class, 'me'])->name('api.me');
 
     Route::get('products/lookup', [ProductController::class, 'lookup'])->name('api.products.lookup');
-    Route::apiResource('products', ProductController::class)->only(['index', 'show']);
-    Route::apiResource('customers', CustomerController::class)->only(['index', 'show']);
-    Route::apiResource('transactions', TransactionController::class)->only(['index', 'show', 'store']);
+    Route::apiResource('products', ProductController::class)->only(['index', 'show'])->names('api.products');
+    Route::apiResource('customers', CustomerController::class)->only(['index', 'show'])->names('api.customers');
+    Route::apiResource('transactions', TransactionController::class)->only(['index', 'show', 'store'])->names('api.transactions');
 });
