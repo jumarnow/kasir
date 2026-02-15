@@ -111,10 +111,6 @@
                         <td class="px-6 py-4">
                             <div class="font-semibold text-slate-800">Rp {{ number_format($transaction->total, 0, ',', '.') }}
                             </div>
-                            @if(auth()->user()->hasPermission('view_profit'))
-                                <div class="text-xs text-slate-500">Profit: Rp
-                                    {{ number_format($transaction->profit, 0, ',', '.') }}</div>
-                            @endif
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="inline-flex items-center gap-2">

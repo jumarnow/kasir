@@ -365,6 +365,9 @@ const Summary = {
         if (paymentMethod === 'lunas') {
             $('#amount-paid').val(Utils.formatCurrency(total));
             amountPaid = total;
+        } else if (paymentMethod === 'pending') {
+            $('#amount-paid').val(Utils.formatCurrency(0));
+            amountPaid = 0;
         }
 
         const shippingCost = Utils.parseCurrency($('#shipping-cost').val());
