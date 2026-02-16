@@ -71,7 +71,7 @@
 
         <div id="due-date-container" class="hidden mt-4">
             <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Jatuh Tempo</label>
-            <input type="date" name="due_date" id="due-date" value="{{ old('due_date') }}"
+            <input type="date" name="due_date" id="due-date" value="{{ old('due_date', date('Y-m-d')) }}"
                 class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
         </div>
 

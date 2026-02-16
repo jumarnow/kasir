@@ -85,7 +85,8 @@
                     store: '{{ route('transactions.store') }}',
                     lookup: '{{ route('transactions.lookup') }}',
                     customersStore: '{{ route('customers.store') }}'
-                }
+                },
+                existingDueDate: '{{ old('due_date', date('Y-m-d')) }}'
             });
         });
     </script>

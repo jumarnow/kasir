@@ -858,7 +858,7 @@ const FormHandler = {
             $('#due-date-container').removeClass('hidden');
             if (!$('#due-date').val()) {
                 const date = new Date();
-                date.setDate(date.getDate() + 7);
+                // date.setDate(date.getDate() + 7); // Default ke hari ini
                 let month = (date.getMonth() + 1).toString().padStart(2, '0');
                 let day = date.getDate().toString().padStart(2, '0');
                 $('#due-date').val(`${date.getFullYear()}-${month}-${day}`);
