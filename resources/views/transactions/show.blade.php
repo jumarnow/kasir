@@ -50,6 +50,9 @@
                                 <td class="px-4 py-3">
                                     <p class="font-medium text-slate-700">{{ $item->product?->name ?? 'Produk terhapus' }}</p>
                                     <p class="text-xs text-slate-400">SKU: {{ $item->product?->sku ?? '-' }}</p>
+                                    @if($item->product?->pricing_type === 'per_dimension')
+                                        <p class="text-xs text-slate-500">Dimensi: {{ $item->width + 0 }} x {{ $item->length + 0 }} cm</p>
+                                    @endif
                                     @if($item->finishing || $item->material || $item->display)
                                         <div class="mt-1 flex flex-wrap gap-1">
                                             @if($item->material)
