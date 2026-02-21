@@ -118,23 +118,11 @@
                         <dd class="font-semibold text-slate-700">Rp
                             {{ number_format($transaction->amount_paid, 0, ',', '.') }}</dd>
                     </div>
-                    <!-- <div class="flex items-center justify-between">
-                        <dt class="text-slate-500">Kembalian</dt>
-                        <dd class="font-semibold text-slate-700">Rp
-                            {{ number_format($transaction->change_due, 0, ',', '.') }}</dd>
-                    </div> -->
                     @if($transaction->remaining_amount > 0)
                         <div
                             class="flex items-center justify-between text-red-600 font-bold border-t border-dashed border-red-200 pt-2 mt-2">
                             <dt>Kekurangan</dt>
                             <dd>Rp {{ number_format($transaction->remaining_amount, 0, ',', '.') }}</dd>
-                        </div>
-                    @endif
-                    @if(auth()->user()->hasPermission('view_profit'))
-                        <div class="flex items-center justify-between">
-                            <dt class="text-slate-500">Profit</dt>
-                            <dd class="font-semibold text-emerald-600">Rp {{ number_format($transaction->profit, 0, ',', '.') }}
-                            </dd>
                         </div>
                     @endif
                     <div class="flex items-center justify-between border-t border-slate-100 pt-3 mt-3">
@@ -146,10 +134,6 @@
                         } }}">
                             {{ $transaction->payment_status_label }}
                         </dd>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <dt class="text-slate-500">Metode</dt>
-                        <dd class="font-semibold text-slate-700">{{ strtoupper($transaction->payment_method) }}</dd>
                     </div>
                 </dl>
                 <div class="mt-6 flex flex-col gap-3">
