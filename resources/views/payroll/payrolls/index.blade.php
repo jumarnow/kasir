@@ -81,7 +81,7 @@
                             <td class="px-4 py-3">Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
                             <td class="px-4 py-3 text-green-600">
                                 + Rp
-                                {{ number_format($payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}
+                                {{ number_format($payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->tunjangan_lembur + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}
                             </td>
                             <td class="px-4 py-3 text-red-600">
                                 - Rp {{ number_format($payroll->potongan, 0, ',', '.') }}
@@ -179,7 +179,7 @@
                     </div>
                     <div class="flex justify-between text-green-600">
                         <span>+ Tunjangan:</span>
-                        <span class="font-medium">Rp {{ number_format($payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}</span>
+                        <span class="font-medium">Rp {{ number_format($payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->tunjangan_lembur + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between text-red-600">
                         <span>- Potongan:</span>

@@ -13,7 +13,7 @@
 
         <!-- Filters -->
         <div class="bg-white rounded-lg shadow p-4 mb-6">
-            <form method="GET" action="{{ route('expenses.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form method="GET" action="{{ route('expenses.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Tanggal Mulai</label>
                     <input type="date" name="start_date" value="{{ request('start_date') }}"
@@ -34,6 +34,11 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Vendor / Supplier</label>
+                    <input type="text" name="vendor_name" value="{{ request('vendor_name') }}" placeholder="Cari vendor..."
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg">
                 </div>
                 <div class="flex items-end gap-2">
                     <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex-1">
@@ -60,6 +65,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tanggal</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Kategori</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Vendor / Supplier</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Keterangan</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Jumlah</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Bukti</th>
@@ -74,12 +80,15 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                @if($expense->category->type === 'daily') bg-blue-100 text-blue-800
-                                                @elseif($expense->category->type === 'monthly') bg-purple-100 text-purple-800
-                                                @else bg-green-100 text-green-800
-                                                @endif">
+                                                        @if($expense->category->type === 'daily') bg-blue-100 text-blue-800
+                                                        @elseif($expense->category->type === 'monthly') bg-purple-100 text-purple-800
+                                                        @else bg-green-100 text-green-800
+                                                        @endif">
                                     {{ $expense->category->name }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                {{ $expense->vendor_name ?? '-' }}
                             </td>
                             <td class="px-6 py-4 text-sm text-slate-900">
                                 {{ Str::limit($expense->description, 50) }}
@@ -117,7 +126,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-slate-500">
+                            <td colspan="7" class="px-6 py-8 text-center text-slate-500">
                                 Belum ada data pengeluaran.
                             </td>
                         </tr>

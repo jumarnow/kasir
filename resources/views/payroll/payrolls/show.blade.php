@@ -128,6 +128,14 @@
                                 </div>
                             @endif
 
+                            @if($payroll->tunjangan_lembur > 0)
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600">Tunjangan Lembur</span>
+                                    <span class="font-medium text-slate-900">Rp
+                                        {{ number_format($payroll->tunjangan_lembur, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+
                             @if($payroll->bonus_kehadiran > 0)
                                 <div class="flex justify-between">
                                     <span class="text-slate-600">Bonus Kehadiran</span>
@@ -147,7 +155,7 @@
                             <div class="border-t border-slate-100 pt-2 mt-2 flex justify-between font-bold text-slate-800">
                                 <span>Total Pendapatan</span>
                                 <span>Rp
-                                    {{ number_format($payroll->basic_salary + $payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}</span>
+                                    {{ number_format($payroll->basic_salary + $payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->tunjangan_lembur + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}</span>
                             </div>
                         </div>
                     </div>

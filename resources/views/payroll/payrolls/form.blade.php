@@ -171,6 +171,17 @@
                                 </div>
                             </div>
 
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Tunjangan Lembur</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-slate-500">Rp</span>
+                                    <input type="text" name="tunjangan_lembur"
+                                        value="{{ old('tunjangan_lembur', isset($payroll) ? number_format($payroll->tunjangan_lembur, 0, ',', '.') : 0) }}"
+                                        class="w-full pl-10 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 currency-input calc-input"
+                                        placeholder="0">
+                                </div>
+                            </div>
+
                             <div class="md:col-start-1">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">Bonus Kehadiran</label>
                                 <div class="relative">
@@ -197,27 +208,73 @@
 
                     <!-- Potongan -->
                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                        <h3 class="font-semibold text-slate-800 border-b pb-2 mb-4">Potongan</h3>
+                        <div class="flex items-center justify-between border-b pb-2 mb-4">
+                            <h3 class="font-semibold text-slate-800">Potongan</h3>
+                            <button type="button" id="btn_add_potongan"
+                                class="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 rounded-lg px-3 py-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                Tambah Potongan
+                            </button>
+                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Total Potongan</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-2.5 text-slate-500">Rp</span>
-                                    <input type="text" name="potongan"
-                                        value="{{ old('potongan', isset($payroll) ? number_format($payroll->potongan, 0, ',', '.') : 0) }}"
-                                        class="w-full pl-10 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 currency-input calc-input"
-                                        placeholder="0">
+                        <div id="potongan_list" class="space-y-3">
+                            @php
+                                $potonganItems = old('potongan_items');
+                                $potonganNotes = old('potongan_notes');
+                                if (!$potonganItems) {
+                                    if (isset($payroll) && $payroll->potongan_notes) {
+                                        $parts = array_map('trim', explode(' | ', $payroll->potongan_notes));
+                                        $amounts = [];
+                                        $notes = [];
+                                        foreach ($parts as $part) {
+                                            if (preg_match('/^(.+?):\s*Rp\s*([\d.,]+)$/', $part, $m)) {
+                                                $notes[] = trim($m[1]);
+                                                $amounts[] = (int) str_replace(['.', ','], '', $m[2]);
+                                            } else {
+                                                $notes[] = $part;
+                                                $amounts[] = 0;
+                                            }
+                                        }
+                                        if (count($amounts) === 1 && $amounts[0] === 0 && $payroll->potongan > 0) {
+                                            $amounts[0] = (int) $payroll->potongan;
+                                        }
+                                        $potonganItems = $amounts;
+                                        $potonganNotes = $notes;
+                                    } elseif (isset($payroll) && $payroll->potongan > 0) {
+                                        $potonganItems = [(int) $payroll->potongan];
+                                        $potonganNotes = [''];
+                                    } else {
+                                        $potonganItems = [0];
+                                        $potonganNotes = [''];
+                                    }
+                                }
+                            @endphp
+
+                            @foreach($potonganItems as $i => $amount)
+                                <div class="potongan-row flex items-start gap-2">
+                                    <div class="relative flex-shrink-0 w-40">
+                                        <span class="absolute left-3 top-2.5 text-slate-400 text-sm">Rp</span>
+                                        <input type="text" name="potongan_items[]"
+                                            value="{{ $amount > 0 ? number_format($amount, 0, ',', '.') : '' }}"
+                                            class="w-full pl-10 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 currency-input potongan-amount"
+                                            placeholder="0">
+                                    </div>
+                                    <input type="text" name="potongan_notes_items[]"
+                                        value="{{ $potonganNotes[$i] ?? '' }}"
+                                        class="flex-1 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
+                                        placeholder="Catatan (Contoh: Kasbon)">
+                                    <button type="button"
+                                        class="btn-remove-potongan mt-1 p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition {{ count($potonganItems) <= 1 ? 'invisible' : '' }}"
+                                        title="Hapus">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
                                 </div>
-                            </div>
+                            @endforeach
+                        </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Catatan Potongan</label>
-                                <input type="text" name="potongan_notes"
-                                    value="{{ old('potongan_notes', isset($payroll) ? $payroll->potongan_notes : '') }}"
-                                    class="w-full rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                                    placeholder="Contoh: Kasbon, Terlambat">
-                            </div>
+                        <div class="mt-3 pt-3 border-t border-dashed border-slate-200 flex justify-between items-center text-sm">
+                            <span class="text-slate-500">Total Potongan</span>
+                            <span class="font-semibold text-red-600" id="total_potongan_display">Rp 0</span>
                         </div>
                     </div>
                 </div>
@@ -235,6 +292,10 @@
                             <div class="flex justify-between text-green-600">
                                 <span>Total Tunjangan (+)</span>
                                 <span class="font-medium" id="summary_allowance">Rp 0</span>
+                            </div>
+                            <div class="flex justify-between text-green-600">
+                                <span>Tunjangan Lembur (+)</span>
+                                <span class="font-medium" id="summary_lembur">Rp 0</span>
                             </div>
                             <div class="flex justify-between text-green-600">
                                 <span>Total Bonus (+)</span>
@@ -343,20 +404,26 @@
                     const makan = parseCurrency($('input[name="tunjangan_makan"]').val());
                     const transport = parseCurrency($('input[name="tunjangan_transport"]').val());
                     const jabatan = parseCurrency($('input[name="tunjangan_jabatan"]').val());
+                    const lembur = parseCurrency($('input[name="tunjangan_lembur"]').val());
 
                     const kehadiran = parseCurrency($('input[name="bonus_kehadiran"]').val());
                     const target = parseCurrency($('input[name="bonus_target"]').val());
 
-                    const potongan = parseCurrency($('input[name="potongan"]').val());
+                    let potongan = 0;
+                    $('.potongan-amount').each(function () {
+                        potongan += parseCurrency($(this).val());
+                    });
 
                     const allowance = makan + transport + jabatan;
                     const bonus = kehadiran + target;
-                    const net = basic + allowance + bonus - potongan;
+                    const net = basic + allowance + lembur + bonus - potongan;
 
                     $('#summary_basic').text('Rp ' + formatCurrency(basic));
                     $('#summary_allowance').text('Rp ' + formatCurrency(allowance));
+                    $('#summary_lembur').text('Rp ' + formatCurrency(lembur));
                     $('#summary_bonus').text('Rp ' + formatCurrency(bonus));
                     $('#summary_deduction').text('Rp ' + formatCurrency(potongan));
+                    $('#total_potongan_display').text('Rp ' + formatCurrency(potongan));
                     $('#summary_net').text('Rp ' + formatCurrency(net));
                 };
 
@@ -390,6 +457,51 @@
                 $(document).on('input', '.calc-input', function () {
                     calculateTotal();
                 });
+
+                // Recalculate on potongan amount change
+                $(document).on('input', '.potongan-amount', function () {
+                    calculateTotal();
+                });
+
+                // Add potongan row
+                $('#btn_add_potongan').on('click', function () {
+                    const row = `
+                        <div class="potongan-row flex items-start gap-2">
+                            <div class="relative flex-shrink-0 w-40">
+                                <span class="absolute left-3 top-2.5 text-slate-400 text-sm">Rp</span>
+                                <input type="text" name="potongan_items[]"
+                                    class="w-full pl-10 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 currency-input potongan-amount"
+                                    placeholder="0">
+                            </div>
+                            <input type="text" name="potongan_notes_items[]"
+                                class="flex-1 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="Catatan (Contoh: Kasbon)">
+                            <button type="button"
+                                class="btn-remove-potongan mt-1 p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition"
+                                title="Hapus">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>`;
+                    $('#potongan_list').append(row);
+                    updateRemoveButtons();
+                });
+
+                // Remove potongan row
+                $(document).on('click', '.btn-remove-potongan', function () {
+                    $(this).closest('.potongan-row').remove();
+                    updateRemoveButtons();
+                    calculateTotal();
+                });
+
+                // Show/hide remove buttons based on row count
+                const updateRemoveButtons = () => {
+                    const rows = $('.potongan-row');
+                    if (rows.length <= 1) {
+                        rows.find('.btn-remove-potongan').addClass('invisible');
+                    } else {
+                        rows.find('.btn-remove-potongan').removeClass('invisible');
+                    }
+                };
 
                 // Initialize for edit mode
                 @if(isset($payroll))

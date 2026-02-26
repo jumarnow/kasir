@@ -61,10 +61,13 @@ class PayrollController extends Controller
             'tunjangan_makan' => 'nullable|numeric|min:0',
             'tunjangan_transport' => 'nullable|numeric|min:0',
             'tunjangan_jabatan' => 'nullable|numeric|min:0',
+            'tunjangan_lembur' => 'nullable|numeric|min:0',
             'bonus_kehadiran' => 'nullable|numeric|min:0',
             'bonus_target' => 'nullable|numeric|min:0',
-            'potongan' => 'nullable|numeric|min:0',
-            'potongan_notes' => 'nullable|string',
+            'potongan_items' => 'nullable|array',
+            'potongan_items.*' => 'nullable|numeric|min:0',
+            'potongan_notes_items' => 'nullable|array',
+            'potongan_notes_items.*' => 'nullable|string|max:255',
         ]);
 
         // Cek duplikasi
@@ -78,6 +81,22 @@ class PayrollController extends Controller
                 ->withErrors(['error' => 'Slip gaji untuk pegawai ini pada periode tersebut sudah ada.'])
                 ->withInput();
         }
+
+        // Process potongan items
+        $potonganItems = $validated['potongan_items'] ?? [];
+        $potonganNotes = $validated['potongan_notes_items'] ?? [];
+        $totalPotongan = array_sum(array_map('floatval', $potonganItems));
+        $notesArr = [];
+        foreach ($potonganItems as $i => $amt) {
+            $amt = floatval($amt);
+            $note = trim($potonganNotes[$i] ?? '');
+            if ($amt > 0 || $note) {
+                $notesArr[] = $note ? $note . ': Rp ' . number_format($amt, 0, ',', '.') : 'Rp ' . number_format($amt, 0, ',', '.');
+            }
+        }
+        $validated['potongan'] = $totalPotongan;
+        $validated['potongan_notes'] = implode(' | ', $notesArr);
+        unset($validated['potongan_items'], $validated['potongan_notes_items']);
 
         // Get employee data for snapshot
         $employee = Employee::findOrFail($validated['employee_id']);
@@ -95,6 +114,7 @@ class PayrollController extends Controller
             + ($validated['tunjangan_makan'] ?? 0)
             + ($validated['tunjangan_transport'] ?? 0)
             + ($validated['tunjangan_jabatan'] ?? 0)
+            + ($validated['tunjangan_lembur'] ?? 0)
             + ($validated['bonus_kehadiran'] ?? 0)
             + ($validated['bonus_target'] ?? 0)
             - ($validated['potongan'] ?? 0);
@@ -137,11 +157,30 @@ class PayrollController extends Controller
             'tunjangan_makan' => 'nullable|numeric|min:0',
             'tunjangan_transport' => 'nullable|numeric|min:0',
             'tunjangan_jabatan' => 'nullable|numeric|min:0',
+            'tunjangan_lembur' => 'nullable|numeric|min:0',
             'bonus_kehadiran' => 'nullable|numeric|min:0',
             'bonus_target' => 'nullable|numeric|min:0',
-            'potongan' => 'nullable|numeric|min:0',
-            'potongan_notes' => 'nullable|string',
+            'potongan_items' => 'nullable|array',
+            'potongan_items.*' => 'nullable|numeric|min:0',
+            'potongan_notes_items' => 'nullable|array',
+            'potongan_notes_items.*' => 'nullable|string|max:255',
         ]);
+
+        // Process potongan items
+        $potonganItems = $validated['potongan_items'] ?? [];
+        $potonganNotes = $validated['potongan_notes_items'] ?? [];
+        $totalPotongan = array_sum(array_map('floatval', $potonganItems));
+        $notesArr = [];
+        foreach ($potonganItems as $i => $amt) {
+            $amt = floatval($amt);
+            $note = trim($potonganNotes[$i] ?? '');
+            if ($amt > 0 || $note) {
+                $notesArr[] = $note ? $note . ': Rp ' . number_format($amt, 0, ',', '.') : 'Rp ' . number_format($amt, 0, ',', '.');
+            }
+        }
+        $validated['potongan'] = $totalPotongan;
+        $validated['potongan_notes'] = implode(' | ', $notesArr);
+        unset($validated['potongan_items'], $validated['potongan_notes_items']);
 
         // Recalculate basic salary for daily-paid employees
         if ($payroll->isDailyPaid()) {
@@ -155,6 +194,7 @@ class PayrollController extends Controller
             + ($validated['tunjangan_makan'] ?? 0)
             + ($validated['tunjangan_transport'] ?? 0)
             + ($validated['tunjangan_jabatan'] ?? 0)
+            + ($validated['tunjangan_lembur'] ?? 0)
             + ($validated['bonus_kehadiran'] ?? 0)
             + ($validated['bonus_target'] ?? 0)
             - ($validated['potongan'] ?? 0);

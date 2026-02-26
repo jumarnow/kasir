@@ -14,6 +14,7 @@ class Expense extends Model
         'user_id',
         'amount',
         'description',
+        'vendor_name',
         'expense_date',
         'receipt_image',
     ];
@@ -53,5 +54,13 @@ class Expense extends Model
     public function scopeByCategory($query, $categoryId)
     {
         return $query->where('category_id', $categoryId);
+    }
+
+    /**
+     * Scope to filter by vendor name
+     */
+    public function scopeByVendor($query, $vendorName)
+    {
+        return $query->where('vendor_name', 'like', '%' . $vendorName . '%');
     }
 }

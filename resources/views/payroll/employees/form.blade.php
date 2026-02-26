@@ -117,8 +117,8 @@
 
                         <!-- Gaji Harian (untuk intern/internship) -->
                         <div id="daily_salary_container" class="hidden">
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Gaji Harian (Rp) <span
-                                    class="text-red-500">*</span></label>
+                            <label id="daily_salary_label" class="block text-sm font-medium text-slate-700 mb-1">Gaji Harian
+                                (Rp) <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute left-3 top-2.5 text-slate-500">Rp</span>
                                 <input type="text" name="daily_salary" id="daily_salary_input"
@@ -180,6 +180,13 @@
                     $('#monthly_salary_container').toggleClass('hidden', isDaily);
                     $('#daily_salary_container').toggleClass('hidden', !isDaily);
                     $('#type_hint').text(typeHints[type] || '');
+
+                    // Update label berdasarkan tipe
+                    if (type === 'internship' || type === 'intern') {
+                        $('#daily_salary_label').html('Tunjangan Magang (Rp) <span class="text-red-500">*</span>');
+                    } else {
+                        $('#daily_salary_label').html('Gaji Harian (Rp) <span class="text-red-500">*</span>');
+                    }
                 };
 
                 $('#employee_type').on('change', toggleSalaryFields);

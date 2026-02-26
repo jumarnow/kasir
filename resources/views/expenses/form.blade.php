@@ -79,6 +79,19 @@
                     @enderror
                 </div>
 
+                <!-- Vendor / Supplier -->
+                <div class="mb-4">
+                    <label for="vendor_name" class="block text-sm font-medium text-slate-700 mb-2">
+                        Nama Vendor / Supplier
+                    </label>
+                    <input type="text" name="vendor_name" id="vendor_name"
+                        value="{{ old('vendor_name', $expense->vendor_name ?? '') }}" placeholder="Contoh: Toko ABC, PT XYZ"
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 @error('vendor_name') border-red-500 @enderror">
+                    @error('vendor_name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Receipt Image -->
                 <div class="mb-6">
                     <label for="receipt_image" class="block text-sm font-medium text-slate-700 mb-2">

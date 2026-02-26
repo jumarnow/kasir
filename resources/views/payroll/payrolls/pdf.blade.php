@@ -244,6 +244,12 @@
                     <td class="amount">{{ number_format($payroll->tunjangan_jabatan, 0, ',', '.') }}</td>
                 </tr>
             @endif
+            @if($payroll->tunjangan_lembur > 0)
+                <tr>
+                    <td>Tunjangan Lembur</td>
+                    <td class="amount">{{ number_format($payroll->tunjangan_lembur, 0, ',', '.') }}</td>
+                </tr>
+            @endif
             @if($payroll->bonus_kehadiran > 0)
                 <tr>
                     <td>Bonus Kehadiran</td>
@@ -259,7 +265,7 @@
             <tr class="subtotal">
                 <td>Total Pendapatan</td>
                 <td class="amount">
-                    {{ number_format($payroll->basic_salary + $payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}
+                    {{ number_format($payroll->basic_salary + $payroll->tunjangan_makan + $payroll->tunjangan_transport + $payroll->tunjangan_jabatan + $payroll->tunjangan_lembur + $payroll->bonus_kehadiran + $payroll->bonus_target, 0, ',', '.') }}
                 </td>
             </tr>
 

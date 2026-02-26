@@ -28,11 +28,20 @@ class ExpenseController extends Controller
             $query->byCategory($request->category_id);
         }
 
-        $expenses = $query->paginate(20);
+        // Filter by vendor name
+        if ($request->filled('vendor_name')) {
+            $query->byVendor($request->vendor_name);
+        }
+
+        $expenses = $query->paginate(20)->appends($request->query());
         $categories = ExpenseCategory::active()->orderBy('name')->get();
 
         // Calculate total for current filter
-        $totalExpenses = $query->sum('amount');
+        $totalExpenses = Expense::with([])
+            ->when($request->filled('start_date') && $request->filled('end_date'), fn($q) => $q->betweenDates($request->start_date, $request->end_date))
+            ->when($request->filled('category_id'), fn($q) => $q->byCategory($request->category_id))
+            ->when($request->filled('vendor_name'), fn($q) => $q->byVendor($request->vendor_name))
+            ->sum('amount');
 
         return view('expenses.index', compact('expenses', 'categories', 'totalExpenses'));
     }
@@ -55,6 +64,7 @@ class ExpenseController extends Controller
             'category_id' => 'required|exists:expense_categories,id',
             'amount' => 'required|numeric|min:0',
             'description' => 'required|string|max:500',
+            'vendor_name' => 'nullable|string|max:255',
             'expense_date' => 'required|date',
             'receipt_image' => 'nullable|image|max:2048', // 2MB max
         ]);
@@ -91,6 +101,7 @@ class ExpenseController extends Controller
             'category_id' => 'required|exists:expense_categories,id',
             'amount' => 'required|numeric|min:0',
             'description' => 'required|string|max:500',
+            'vendor_name' => 'nullable|string|max:255',
             'expense_date' => 'required|date',
             'receipt_image' => 'nullable|image|max:2048',
         ]);
