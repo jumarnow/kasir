@@ -79,26 +79,11 @@
                         <h3 class="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">PENDAPATAN</h3>
 
                         <div class="space-y-3">
-                            <!-- Info Hari Kerja untuk karyawan harian -->
-                            @if($payroll->isDailyPaid())
-                                <div class="bg-amber-50 rounded-lg p-3 mb-4">
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-amber-700">Hari Kerja</span>
-                                        <span class="font-medium text-amber-900">{{ $payroll->working_days }} hari</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm mt-1">
-                                        <span class="text-amber-700">Gaji per Hari</span>
-                                        <span class="font-medium text-amber-900">Rp {{ number_format($payroll->daily_salary, 0, ',', '.') }}</span>
-                                    </div>
-                                </div>
-                            @endif
+
 
                             <div class="flex justify-between">
                                 <span class="text-slate-600">
-                                    Gaji Pokok
-                                    @if($payroll->isDailyPaid())
-                                        <span class="text-xs text-slate-400">({{ $payroll->working_days }} × Rp {{ number_format($payroll->daily_salary, 0, ',', '.') }})</span>
-                                    @endif
+                                    {{ in_array($payroll->employee_type, ['intern', 'internship']) ? 'Tunjangan Magang' : 'Gaji Pokok' }}
                                 </span>
                                 <span class="font-medium text-slate-900">Rp
                                     {{ number_format($payroll->basic_salary, 0, ',', '.') }}</span>

@@ -101,8 +101,8 @@
 
                         <!-- Gaji Bulanan (untuk permanent) -->
                         <div id="monthly_salary_container">
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Gaji Bulanan (Rp) <span
-                                    class="text-red-500">*</span></label>
+                            <label id="monthly_salary_label" class="block text-sm font-medium text-slate-700 mb-1">Gaji
+                                Bulanan (Rp) <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute left-3 top-2.5 text-slate-500">Rp</span>
                                 <input type="text" name="basic_salary" id="basic_salary_input"
@@ -111,23 +111,6 @@
                                     placeholder="0">
                             </div>
                             @error('basic_salary')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Gaji Harian (untuk intern/internship) -->
-                        <div id="daily_salary_container" class="hidden">
-                            <label id="daily_salary_label" class="block text-sm font-medium text-slate-700 mb-1">Gaji Harian
-                                (Rp) <span class="text-red-500">*</span></label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-slate-500">Rp</span>
-                                <input type="text" name="daily_salary" id="daily_salary_input"
-                                    value="{{ old('daily_salary', isset($employee) ? number_format($employee->daily_salary, 0, ',', '.') : '') }}"
-                                    class="w-full pl-10 rounded-lg border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 currency-input"
-                                    placeholder="0">
-                            </div>
-                            <p class="text-xs text-slate-500 mt-1">Gaji akan dikalikan dengan jumlah hari kerja</p>
-                            @error('daily_salary')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -169,23 +152,19 @@
             $(function () {
                 const typeHints = {
                     'permanent': 'Karyawan tetap dibayar bulanan',
-                    'intern': 'Karyawan magang dibayar harian',
-                    'internship': 'Internship (PKL) dibayar harian'
+                    'intern': 'Karyawan magang dibayar bulanan',
+                    'internship': 'Internship (PKL) dibayar bulanan'
                 };
 
                 const toggleSalaryFields = function () {
                     const type = $('#employee_type').val();
-                    const isDaily = type === 'intern' || type === 'internship';
-
-                    $('#monthly_salary_container').toggleClass('hidden', isDaily);
-                    $('#daily_salary_container').toggleClass('hidden', !isDaily);
                     $('#type_hint').text(typeHints[type] || '');
 
                     // Update label berdasarkan tipe
                     if (type === 'internship' || type === 'intern') {
-                        $('#daily_salary_label').html('Tunjangan Magang (Rp) <span class="text-red-500">*</span>');
+                        $('#monthly_salary_label').html('Tunjangan Magang Perbulan (Rp) <span class="text-red-500">*</span>');
                     } else {
-                        $('#daily_salary_label').html('Gaji Harian (Rp) <span class="text-red-500">*</span>');
+                        $('#monthly_salary_label').html('Gaji Bulanan (Rp) <span class="text-red-500">*</span>');
                     }
                 };
 

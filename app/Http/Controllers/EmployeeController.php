@@ -59,11 +59,7 @@ class EmployeeController extends Controller
         ]);
 
         // Set default values based on employee type
-        if (in_array($validated['employee_type'], ['intern', 'internship'])) {
-            $validated['basic_salary'] = $validated['basic_salary'] ?? 0;
-        } else {
-            $validated['daily_salary'] = $validated['daily_salary'] ?? 0;
-        }
+        $validated['daily_salary'] = 0;
 
         Employee::create($validated);
 
@@ -92,11 +88,7 @@ class EmployeeController extends Controller
         ]);
 
         // Set default values based on employee type
-        if (in_array($validated['employee_type'], ['intern', 'internship'])) {
-            $validated['basic_salary'] = $validated['basic_salary'] ?? 0;
-        } else {
-            $validated['daily_salary'] = $validated['daily_salary'] ?? 0;
-        }
+        $validated['daily_salary'] = 0;
 
         $employee->update($validated);
 

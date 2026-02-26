@@ -113,7 +113,8 @@
                             </div>
 
                             <div class="{{ isset($payroll) ? 'md:col-span-1' : 'md:col-span-2' }}">
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Gaji Pokok (Rp) <span
+                                <label class="block text-sm font-medium text-slate-700 mb-1" id="basic_salary_label">
+                                    {{ isset($payroll) && in_array($payroll->employee_type, ['intern', 'internship']) ? 'Tunjangan Magang (Rp)' : 'Gaji Pokok (Rp)' }} <span
                                         class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <span class="absolute left-3 top-2.5 text-slate-500 font-bold">Rp</span>
@@ -286,7 +287,9 @@
 
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-slate-600">Gaji Pokok</span>
+                                <span class="text-slate-600" id="summary_basic_label">
+                                    {{ isset($payroll) && in_array($payroll->employee_type, ['intern', 'internship']) ? 'Tunjangan Magang' : 'Gaji Pokok' }}
+                                </span>
                                 <span class="font-medium" id="summary_basic">Rp 0</span>
                             </div>
                             <div class="flex justify-between text-green-600">
@@ -375,7 +378,7 @@
                     }
 
                     // Show/hide working days input
-                    const isDailyPaid = type === 'intern' || type === 'internship';
+                    const isDailyPaid = false;
                     $('#working_days_container').toggleClass('hidden', !isDailyPaid);
                     
                     if (isDailyPaid) {
@@ -384,6 +387,15 @@
                     } else {
                         $('#daily_salary_info').text('');
                         $('#basic_salary_note').text('Otomatis terisi dari data pegawai.');
+                    }
+
+                    // Update labels based on type
+                    if (type === 'intern' || type === 'internship') {
+                        $('#basic_salary_label').html('Tunjangan Magang (Rp) <span class="text-red-500">*</span>');
+                        $('#summary_basic_label').text('Tunjangan Magang');
+                    } else {
+                        $('#basic_salary_label').html('Gaji Pokok (Rp) <span class="text-red-500">*</span>');
+                        $('#summary_basic_label').text('Gaji Pokok');
                     }
 
                     // Calculate basic salary

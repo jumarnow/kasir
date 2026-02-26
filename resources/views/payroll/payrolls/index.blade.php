@@ -59,7 +59,7 @@
                     <tr>
                         <th class="px-4 py-3">Periode</th>
                         <th class="px-4 py-3">Pegawai</th>
-                        <th class="px-4 py-3">Gaji Pokok</th>
+                        <th class="px-4 py-3">Gaji Pokok / Tjg. Magang</th>
                         <th class="px-4 py-3">Tunjangan</th>
                         <th class="px-4 py-3">Potongan</th>
                         <th class="px-4 py-3 font-bold">Gaji Bersih</th>
@@ -174,7 +174,7 @@
 
                 <div class="space-y-2 text-sm text-slate-600 border-t border-slate-100 pt-3">
                      <div class="flex justify-between">
-                        <span class="text-slate-500">Gaji Pokok:</span>
+                        <span class="text-slate-500">{{ in_array($payroll->employee_type, ['intern', 'internship']) ? 'Tunjangan Magang:' : 'Gaji Pokok:' }}</span>
                         <span class="font-medium">Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between text-green-600">

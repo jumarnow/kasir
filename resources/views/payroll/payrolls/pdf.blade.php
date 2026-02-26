@@ -203,28 +203,11 @@
                 <td colspan="2" style="font-weight: bold; padding-top: 10px;">PENDAPATAN</td>
             </tr>
 
-            @if($payroll->isDailyPaid())
-                <tr>
-                    <td colspan="2">
-                        <div class="daily-info">
-                            <span class="daily-info-text">
-                                <strong>Hari Kerja:</strong> {{ $payroll->working_days }} hari ×
-                                <strong>Gaji/Hari:</strong> Rp {{ number_format($payroll->daily_salary, 0, ',', '.') }}
-                            </span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Gaji Pokok <span style="font-size: 10px; color: #666;">({{ $payroll->working_days }} hari × Rp
-                            {{ number_format($payroll->daily_salary, 0, ',', '.') }})</span></td>
-                    <td class="amount">{{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
-                </tr>
-            @else
-                <tr>
-                    <td>Gaji Pokok</td>
-                    <td class="amount">{{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
-                </tr>
-            @endif
+            <tr>
+                <td>{{ in_array($payroll->employee_type, ['intern', 'internship']) ? 'Tunjangan Magang' : 'Gaji Pokok' }}
+                </td>
+                <td class="amount">{{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
+            </tr>
 
             @if($payroll->tunjangan_makan > 0)
                 <tr>

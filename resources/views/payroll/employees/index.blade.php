@@ -74,13 +74,8 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
-                                @if($employee->isDailyPaid())
-                                    <div class="text-slate-900">Rp {{ number_format($employee->daily_salary, 0, ',', '.') }}</div>
-                                    <div class="text-xs text-slate-500">per hari</div>
-                                @else
-                                    <div class="text-slate-900">Rp {{ number_format($employee->basic_salary, 0, ',', '.') }}</div>
-                                    <div class="text-xs text-slate-500">per bulan</div>
-                                @endif
+                                <div class="text-slate-900">Rp {{ number_format($employee->basic_salary, 0, ',', '.') }}</div>
+                                <div class="text-xs text-slate-500">per bulan</div>
                             </td>
                             <td class="px-4 py-3">{{ $employee->join_date->format('d/m/Y') }}</td>
                             <td class="px-4 py-3">
@@ -166,11 +161,7 @@
                 <div class="space-y-2 text-sm text-slate-600 border-t border-slate-100 pt-3">
                     <div class="flex justify-between">
                         <span class="text-slate-500">Gaji:</span>
-                        @if($employee->isDailyPaid())
-                            <span class="font-medium">Rp {{ number_format($employee->daily_salary, 0, ',', '.') }} / hari</span>
-                        @else
-                            <span class="font-medium">Rp {{ number_format($employee->basic_salary, 0, ',', '.') }} / bulan</span>
-                        @endif
+                        <span class="font-medium">Rp {{ number_format($employee->basic_salary, 0, ',', '.') }} / bulan</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Bank:</span>

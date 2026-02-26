@@ -61,7 +61,7 @@ class Employee extends Model
      */
     public function isDailyPaid(): bool
     {
-        return in_array($this->employee_type, [self::TYPE_INTERN, self::TYPE_INTERNSHIP]);
+        return false;
     }
 
     /**
@@ -81,6 +81,6 @@ class Employee extends Model
             return $this->daily_salary * $workingDays;
         }
 
-        return $this->basic_salary;
+        return (float) $this->basic_salary;
     }
 }

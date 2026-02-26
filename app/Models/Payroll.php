@@ -55,10 +55,7 @@ class Payroll extends Model
      */
     public function isDailyPaid(): bool
     {
-        return in_array($this->employee_type, [
-            Employee::TYPE_INTERN,
-            Employee::TYPE_INTERNSHIP
-        ]);
+        return false;
     }
 
     /**
