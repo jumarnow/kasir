@@ -146,12 +146,25 @@
 
 <body>
     <div class="header">
-        @if(isset($settings['store_logo']) && file_exists(public_path('storage/' . $settings['store_logo'])))
-            <img src="{{ public_path('storage/' . $settings['store_logo']) }}"
-                style="max-height: 60px; margin-bottom: 5px; width: auto;">
-        @endif
-        <h1 class="title">{{ $settings['store_name'] ?? 'Kasir Modern' }}</h1>
-        <p class="subtitle">{{ $settings['store_address'] ?? '' }}</p>
+        <table width="100%" style="margin-bottom: 5px;">
+            <tr>
+                @if(isset($settings['store_logo']) && file_exists(public_path('storage/' . $settings['store_logo'])))
+                    <td width="1%" style="vertical-align: middle; padding-right: 15px; white-space: nowrap;">
+                        <img src="{{ public_path('storage/' . $settings['store_logo']) }}"
+                            style="max-height: 60px; width: auto;">
+                    </td>
+                    <td style="vertical-align: middle; text-align: left;">
+                        <h1 class="title">{{ $settings['store_name'] ?? 'Kasir Modern' }}</h1>
+                        <p class="subtitle">{{ $settings['store_address'] ?? '' }}</p>
+                    </td>
+                @else
+                    <td style="vertical-align: middle; text-align: center;">
+                        <h1 class="title">{{ $settings['store_name'] ?? 'Kasir Modern' }}</h1>
+                        <p class="subtitle">{{ $settings['store_address'] ?? '' }}</p>
+                    </td>
+                @endif
+            </tr>
+        </table>
         <div style="margin-top: 15px; border-top: 2px solid #333; padding-top: 10px;">
             <p class="subtitle" style="font-weight: bold; color: #333; font-size: 16px;">SLIP GAJI KARYAWAN</p>
         </div>
