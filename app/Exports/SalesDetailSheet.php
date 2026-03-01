@@ -41,7 +41,7 @@ class SalesDetailSheet implements FromCollection, WithTitle, WithHeadings, WithM
             number_format($transaction->discount, 2),
             number_format($transaction->shipping_cost ?? 0, 2),
             number_format($transaction->total, 2),
-            $transaction->payment_method,
+            $transaction->payment_method == 'pending' ? 'Unpaid' : $transaction->payment_method,
             $transaction->status,
             $transaction->user ? $transaction->user->name : '-',
         ];
