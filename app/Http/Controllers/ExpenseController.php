@@ -15,13 +15,14 @@ class ExpenseController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Expense::with(['category', 'user'])
-            ->orderBy('expense_date', 'desc');
+        // Konversi filter bulan → rentang tanggal, default bulan ini
+        $month = $request->input('month', now()->format('Y-m'));
+        $startDate = \Carbon\Carbon::createFromFormat('Y-m', $month)->startOfMonth()->toDateString();
+        $endDate = \Carbon\Carbon::createFromFormat('Y-m', $month)->endOfMonth()->toDateString();
 
-        // Filter by date range
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->betweenDates($request->start_date, $request->end_date);
-        }
+        $query = Expense::with(['category', 'user'])
+            ->orderBy('expense_date', 'desc')
+            ->betweenDates($startDate, $endDate);
 
         // Filter by category
         if ($request->filled('category_id')) {
@@ -38,7 +39,7 @@ class ExpenseController extends Controller
 
         // Calculate total for current filter
         $totalExpenses = Expense::with([])
-            ->when($request->filled('start_date') && $request->filled('end_date'), fn($q) => $q->betweenDates($request->start_date, $request->end_date))
+            ->betweenDates($startDate, $endDate)
             ->when($request->filled('category_id'), fn($q) => $q->byCategory($request->category_id))
             ->when($request->filled('vendor_name'), fn($q) => $q->byVendor($request->vendor_name))
             ->sum('amount');

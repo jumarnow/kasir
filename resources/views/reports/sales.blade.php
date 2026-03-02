@@ -1,18 +1,14 @@
 @extends('layouts.app')
 
 @section('title', 'Laporan Penjualan')
-@section('subtitle', 'Analisis penjualan berdasarkan rentang waktu')
+@section('subtitle', 'Analisis penjualan berdasarkan bulan')
 
 @section('content')
     <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
         <form method="GET" action="{{ route('reports.sales') }}" class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             <div>
-                <label class="text-xs uppercase text-slate-500">Tanggal Mulai</label>
-                <input type="date" name="start_date" value="{{ $filters['start_date'] ?? $report['range']['start'] }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-            </div>
-            <div>
-                <label class="text-xs uppercase text-slate-500">Tanggal Akhir</label>
-                <input type="date" name="end_date" value="{{ $filters['end_date'] ?? $report['range']['end'] }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                <label class="text-xs uppercase text-slate-500">Bulan</label>
+                <input type="month" name="month" value="{{ $filters['month'] ?? $report['range']['month'] }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
             </div>
             <div>
                 <label class="text-xs uppercase text-slate-500">Group By</label>

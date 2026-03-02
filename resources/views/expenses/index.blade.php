@@ -15,13 +15,8 @@
         <div class="bg-white rounded-lg shadow p-4 mb-6">
             <form method="GET" action="{{ route('expenses.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Tanggal Mulai</label>
-                    <input type="date" name="start_date" value="{{ request('start_date') }}"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Tanggal Akhir</label>
-                    <input type="date" name="end_date" value="{{ request('end_date') }}"
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Bulan</label>
+                    <input type="month" name="month" value="{{ request('month', now()->format('Y-m')) }}"
                         class="w-full px-3 py-2 border border-slate-300 rounded-lg">
                 </div>
                 <div>
@@ -80,10 +75,10 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                        @if($expense->category->type === 'daily') bg-blue-100 text-blue-800
-                                                        @elseif($expense->category->type === 'monthly') bg-purple-100 text-purple-800
-                                                        @else bg-green-100 text-green-800
-                                                        @endif">
+                                                                @if($expense->category->type === 'daily') bg-blue-100 text-blue-800
+                                                                @elseif($expense->category->type === 'monthly') bg-purple-100 text-purple-800
+                                                                @else bg-green-100 text-green-800
+                                                                @endif">
                                     {{ $expense->category->name }}
                                 </span>
                             </td>

@@ -9,8 +9,8 @@ class ReportService
 {
     public function aggregate(?string $startDate, ?string $endDate, string $groupBy = 'day', ?int $userId = null): array
     {
-        $start = $startDate ? Carbon::parse($startDate) : Carbon::now()->subDays(30);
-        $end = $endDate ? Carbon::parse($endDate) : Carbon::now();
+        $start = $startDate ? Carbon::parse($startDate) : Carbon::now()->startOfMonth();
+        $end = $endDate ? Carbon::parse($endDate) : Carbon::now()->endOfMonth();
 
         [$format, $labelResolver] = $this->groupingFormat($groupBy);
 
@@ -85,20 +85,20 @@ class ReportService
             'week' => [
                 '%x-%v',
                 function (string $period) {
-                    [$year, $week] = explode('-', $period);
-                    $start = Carbon::now()->setISODate((int) $year, (int) $week)->startOfWeek();
-                    $end = $start->copy()->endOfWeek();
+                        [$year, $week] = explode('-', $period);
+                        $start = Carbon::now()->setISODate((int) $year, (int) $week)->startOfWeek();
+                        $end = $start->copy()->endOfWeek();
 
-                    return $start->format('d M') . ' - ' . $end->format('d M');
-                },
+                        return $start->format('d M') . ' - ' . $end->format('d M');
+                    },
             ],
             'month' => [
                 '%Y-%m',
-                fn (string $period) => Carbon::createFromFormat('Y-m', $period)->format('M Y'),
+                fn(string $period) => Carbon::createFromFormat('Y-m', $period)->format('M Y'),
             ],
             default => [
                 '%Y-%m-%d',
-                fn (string $period) => Carbon::createFromFormat('Y-m-d', $period)->format('d M'),
+                fn(string $period) => Carbon::createFromFormat('Y-m-d', $period)->format('d M'),
             ],
         };
     }

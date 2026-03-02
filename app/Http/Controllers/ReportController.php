@@ -15,6 +15,14 @@ class ReportController extends Controller
     public function sales(ReportFilterRequest $request)
     {
         $filters = $request->validated();
+
+        // Konversi filter bulan menjadi rentang tanggal
+        if (!empty($filters['month'])) {
+            $monthCarbon = \Carbon\Carbon::createFromFormat('Y-m', $filters['month']);
+            $filters['start_date'] = $monthCarbon->copy()->startOfMonth()->toDateString();
+            $filters['end_date'] = $monthCarbon->copy()->endOfMonth()->toDateString();
+        }
+
         $users = User::orderBy('name')->get(['id', 'name']);
         $report = $this->reportService->aggregate(
             $filters['start_date'] ?? null,
@@ -22,6 +30,9 @@ class ReportController extends Controller
             $filters['group_by'] ?? 'day',
             isset($filters['user_id']) ? (int) $filters['user_id'] : null
         );
+
+        // Tambahkan key 'month' ke range agar bisa jadi default di view
+        $report['range']['month'] = \Carbon\Carbon::parse($report['range']['start'])->format('Y-m');
 
         $startDate = $filters['start_date'] ?? $report['range']['start'];
         $endDate = $filters['end_date'] ?? $report['range']['end'];
@@ -51,6 +62,14 @@ class ReportController extends Controller
     public function exportSalesExcel(ReportFilterRequest $request)
     {
         $filters = $request->validated();
+
+        // Konversi filter bulan menjadi rentang tanggal
+        if (!empty($filters['month'])) {
+            $monthCarbon = \Carbon\Carbon::createFromFormat('Y-m', $filters['month']);
+            $filters['start_date'] = $monthCarbon->copy()->startOfMonth()->toDateString();
+            $filters['end_date'] = $monthCarbon->copy()->endOfMonth()->toDateString();
+        }
+
         $report = $this->reportService->aggregate(
             $filters['start_date'] ?? null,
             $filters['end_date'] ?? null,

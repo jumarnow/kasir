@@ -22,6 +22,7 @@ class ReportFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'month' => ['nullable', 'date_format:Y-m'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'group_by' => ['nullable', 'in:day,week,month'],
