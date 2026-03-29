@@ -94,7 +94,7 @@ class ReportService
             ],
             'month' => [
                 '%Y-%m',
-                fn(string $period) => Carbon::createFromFormat('Y-m', $period)->format('M Y'),
+                fn(string $period) => Carbon::parse($period . '-01')->format('M Y'),
             ],
             default => [
                 '%Y-%m-%d',

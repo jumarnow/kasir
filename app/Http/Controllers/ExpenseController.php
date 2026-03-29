@@ -17,8 +17,8 @@ class ExpenseController extends Controller
     {
         // Konversi filter bulan → rentang tanggal, default bulan ini
         $month = $request->input('month', now()->format('Y-m'));
-        $startDate = \Carbon\Carbon::createFromFormat('Y-m', $month)->startOfMonth()->toDateString();
-        $endDate = \Carbon\Carbon::createFromFormat('Y-m', $month)->endOfMonth()->toDateString();
+        $startDate = \Carbon\Carbon::parse($month . '-01')->startOfMonth()->toDateString();
+        $endDate = \Carbon\Carbon::parse($month . '-01')->endOfMonth()->toDateString();
 
         $query = Expense::with(['category', 'user'])
             ->orderBy('expense_date', 'desc')

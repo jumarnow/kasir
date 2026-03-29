@@ -18,7 +18,7 @@ class ReportController extends Controller
 
         // Konversi filter bulan menjadi rentang tanggal
         if (!empty($filters['month'])) {
-            $monthCarbon = \Carbon\Carbon::createFromFormat('Y-m', $filters['month']);
+            $monthCarbon = \Carbon\Carbon::parse($filters['month'] . '-01');
             $filters['start_date'] = $monthCarbon->copy()->startOfMonth()->toDateString();
             $filters['end_date'] = $monthCarbon->copy()->endOfMonth()->toDateString();
         }
@@ -65,7 +65,7 @@ class ReportController extends Controller
 
         // Konversi filter bulan menjadi rentang tanggal
         if (!empty($filters['month'])) {
-            $monthCarbon = \Carbon\Carbon::createFromFormat('Y-m', $filters['month']);
+            $monthCarbon = \Carbon\Carbon::parse($filters['month'] . '-01');
             $filters['start_date'] = $monthCarbon->copy()->startOfMonth()->toDateString();
             $filters['end_date'] = $monthCarbon->copy()->endOfMonth()->toDateString();
         }
