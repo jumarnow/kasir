@@ -6,7 +6,7 @@
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.2/dist/slimselect.css">
-    <link rel="stylesheet" href="{{ asset('css/transaction-create.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/transaction-create.css') }}?v={{ filemtime(public_path('css/transaction-create.css')) }}">
 @endpush
 
 @if ((session('print_invoice') || session('print_shipping_label')) && session('printed_transaction_id'))
@@ -70,7 +70,7 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.2/dist/slimselect.min.js"></script>
-    <script src="{{ asset('js/transaction-create.js') }}"></script>
+    <script src="{{ asset('js/transaction-create.js') }}?v={{ filemtime(public_path('js/transaction-create.js')) }}"></script>
     <script>
         $(function () {
             // Initialize the Transaction App with server-side data
