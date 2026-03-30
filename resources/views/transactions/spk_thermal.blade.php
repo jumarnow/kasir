@@ -111,12 +111,12 @@
     @foreach($transaction->items as $item)
         <div class="item">
             <div class="item-header">
-                {{ $item->product->name }} (x{{ $item->quantity }})
+                {{ $item->custom_name ?? $item->product?->name ?? '-' }} (x{{ $item->quantity }})
             </div>
             <div class="item-meta">
-                @if($item->product->pricing_type == 'per_dimension')
+                @if($item->product?->pricing_type == 'per_dimension')
                     Dimensi: {{ $item->width }}cm x {{ $item->length }}cm<br>
-                    Bahan: {{ $item->product->name }}<br>
+                    Bahan: {{ $item->custom_name ?? $item->product?->name ?? '-' }}<br>
                 @endif
                 @if($item->notes)
                     Catatan: {{ $item->notes }}<br>

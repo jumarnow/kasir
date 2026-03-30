@@ -16,19 +16,26 @@ class TransactionService
     {
         return DB::transaction(function () use ($user, $payload) {
             $items = collect($payload['items'] ?? [])->map(function ($item) {
-                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+                $product = null;
+                $isCustom = empty($item['product_id']) && !empty($item['custom_name']);
 
-                if ($product->stock < $item['quantity']) {
-                    throw ValidationException::withMessages([
-                        'items' => ["Stok {$product->name} tidak mencukupi."],
-                    ]);
+                if (!$isCustom) {
+                    $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+
+                    if ($product->stock < $item['quantity']) {
+                        throw ValidationException::withMessages([
+                            'items' => ["Stok {$product->name} tidak mencukupi."],
+                        ]);
+                    }
                 }
 
                 return [
                     'product' => $product,
+                    'is_custom' => $isCustom,
+                    'custom_name' => $item['custom_name'] ?? null,
                     'quantity' => (int) $item['quantity'],
                     'price' => (float) $item['price'],
-                    'cost_price' => isset($item['cost_price']) ? (float) $item['cost_price'] : (float) $product->cost_price,
+                    'cost_price' => isset($item['cost_price']) ? (float) $item['cost_price'] : (float) ($product->cost_price ?? $item['price']),
                     'finishing_id' => $item['finishing_id'] ?? null,
                     'material_id' => $item['material_id'] ?? null,
                     'display_id' => $item['display_id'] ?? null,
@@ -101,12 +108,13 @@ class TransactionService
             ]);
 
             $items->each(function ($item) use ($transaction) {
-                /** @var Product $product */
+                /** @var Product|null $product */
                 $product = $item['product'];
 
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
-                    'product_id' => $product->id,
+                    'product_id' => $product?->id,
+                    'custom_name' => $item['custom_name'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'cost_price' => $item['cost_price'],
@@ -118,7 +126,9 @@ class TransactionService
                     'notes' => $item['notes'],
                 ]);
 
-                $product->decrementStock($item['quantity']);
+                if ($product) {
+                    $product->decrementStock($item['quantity']);
+                }
             });
 
             return $transaction->load(['items.product', 'customer', 'user']);
@@ -129,19 +139,26 @@ class TransactionService
     {
         return DB::transaction(function () use ($transaction, $user, $payload) {
             $items = collect($payload['items'] ?? [])->map(function ($item) {
-                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+                $product = null;
+                $isCustom = empty($item['product_id']) && !empty($item['custom_name']);
 
-                if ($product->stock < $item['quantity']) {
-                    throw ValidationException::withMessages([
-                        'items' => ["Stok {$product->name} tidak mencukupi."],
-                    ]);
+                if (!$isCustom) {
+                    $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+
+                    if ($product->stock < $item['quantity']) {
+                        throw ValidationException::withMessages([
+                            'items' => ["Stok {$product->name} tidak mencukupi."],
+                        ]);
+                    }
                 }
 
                 return [
                     'product' => $product,
+                    'is_custom' => $isCustom,
+                    'custom_name' => $item['custom_name'] ?? null,
                     'quantity' => (int) $item['quantity'],
                     'price' => (float) $item['price'],
-                    'cost_price' => isset($item['cost_price']) ? (float) $item['cost_price'] : (float) $product->cost_price,
+                    'cost_price' => isset($item['cost_price']) ? (float) $item['cost_price'] : (float) ($product->cost_price ?? $item['price']),
                     'finishing_id' => $item['finishing_id'] ?? null,
                     'material_id' => $item['material_id'] ?? null,
                     'display_id' => $item['display_id'] ?? null,
@@ -193,12 +210,13 @@ class TransactionService
             ]);
 
             $items->each(function ($item) use ($transaction) {
-                /** @var Product $product */
+                /** @var Product|null $product */
                 $product = $item['product'];
 
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
-                    'product_id' => $product->id,
+                    'product_id' => $product?->id,
+                    'custom_name' => $item['custom_name'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'cost_price' => $item['cost_price'],
@@ -210,7 +228,9 @@ class TransactionService
                     'notes' => $item['notes'],
                 ]);
 
-                $product->decrementStock($item['quantity']);
+                if ($product) {
+                    $product->decrementStock($item['quantity']);
+                }
             });
 
             return $transaction->load(['items.product', 'customer', 'user']);

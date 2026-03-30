@@ -3,8 +3,22 @@
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
             <h2 class="text-base md:text-lg font-semibold text-slate-800">Item Transaksi</h2>
-            <p class="text-xs md:text-sm text-slate-500">Scan barcode atau pilih produk</p>
+            <p class="text-xs md:text-sm text-slate-500">Scan barcode, pilih produk, atau tambah manual</p>
         </div>
+
+        {{-- Mode Toggle --}}
+        <div class="flex items-center gap-2 rounded-xl bg-slate-100 p-1">
+            <button type="button" id="mode-product" class="item-mode-btn active rounded-lg px-3 py-1.5 text-xs font-semibold transition-all" data-mode="product">
+                📦 Produk
+            </button>
+            <button type="button" id="mode-custom" class="item-mode-btn rounded-lg px-3 py-1.5 text-xs font-semibold transition-all" data-mode="custom">
+                ✏️ Manual
+            </button>
+        </div>
+    </div>
+
+    {{-- Product Mode --}}
+    <div id="product-mode-inputs" class="mt-4">
         <div class="flex flex-col gap-3 sm:flex-row">
             <div class="relative flex-1">
                 <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Barcode / SKU</label>
@@ -46,6 +60,35 @@
         </div>
     </div>
 
+    {{-- Custom/Manual Mode --}}
+    <div id="custom-mode-inputs" class="mt-4 hidden">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div class="flex-[2]">
+                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Nama Produk</label>
+                <input type="text" id="custom-product-name"
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                    placeholder="Ketik nama produk...">
+            </div>
+            <div class="flex-1">
+                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Qty</label>
+                <input type="number" id="custom-qty" min="1" value="1"
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                    placeholder="1">
+            </div>
+            <div class="flex-1">
+                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Harga</label>
+                <input type="text" id="custom-price"
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-base md:text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                    placeholder="0">
+            </div>
+            <button type="button" id="add-custom-product"
+                class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled>
+                + Tambah
+            </button>
+        </div>
+    </div>
+
     <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200">
         <!-- Desktop Table -->
         <table class="min-w-full divide-y divide-slate-200 text-sm hidden md:table">
@@ -71,3 +114,15 @@
         </div>
     </div>
 </div>
+
+<style>
+    .item-mode-btn {
+        color: #64748b;
+        background: transparent;
+    }
+    .item-mode-btn.active {
+        color: #fff;
+        background: #4f46e5;
+        box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+    }
+</style>

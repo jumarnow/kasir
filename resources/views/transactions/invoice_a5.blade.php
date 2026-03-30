@@ -220,8 +220,8 @@
                 @foreach($transaction->items as $item)
                     <tr>
                         <td>
-                            <div style="font-weight: 600;">{{ $item->product->name }}</div>
-                            @if($item->product->pricing_type == 'per_dimension')
+                            <div style="font-weight: 600;">{{ $item->custom_name ?? $item->product?->name ?? '-' }}</div>
+                            @if($item->product?->pricing_type == 'per_dimension')
                                 <div style="color: #64748b; font-size: 9px;">
                                     Dimensi: {{ $item->width }}cm x {{ $item->length }}cm ({{ $item->area }}m²)
                                 </div>

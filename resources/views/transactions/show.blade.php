@@ -48,8 +48,15 @@
                         @foreach ($transaction->items as $item)
                             <tr>
                                 <td class="px-4 py-3">
-                                    <p class="font-medium text-slate-700">{{ $item->product?->name ?? 'Produk terhapus' }}</p>
-                                    <p class="text-xs text-slate-400">SKU: {{ $item->product?->sku ?? '-' }}</p>
+                                    <p class="font-medium text-slate-700">
+                                        {{ $item->custom_name ?? $item->product?->name ?? 'Produk terhapus' }}
+                                        @if($item->custom_name && !$item->product_id)
+                                            <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/10 ml-1">Manual</span>
+                                        @endif
+                                    </p>
+                                    @if($item->product)
+                                        <p class="text-xs text-slate-400">SKU: {{ $item->product->sku ?? '-' }}</p>
+                                    @endif
                                     @if($item->product?->pricing_type === 'per_dimension')
                                         <p class="text-xs text-slate-500">Dimensi: {{ $item->width + 0 }} x {{ $item->length + 0 }} cm</p>
                                     @endif

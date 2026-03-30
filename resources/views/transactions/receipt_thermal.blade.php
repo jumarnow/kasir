@@ -83,12 +83,12 @@
 
     @foreach($transaction->items as $item)
         <div style="margin-bottom: 8px;">
-            <div class="item-name">{{ $item->product->name }}</div>
+            <div class="item-name">{{ $item->custom_name ?? $item->product?->name ?? '-' }}</div>
             <div class="item">
                 <span>{{ $item->quantity }} x {{ number_format($item->price, 0, ',', '.') }}</span>
                 <span>{{ number_format($item->total, 0, ',', '.') }}</span>
             </div>
-            @if($item->product->pricing_type == 'per_dimension')
+            @if($item->product?->pricing_type == 'per_dimension')
                 <div style="font-size: 10px; color: #555;">
                     Dimensi: {{ $item->width }}cm x {{ $item->length }}cm
                 </div>

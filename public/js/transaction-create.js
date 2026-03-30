@@ -176,18 +176,32 @@ const Cart = {
                 detailsText += `<div class="text-xs text-slate-500 mt-1">${extras.join(' | ')}</div>`;
             }
 
+            // Determine badge and stock display
+            const isCustom = item.is_custom;
+            const stockText = isCustom ? '<span class="text-emerald-500">Manual</span>' : `Stok: ${item.stock}`;
+            let badgeHtml;
+            if (isCustom) {
+                badgeHtml = '<span class="inline-flex items-center rounded-md bg-emerald-50 text-emerald-700 ring-emerald-600/10 px-2 py-1 text-[10px] font-medium ring-1 ring-inset">Manual</span>';
+            } else if (item.pricing_type === 'per_dimension') {
+                badgeHtml = '<span class="inline-flex items-center rounded-md bg-blue-50 text-blue-700 ring-blue-700/10 px-2 py-1 text-[10px] font-medium ring-1 ring-inset">Per Dimensi</span>';
+            } else {
+                badgeHtml = '<span class="inline-flex items-center rounded-md bg-slate-50 text-slate-600 ring-slate-200 px-2 py-1 text-[10px] font-medium ring-1 ring-inset">Unit/Pcs</span>';
+            }
+
+            const editBtnHtml = isCustom
+                ? `<button type="button" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-edit-custom" data-index="${index}">Edit</button>`
+                : `<button type="button" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-edit-item" data-index="${index}">Edit</button>`;
+
             // Desktop Row
             const row = $(`
                 <tr>
                     <td class="px-4 py-3">
                         <div class="font-medium text-slate-700">${item.name}</div>
-                        <div class="text-xs text-slate-400">Stok: ${item.stock}</div>
+                        <div class="text-xs text-slate-400">${stockText}</div>
                         ${detailsText}
                     </td>
                     <td class="px-4 py-3 text-center">
-                        <span class="inline-flex items-center rounded-md ${item.pricing_type === 'per_dimension' ? 'bg-blue-50 text-blue-700 ring-blue-700/10' : 'bg-slate-50 text-slate-600 ring-slate-200'} px-2 py-1 text-[10px] font-medium ring-1 ring-inset">
-                            ${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}
-                        </span>
+                        ${badgeHtml}
                     </td>
                     <td class="px-4 py-3 text-center">
                         ${Utils.formatCurrency(item.price)}
@@ -200,13 +214,31 @@ const Cart = {
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex justify-end gap-2">
-                            <button type="button" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-edit-item" data-index="${index}">Edit</button>
+                            ${editBtnHtml}
                             <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 rounded-md px-2 py-1 text-xs font-medium transition-colors remove-item" data-index="${index}">Hapus</button>
                         </div>
                     </td>
                 </tr>
             `);
             tbody.append(row);
+
+            // Mobile edit button
+            const mobileEditBtnHtml = isCustom
+                ? `<button type="button" class="text-xs text-emerald-600 font-medium btn-edit-custom" data-index="${index}">Edit</button>`
+                : `<button type="button" class="text-xs text-indigo-600 font-medium btn-edit-item" data-index="${index}">Edit</button>`;
+
+            // Mobile type label
+            let mobileTypeLabel, mobileTypeClass;
+            if (isCustom) {
+                mobileTypeLabel = 'Manual';
+                mobileTypeClass = 'text-emerald-600';
+            } else if (item.pricing_type === 'per_dimension') {
+                mobileTypeLabel = 'Per Dimensi';
+                mobileTypeClass = 'text-blue-600';
+            } else {
+                mobileTypeLabel = 'Unit/Pcs';
+                mobileTypeClass = 'text-slate-600';
+            }
 
             // Mobile list
             const mobileItem = $(`
@@ -217,14 +249,14 @@ const Cart = {
                             ${detailsText}
                         </div>
                         <div class="flex gap-3">
-                            <button type="button" class="text-xs text-indigo-600 font-medium btn-edit-item" data-index="${index}">Edit</button>
+                            ${mobileEditBtnHtml}
                             <button type="button" class="remove-item text-xs text-red-500 font-medium" data-index="${index}">Hapus</button>
                         </div>
                     </div>
                     <div class="flex flex-col gap-2">
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-slate-500">Tipe Harga</span>
-                            <span class="font-medium ${item.pricing_type === 'per_dimension' ? 'text-blue-600' : 'text-slate-600'}">${item.pricing_type === 'per_dimension' ? 'Per Dimensi' : 'Unit/Pcs'}</span>
+                            <span class="font-medium ${mobileTypeClass}">${mobileTypeLabel}</span>
                         </div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-slate-500">Harga</span>
@@ -243,19 +275,30 @@ const Cart = {
             `);
             mobileList.append(mobileItem);
 
-            inputsWrapper.append(`
-                <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
-                <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
-                <input type="hidden" name="items[${index}][price]" value="${item.price}">
-                <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
-                <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
-                <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
-                <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
-                <input type="hidden" name="items[${index}][material_id]" value="${item.material_id || ''}">
-                <input type="hidden" name="items[${index}][material_price_tier]" value="${item.material_price_tier || '1'}">
-                <input type="hidden" name="items[${index}][product_price_tier]" value="${item.product_price_tier || '1'}">
-                <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
-            `);
+            if (item.is_custom) {
+                inputsWrapper.append(`
+                    <input type="hidden" name="items[${index}][custom_name]" value="${item.custom_name}">
+                    <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
+                    <input type="hidden" name="items[${index}][price]" value="${item.price}">
+                    <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
+                    <input type="hidden" name="items[${index}][width]" value="0">
+                    <input type="hidden" name="items[${index}][length]" value="0">
+                `);
+            } else {
+                inputsWrapper.append(`
+                    <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
+                    <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
+                    <input type="hidden" name="items[${index}][price]" value="${item.price}">
+                    <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
+                    <input type="hidden" name="items[${index}][width]" value="${item.width || 0}">
+                    <input type="hidden" name="items[${index}][length]" value="${item.length || 0}">
+                    <input type="hidden" name="items[${index}][finishing_id]" value="${item.finishing_id || ''}">
+                    <input type="hidden" name="items[${index}][material_id]" value="${item.material_id || ''}">
+                    <input type="hidden" name="items[${index}][material_price_tier]" value="${item.material_price_tier || '1'}">
+                    <input type="hidden" name="items[${index}][product_price_tier]" value="${item.product_price_tier || '1'}">
+                    <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
+                `);
+            }
         });
 
         Summary.update();
@@ -323,6 +366,7 @@ const Cart = {
     updatePrices(tier) {
         const app = TransactionApp;
         app.cart.forEach(item => {
+            if (item.is_custom) return; // Skip custom items
             if (tier === 2 && item.price_2 > 0) {
                 item.price = item.price_2;
             } else if (tier === 3 && item.price_3 > 0) {
@@ -772,6 +816,37 @@ const FormHandler = {
         // Product selection
         app.$elements.$addProductButton.on('click', () => this.handleAddProduct());
 
+        // Custom/Manual item
+        $('#add-custom-product').on('click', () => this.handleAddCustomProduct());
+
+        // Custom input validation - toggle add button
+        $('#custom-product-name, #custom-price').on('input', () => this.toggleCustomAddButton());
+
+        // Mode toggle
+        $('.item-mode-btn').on('click', function () {
+            const mode = $(this).data('mode');
+            $('.item-mode-btn').removeClass('active');
+            $(this).addClass('active');
+
+            if (mode === 'custom') {
+                $('#product-mode-inputs').addClass('hidden');
+                $('#custom-mode-inputs').removeClass('hidden');
+                $('#custom-product-name').focus();
+            } else {
+                $('#custom-mode-inputs').addClass('hidden');
+                $('#product-mode-inputs').removeClass('hidden');
+                $('#barcode-input').focus();
+            }
+        });
+
+        // Allow Enter key to add custom item
+        $('#custom-product-name, #custom-qty, #custom-price').on('keypress', (e) => {
+            if (e.which === 13) {
+                e.preventDefault();
+                this.handleAddCustomProduct();
+            }
+        });
+
         // Barcode input
         $('#barcode-input').on('keypress', (e) => {
             if (e.which === 13) {
@@ -784,6 +859,12 @@ const FormHandler = {
         $('#cart-items, #cart-items-mobile').on('click', '.btn-edit-item', function () {
             const index = $(this).data('index');
             ItemDetailModal.open(index);
+        });
+
+        // Edit custom item inline
+        $('#cart-items, #cart-items-mobile').on('click', '.btn-edit-custom', function () {
+            const index = $(this).data('index');
+            FormHandler.editCustomItem(index);
         });
 
         $('#cart-items, #cart-items-mobile').on('click', '.remove-item', function () {
@@ -835,6 +916,104 @@ const FormHandler = {
             app.productSlimSelect.setSelected('');
             this.toggleAddButton();
         }
+    },
+
+    handleAddCustomProduct() {
+        const name = $('#custom-product-name').val().trim();
+        const qty = parseInt($('#custom-qty').val()) || 1;
+        const price = Utils.parseCurrency($('#custom-price').val());
+
+        if (!name) {
+            alert('Masukkan nama produk.');
+            $('#custom-product-name').focus();
+            return;
+        }
+
+        if (price <= 0) {
+            alert('Masukkan harga yang valid.');
+            $('#custom-price').focus();
+            return;
+        }
+
+        TransactionApp.cart.push({
+            id: null,
+            is_custom: true,
+            custom_name: name,
+            name: name,
+            price: price,
+            price_1: price,
+            price_2: 0,
+            price_3: 0,
+            cost_price: price,
+            stock: 0,
+            stock_alert: 0,
+            quantity: qty,
+            pricing_type: 'per_unit',
+            price_per_meter: 0,
+            price_unit: 'per_m2',
+            width: 0,
+            length: 0,
+            area: 0,
+            finishing_id: null,
+            material_id: null,
+            material_price_tier: '1',
+            product_price_tier: '1',
+            display_id: null
+        });
+
+        // Reset form
+        $('#custom-product-name').val('');
+        $('#custom-qty').val(1);
+        $('#custom-price').val('');
+        this.toggleCustomAddButton();
+
+        Cart.render();
+        $('#custom-product-name').focus();
+    },
+
+    editCustomItem(index) {
+        const app = TransactionApp;
+        const item = app.cart[index];
+        if (!item || !item.is_custom) return;
+
+        const newName = prompt('Nama Produk:', item.name);
+        if (newName === null) return; // cancelled
+        if (newName.trim() === '') {
+            alert('Nama produk tidak boleh kosong.');
+            return;
+        }
+
+        const newQty = prompt('Qty:', item.quantity);
+        if (newQty === null) return;
+        const parsedQty = parseInt(newQty);
+        if (isNaN(parsedQty) || parsedQty < 1) {
+            alert('Qty harus minimal 1.');
+            return;
+        }
+
+        const newPrice = prompt('Harga:', item.price);
+        if (newPrice === null) return;
+        const parsedPrice = Utils.parseCurrency(newPrice);
+        if (parsedPrice < 0) {
+            alert('Harga tidak valid.');
+            return;
+        }
+
+        item.name = newName.trim();
+        item.custom_name = newName.trim();
+        item.quantity = parsedQty;
+        item.price = parsedPrice;
+        item.price_1 = parsedPrice;
+        item.cost_price = parsedPrice;
+
+        Cart.render();
+    },
+
+    toggleCustomAddButton() {
+        const name = $('#custom-product-name').val().trim();
+        const price = $('#custom-price').val().trim();
+        const canAdd = name.length > 0 && price.length > 0;
+        $('#add-custom-product').prop('disabled', !canAdd);
     },
 
     handleBarcodeScan() {

@@ -37,20 +37,23 @@
 
 @php
     $existingItems = $transaction->items->map(function ($item) {
+        $isCustom = empty($item->product_id) && !empty($item->custom_name);
         return [
             'id' => $item->product_id,
-            'name' => $item->product->name ?? 'Unknown',
+            'is_custom' => $isCustom,
+            'custom_name' => $item->custom_name,
+            'name' => $isCustom ? $item->custom_name : ($item->product?->name ?? 'Unknown'),
             'price' => (float) $item->price,
-            'price_1' => (float) ($item->product->price ?? $item->price),
-            'price_2' => (float) ($item->product->price_2 ?? 0),
-            'price_3' => (float) ($item->product->price_3 ?? 0),
+            'price_1' => (float) ($item->product?->price ?? $item->price),
+            'price_2' => (float) ($item->product?->price_2 ?? 0),
+            'price_3' => (float) ($item->product?->price_3 ?? 0),
             'cost_price' => (float) $item->cost_price,
-            'stock' => $item->product->stock ?? 0,
-            'stock_alert' => $item->product->stock_alert ?? 0,
+            'stock' => $item->product?->stock ?? 0,
+            'stock_alert' => $item->product?->stock_alert ?? 0,
             'quantity' => $item->quantity,
-            'pricing_type' => $item->product->pricing_type ?? 'per_unit',
-            'price_per_meter' => (float) ($item->product->price_per_meter ?? 0),
-            'price_unit' => $item->product->price_unit ?? 'per_m2',
+            'pricing_type' => $isCustom ? 'per_unit' : ($item->product?->pricing_type ?? 'per_unit'),
+            'price_per_meter' => (float) ($item->product?->price_per_meter ?? 0),
+            'price_unit' => $item->product?->price_unit ?? 'per_m2',
             'width' => (float) $item->width,
             'length' => (float) $item->length,
             'area' => (float) ($item->width * $item->length),
