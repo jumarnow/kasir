@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransactionsExport;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
@@ -17,12 +19,9 @@ class TransactionController extends Controller
 
     public function index(Request $request)
     {
-        $transactions = Transaction::with(['customer', 'user'])
-            ->when($request->query('start_date'), fn($query, $date) => $query->whereDate('created_at', '>=', $date))
-            ->when($request->query('end_date'), fn($query, $date) => $query->whereDate('created_at', '<=', $date))
-            ->when($request->query('customer'), fn($query, $term) => $query->whereHas('customer', fn($q) => $q->where('name', 'like', '%' . $term . '%')))
-            ->when($request->query('payment_status'), fn($query, $status) => $query->where('payment_status', $status))
-            ->when($request->query('q'), fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'))
+        $filters = $request->only(['start_date', 'end_date', 'q', 'customer', 'payment_status']);
+
+        $transactions = $this->filteredTransactionsQuery($filters)
             ->orderByDesc('created_at')
             ->paginate(15)
             ->withQueryString();
@@ -32,8 +31,16 @@ class TransactionController extends Controller
         return view('transactions.index', [
             'transactions' => $transactions,
             'customers' => $customers,
-            'filters' => $request->only(['start_date', 'end_date', 'q', 'customer', 'payment_status']),
+            'filters' => $filters,
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $filters = $request->only(['start_date', 'end_date', 'q', 'customer', 'payment_status']);
+        $filename = 'transaksi-' . now()->format('Ymd-His') . '.xlsx';
+
+        return Excel::download(new TransactionsExport($filters), $filename);
     }
 
     public function create()
@@ -244,5 +251,15 @@ class TransactionController extends Controller
 
         return redirect()->route('transactions.index')
             ->with('success', 'Transaksi berhasil dibatalkan dan stok dikembalikan.');
+    }
+
+    private function filteredTransactionsQuery(array $filters)
+    {
+        return Transaction::with(['customer', 'user', 'items.product'])
+            ->when($filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '>=', $date))
+            ->when($filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '<=', $date))
+            ->when($filters['customer'] ?? null, fn($query, $term) => $query->whereHas('customer', fn($q) => $q->where('name', 'like', '%' . $term . '%')))
+            ->when($filters['payment_status'] ?? null, fn($query, $status) => $query->where('payment_status', $status))
+            ->when($filters['q'] ?? null, fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'));
     }
 }

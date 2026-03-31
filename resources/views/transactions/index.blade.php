@@ -9,10 +9,16 @@
             <h2 class="text-lg font-semibold text-slate-800">Riwayat Transaksi</h2>
             <p class="text-sm text-slate-500">Filter transaksi berdasarkan tanggal dan invoice</p>
         </div>
-        <a href="{{ route('transactions.create') }}"
-            class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
-            + Transaksi Baru
-        </a>
+        <div class="flex flex-col gap-2 sm:flex-row">
+            <a href="{{ route('transactions.export', request()->query()) }}"
+                class="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100">
+                Export Excel
+            </a>
+            <a href="{{ route('transactions.create') }}"
+                class="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                + Transaksi Baru
+            </a>
+        </div>
     </div>
 
     <form method="GET" action="{{ route('transactions.index') }}" class="mt-6 grid gap-4 md:grid-cols-6">
@@ -99,8 +105,12 @@
                             <div class="mt-1 space-y-1 border-l-2 border-slate-100 pl-2">
                                 @foreach($transaction->items as $item)
                                     <div class="text-xs">
-                                        <div class="text-slate-600">{{ $item->product?->name }}</div>
-                                        <!-- <div class="text-[10px] text-slate-400">SKU: {{ $item->product?->sku }}</div> -->
+                                        <div class="text-slate-600">
+                                            {{ $item->custom_name ?? $item->product?->name ?? 'Produk terhapus' }}
+                                        </div>
+                                        @if(!$item->custom_name && $item->product?->sku)
+                                            <!-- <div class="text-[10px] text-slate-400">SKU: {{ $item->product?->sku }}</div> -->
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -186,8 +196,10 @@
                             <div class="mt-1 space-y-1">
                                 @foreach($transaction->items as $item)
                                     <div class="text-xs text-slate-500">
-                                        {{ $item->product?->name }}
-                                        <span class="text-slate-400">({{ $item->product?->sku }})</span>
+                                        {{ $item->custom_name ?? $item->product?->name ?? 'Produk terhapus' }}
+                                        @if(!$item->custom_name && $item->product?->sku)
+                                            <span class="text-slate-400">({{ $item->product?->sku }})</span>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>

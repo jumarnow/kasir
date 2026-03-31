@@ -44,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:manage_transactions')->group(function () {
         Route::get('transactions/barcode/lookup', [TransactionController::class, 'lookupByBarcode'])->name('transactions.lookup');
+        Route::get('transactions/export', [TransactionController::class, 'exportExcel'])->name('transactions.export');
         Route::get('transactions/{transaction}/invoice', [TransactionController::class, 'invoice'])->name('transactions.invoice');
         Route::get('transactions/{transaction}/spk', [TransactionController::class, 'spk'])->name('transactions.spk');
         Route::get('transactions/{transaction}/receipt', [TransactionController::class, 'receipt'])->name('transactions.receipt');

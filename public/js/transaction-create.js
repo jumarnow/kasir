@@ -41,6 +41,20 @@ const Utils = {
         return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
     },
 
+    formatThousandSeparator(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        const digits = String(value).replace(/\D/g, '');
+
+        if (!digits) {
+            return '';
+        }
+
+        return new Intl.NumberFormat('id-ID').format(Number(digits));
+    },
+
     parseCurrency(value) {
         if (value === null || value === undefined) {
             return 0;
@@ -821,6 +835,10 @@ const FormHandler = {
 
         // Custom input validation - toggle add button
         $('#custom-product-name, #custom-price').on('input', () => this.toggleCustomAddButton());
+        $('#custom-price').on('input', function () {
+            const formattedValue = Utils.formatThousandSeparator($(this).val());
+            $(this).val(formattedValue);
+        });
 
         // Mode toggle
         $('.item-mode-btn').on('click', function () {
