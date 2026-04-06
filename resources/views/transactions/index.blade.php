@@ -128,10 +128,11 @@
                                     class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
                                     Detail
                                 </a>
-                                <a target="_blank" href="{{ route('transactions.invoice_a5', $transaction) }}"
-                                    class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600">
+                                <button type="button"
+                                    class="invoice-preview-trigger rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600"
+                                    data-preview-url="{{ route('transactions.invoice_a5', $transaction) }}">
                                     Invoice
-                                </a>
+                                </button>
                                 <a target="_blank" href="{{ route('transactions.spk', $transaction) }}"
                                     class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-emerald-200 hover:text-emerald-600">
                                     SPK
@@ -223,10 +224,11 @@
                         class="flex-1 min-w-[80px] rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-center text-xs font-medium text-indigo-600 hover:bg-indigo-100">
                         Detail
                     </a>
-                    <a target="_blank" href="{{ route('transactions.invoice_a5', $transaction) }}"
-                        class="flex-1 min-w-[80px] rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 hover:bg-slate-50">
+                    <button type="button"
+                        class="invoice-preview-trigger flex-1 min-w-[80px] rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 hover:bg-slate-50"
+                        data-preview-url="{{ route('transactions.invoice_a5', $transaction) }}">
                         Invoice
-                    </a>
+                    </button>
                     <a target="_blank" href="{{ route('transactions.spk', $transaction) }}"
                         class="flex-1 min-w-[80px] rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-medium text-emerald-600 hover:bg-emerald-100">
                         SPK
@@ -258,4 +260,103 @@
     <div class="mt-6">
         {{ $transactions->withQueryString()->links() }}
     </div>
+
+    <div id="print-preview-modal"
+        class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
+        <div class="flex h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-6 py-4">
+                <h3 class="flex items-center gap-2 text-lg font-bold text-slate-800">
+                    <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                    Pratinjau Cetak
+                </h3>
+                <button type="button" id="close-print-preview"
+                    class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600">
+                    <span class="sr-only">Tutup preview</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="relative flex-1 bg-slate-100">
+                <iframe id="print-preview-frame" class="h-full w-full border-0" src=""></iframe>
+            </div>
+            <div class="flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-4">
+                <button type="button" id="print-preview-action"
+                    class="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-500 hover:shadow-indigo-300">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                    Cetak Dokumen
+                </button>
+                <button type="button" id="close-print-preview-secondary"
+                    class="rounded-lg border border-slate-200 px-6 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const previewModal = document.getElementById('print-preview-modal');
+            const previewFrame = document.getElementById('print-preview-frame');
+            const closeButton = document.getElementById('close-print-preview');
+            const closeSecondaryButton = document.getElementById('close-print-preview-secondary');
+            const printButton = document.getElementById('print-preview-action');
+
+            if (!previewModal || !previewFrame) {
+                return;
+            }
+
+            const openPreview = (url) => {
+                previewFrame.src = url;
+                previewModal.classList.remove('hidden');
+                previewModal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            const closePreview = () => {
+                previewModal.classList.add('hidden');
+                previewModal.classList.remove('flex');
+                previewFrame.src = '';
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            document.querySelectorAll('.invoice-preview-trigger').forEach((trigger) => {
+                trigger.addEventListener('click', function () {
+                    const url = this.dataset.previewUrl;
+                    if (url) {
+                        openPreview(url);
+                    }
+                });
+            });
+
+            closeButton?.addEventListener('click', closePreview);
+            closeSecondaryButton?.addEventListener('click', closePreview);
+
+            printButton?.addEventListener('click', function () {
+                previewFrame.contentWindow?.print();
+            });
+
+            previewModal.addEventListener('click', function (event) {
+                if (event.target === previewModal) {
+                    closePreview();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && !previewModal.classList.contains('hidden')) {
+                    closePreview();
+                }
+            });
+        });
+    </script>
+@endpush
