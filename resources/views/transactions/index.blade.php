@@ -46,6 +46,7 @@
                 <option value="paid" {{ ($filters['payment_status'] ?? '') == 'paid' ? 'selected' : '' }}>Lunas</option>
                 <option value="dp" {{ ($filters['payment_status'] ?? '') == 'dp' ? 'selected' : '' }}>DP (Kurang Bayar)</option>
                 <option value="unpaid" {{ ($filters['payment_status'] ?? '') == 'unpaid' ? 'selected' : '' }}>Unpaid (Belum Dibayar)</option>
+                <option value="cod_kurir" {{ ($filters['payment_status'] ?? '') == 'cod_kurir' ? 'selected' : '' }}>COD Kurir</option>
             </select>
         </div>
         <div>
@@ -76,21 +77,25 @@
                 @forelse ($transactions as $transaction)
                     <tr>
                         <td class="px-6 py-4">
+                            @php
+                                $paymentLabel = match (true) {
+                                    $transaction->payment_method === 'cod_kurir' => 'COD Kurir',
+                                    $transaction->payment_status === 'dp' => 'DP (Kurang Bayar)',
+                                    $transaction->payment_status === 'paid' => 'Paid (Lunas)',
+                                    $transaction->payment_status === 'unpaid' => 'Unpaid (Belum Dibayar)',
+                                    default => ucfirst($transaction->payment_status),
+                                };
+
+                                $paymentClass = match (true) {
+                                    $transaction->payment_method === 'cod_kurir' => 'text-sky-500',
+                                    in_array($transaction->payment_status, ['dp', 'unpaid']) => 'text-red-600',
+                                    $transaction->payment_status === 'paid' => 'text-green-600',
+                                    default => 'text-slate-600',
+                                };
+                            @endphp
                             <p class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</p>
                             <p class="text-xs text-slate-500">Status: 
-                                <span class="font-bold {{ match($transaction->payment_status) {
-                                    'dp', 'unpaid' => 'text-red-600',
-                                    'paid' => 'text-green-600',
-                                    default => 'text-slate-600'
-                                } }}">
-                                {{ 
-                                match($transaction->payment_status) {
-                                    'dp' => 'DP (Kurang Bayar)',
-                                    'paid' => 'Paid (Lunas)',
-                                    'unpaid' => 'Unpaid (Belum Dibayar)',
-                                    default => ucfirst($transaction->payment_status)
-                                }
-                            }}</span></p>
+                                <span class="font-bold {{ $paymentClass }}">{{ $paymentLabel }}</span></p>
                             @if(in_array($transaction->payment_status, ['dp', 'unpaid']) && $transaction->due_date)
                                 <p class="mt-1 text-xs font-medium text-red-600">
                                     Jatuh Tempo: {{ $transaction->due_date->format('d M Y') }}

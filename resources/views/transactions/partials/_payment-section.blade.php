@@ -57,9 +57,10 @@
                 <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Pembayaran</label>
                 <select name="payment_method" id="payment-method"
                     class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                    <option value="lunas">Lunas</option>
-                    <option value="dp">DP</option>
-                    <option value="pending">Belum Dibayar</option>
+                    <option value="lunas" {{ old('payment_method') === 'lunas' ? 'selected' : '' }}>Lunas</option>
+                    <option value="dp" {{ old('payment_method') === 'dp' ? 'selected' : '' }}>DP</option>
+                    <option value="pending" {{ old('payment_method') === 'pending' ? 'selected' : '' }}>Belum Dibayar</option>
+                    <option value="cod_kurir" {{ old('payment_method') === 'cod_kurir' ? 'selected' : '' }}>COD Kurir</option>
                 </select>
             </div>
             <div>

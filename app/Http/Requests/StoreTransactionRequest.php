@@ -48,8 +48,8 @@ class StoreTransactionRequest extends FormRequest
                 'after_or_equal:today',
                 function ($attribute, $value, $fail) {
                     $paymentMethod = $this->input('payment_method');
-                    if (in_array($paymentMethod, ['dp', 'pending']) && empty($value)) {
-                        $fail('Tanggal jatuh tempo wajib diisi untuk pembayaran DP atau Pending.');
+                    if (in_array($paymentMethod, ['dp', 'pending', 'cod_kurir']) && empty($value)) {
+                        $fail('Tanggal jatuh tempo wajib diisi untuk pembayaran DP, Pending, atau COD Kurir.');
                     }
                 }
             ],

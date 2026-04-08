@@ -423,7 +423,7 @@ const Summary = {
         if (paymentMethod === 'lunas') {
             $('#amount-paid').val(Utils.formatCurrency(total));
             amountPaid = total;
-        } else if (paymentMethod === 'pending') {
+        } else if (paymentMethod === 'pending' || paymentMethod === 'cod_kurir') {
             $('#amount-paid').val(Utils.formatCurrency(0));
             amountPaid = 0;
         }
@@ -1051,7 +1051,7 @@ const FormHandler = {
     handlePaymentMethodChange() {
         const method = $('#payment-method').val();
 
-        if (method === 'dp' || method === 'pending') {
+        if (method === 'dp' || method === 'pending' || method === 'cod_kurir') {
             $('#due-date-container').removeClass('hidden');
             if (!$('#due-date').val()) {
                 const date = new Date();

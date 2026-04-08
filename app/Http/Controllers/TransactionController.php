@@ -259,7 +259,14 @@ class TransactionController extends Controller
             ->when($filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '<=', $date))
             ->when($filters['customer'] ?? null, fn($query, $term) => $query->whereHas('customer', fn($q) => $q->where('name', 'like', '%' . $term . '%')))
-            ->when($filters['payment_status'] ?? null, fn($query, $status) => $query->where('payment_status', $status))
+            ->when($filters['payment_status'] ?? null, function ($query, $status) {
+                if ($status === 'cod_kurir') {
+                    return $query->where('payment_method', 'cod_kurir');
+                }
+
+                return $query->where('payment_status', $status)
+                    ->where('payment_method', '!=', 'cod_kurir');
+            })
             ->when($filters['q'] ?? null, fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'));
     }
 }

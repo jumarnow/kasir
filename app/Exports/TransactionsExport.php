@@ -30,7 +30,14 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             ->when($this->filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($this->filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '<=', $date))
             ->when($this->filters['customer'] ?? null, fn($query, $term) => $query->whereHas('customer', fn($q) => $q->where('name', 'like', '%' . $term . '%')))
-            ->when($this->filters['payment_status'] ?? null, fn($query, $status) => $query->where('payment_status', $status))
+            ->when($this->filters['payment_status'] ?? null, function ($query, $status) {
+                if ($status === 'cod_kurir') {
+                    return $query->where('payment_method', 'cod_kurir');
+                }
+
+                return $query->where('payment_status', $status)
+                    ->where('payment_method', '!=', 'cod_kurir');
+            })
             ->when($this->filters['q'] ?? null, fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'))
             ->orderByDesc('created_at')
             ->get();
@@ -79,12 +86,14 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             (float) $transaction->total,
             (float) ($transaction->dp_amount + $transaction->amount_paid),
             (float) $transaction->remaining_amount,
-            match ($transaction->payment_status) {
-                'paid' => 'Lunas',
-                'dp' => 'DP',
-                'unpaid' => 'Belum Dibayar',
-                default => ucfirst((string) $transaction->payment_status),
-            },
+            $transaction->payment_method === 'cod_kurir'
+                ? 'COD Kurir'
+                : match ($transaction->payment_status) {
+                    'paid' => 'Lunas',
+                    'dp' => 'DP',
+                    'unpaid' => 'Belum Dibayar',
+                    default => ucfirst((string) $transaction->payment_status),
+                },
             match ($transaction->order_status) {
                 'pending' => 'Pending',
                 'production' => 'Produksi',

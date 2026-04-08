@@ -66,10 +66,10 @@ class TransactionService
             $amountPaid = (float) Arr::get($payload, 'amount_paid', $total);
             $paymentMethod = Arr::get($payload, 'payment_method', 'cash');
 
-            // Allow partial payment only for DP or Pending (Tempo)
-            if ($amountPaid < $total && !in_array($paymentMethod, ['dp', 'pending', 'tempo'])) {
+            // Allow partial payment only for DP, Pending, or COD Kurir
+            if ($amountPaid < $total && !in_array($paymentMethod, ['dp', 'pending', 'tempo', 'cod_kurir'])) {
                 throw ValidationException::withMessages([
-                    'amount_paid' => ['Jumlah pembayaran tidak boleh kurang dari total (kecuali DP/Tempo).'],
+                    'amount_paid' => ['Jumlah pembayaran tidak boleh kurang dari total (kecuali DP, Pending, atau COD Kurir).'],
                 ]);
             }
 
@@ -78,7 +78,7 @@ class TransactionService
             if ($amountPaid < $total) {
                 $status = 'partial'; // or 'pending' depending on your business logic
             }
-            if ($paymentMethod === 'pending') {
+            if (in_array($paymentMethod, ['pending', 'cod_kurir'])) {
                 $status = 'pending';
             }
 
