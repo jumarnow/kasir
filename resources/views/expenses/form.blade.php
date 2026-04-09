@@ -57,9 +57,10 @@
                     <label for="amount" class="block text-sm font-medium text-slate-700 mb-2">
                         Jumlah (Rp) <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="amount" id="amount" value="{{ old('amount', $expense->amount ?? '') }}"
-                        step="0.01" min="0"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 @error('amount') border-red-500 @enderror"
+                    <input type="text" name="amount" id="amount"
+                        value="{{ old('amount', isset($expense->amount) ? number_format($expense->amount, 0, ',', '.') : '') }}"
+                        class="currency-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 @error('amount') border-red-500 @enderror"
+                        inputmode="numeric" placeholder="0"
                         required>
                     @error('amount')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -129,3 +130,14 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(function () {
+            $('form').on('submit', function () {
+                const amountInput = $('#amount');
+                amountInput.val(amountInput.val().replace(/[^0-9]/g, ''));
+            });
+        });
+    </script>
+@endpush
