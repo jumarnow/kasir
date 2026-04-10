@@ -79,17 +79,17 @@
                         <td class="px-6 py-4">
                             @php
                                 $paymentLabel = match (true) {
+                                    $transaction->payment_status === 'paid' => 'Paid (Lunas)',
                                     $transaction->payment_method === 'cod_kurir' => 'COD Kurir',
                                     $transaction->payment_status === 'dp' => 'DP (Kurang Bayar)',
-                                    $transaction->payment_status === 'paid' => 'Paid (Lunas)',
                                     $transaction->payment_status === 'unpaid' => 'Unpaid (Belum Dibayar)',
                                     default => ucfirst($transaction->payment_status),
                                 };
 
                                 $paymentClass = match (true) {
+                                    $transaction->payment_status === 'paid' => 'text-green-600',
                                     $transaction->payment_method === 'cod_kurir' => 'text-sky-500',
                                     in_array($transaction->payment_status, ['dp', 'unpaid']) => 'text-red-600',
-                                    $transaction->payment_status === 'paid' => 'text-green-600',
                                     default => 'text-slate-600',
                                 };
                             @endphp
