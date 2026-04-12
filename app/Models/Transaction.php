@@ -28,6 +28,7 @@ class Transaction extends Model
         'user_id',
         'eksekutor_id',
         'eksekutor_2_id',
+        'desainer_id',
         'customer_id',
         'subtotal',
         'discount_amount',
@@ -145,6 +146,11 @@ class Transaction extends Model
     public function eksekutorTwo()
     {
         return $this->belongsTo(Employee::class, 'eksekutor_2_id');
+    }
+
+    public function desainer()
+    {
+        return $this->belongsTo(Employee::class, 'desainer_id');
     }
 
     public function items()

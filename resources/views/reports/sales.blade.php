@@ -194,19 +194,23 @@
             <table class="mt-4 w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                     <tr>
-                        <th class="px-4 py-3">Pegawai</th>
-                        <th class="px-4 py-3 text-right">Jumlah SPK</th>
+                        <th class="px-4 py-3">Nama Karyawan</th>
+                        <th class="px-4 py-3 text-right">Design</th>
+                        <th class="px-4 py-3 text-right">Produksi</th>
+                        <th class="px-4 py-3 text-right">Total Performa SPK</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($employees as $employee)
                         <tr>
                             <td class="px-4 py-3 font-medium text-slate-700">{{ $employee->name }}</td>
-                            <td class="px-4 py-3 text-right text-slate-600">{{ $employee->transactions_count }}</td>
+                            <td class="px-4 py-3 text-right text-slate-600">{{ $employee->design_count }}</td>
+                            <td class="px-4 py-3 text-right text-slate-600">{{ $employee->produksi_count }}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-indigo-600">{{ $employee->design_count + $employee->produksi_count }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="2" class="px-4 py-4 text-center text-sm text-slate-500">Belum ada data SPK pada periode ini.</td>
+                            <td colspan="4" class="px-4 py-4 text-center text-sm text-slate-500">Belum ada data SPK pada periode ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -219,10 +223,19 @@
                 <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
                         <span class="font-bold text-slate-800">{{ $employee->name }}</span>
+                        <span class="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-600">
+                            Total: {{ $employee->design_count + $employee->produksi_count }}
+                        </span>
                     </div>
-                    <div>
-                        <p class="text-[10px] uppercase text-slate-400">Jumlah SPK</p>
-                        <p class="text-sm font-semibold text-slate-700">{{ $employee->transactions_count }}</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <p class="text-[10px] uppercase text-slate-400">Design</p>
+                            <p class="text-sm font-semibold text-slate-700">{{ $employee->design_count }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase text-slate-400">Produksi</p>
+                            <p class="text-sm font-semibold text-slate-700">{{ $employee->produksi_count }}</p>
+                        </div>
                     </div>
                 </div>
             @empty

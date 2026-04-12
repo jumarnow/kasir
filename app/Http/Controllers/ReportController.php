@@ -39,16 +39,21 @@ class ReportController extends Controller
 
         $employees = \App\Models\Employee::select('employees.*')
             ->addSelect([
-                'transactions_count' => \App\Models\Transaction::selectRaw('count(*)')
+                'design_count' => \App\Models\Transaction::selectRaw('count(*)')
+                    ->whereColumn('desainer_id', 'employees.id')
+                    ->when($startDate, fn($query) => $query->whereDate('created_at', '>=', $startDate))
+                    ->when($endDate, fn($query) => $query->whereDate('created_at', '<=', $endDate)),
+
+                'produksi_count' => \App\Models\Transaction::selectRaw('count(*)')
                     ->where(function ($query) {
                         $query->whereColumn('eksekutor_id', 'employees.id')
                             ->orWhereColumn('eksekutor_2_id', 'employees.id');
                     })
                     ->when($startDate, fn($query) => $query->whereDate('created_at', '>=', $startDate))
-                    ->when($endDate, fn($query) => $query->whereDate('created_at', '<=', $endDate))
+                    ->when($endDate, fn($query) => $query->whereDate('created_at', '<=', $endDate)),
             ])
-            ->having('transactions_count', '>', 0)
-            ->orderByDesc('transactions_count')
+            ->havingRaw('(design_count + produksi_count) > 0')
+            ->orderByRaw('(design_count + produksi_count) DESC')
             ->get();
 
         return view('reports.sales', [

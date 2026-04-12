@@ -1,0 +1,3 @@
+- pada card detail eksekusi tambahkan select option desainer (pilih nama karyawan) optional sebelum pilih eksekutor
+- pada halaman performa pegawai (SPK) update kolom menjadi :
+Nama Karyawan | Design | Produksi | Total Performa SPK
