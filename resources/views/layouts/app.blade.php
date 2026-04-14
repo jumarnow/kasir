@@ -20,63 +20,125 @@
         }
 
         .nav-link {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            border-radius: 0.75rem;
+            gap: 0.75rem;
+            border-radius: 0.5rem;
             padding: 0.5rem 0.75rem;
             font-size: 0.875rem;
             font-weight: 500;
             color: rgb(100 116 139);
             transition: all 0.2s ease;
+            margin-bottom: 0.125rem;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: -1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 0;
+            width: 3px;
+            background-color: rgb(99 102 241);
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
         }
 
         .nav-link:hover {
             background-color: rgb(248 250 252);
-            color: rgb(79 70 229);
+            color: rgb(51 65 85);
         }
 
         .nav-link.active {
             background-color: rgb(238 242 255);
             color: rgb(79 70 229);
-            border: 1px solid rgb(224 231 255);
+            font-weight: 600;
+        }
+
+        .nav-link.active::before {
+            height: 60%;
+            opacity: 1;
         }
 
         .nav-link .icon {
-            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: rgb(148 163 184);
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover .icon {
+            color: rgb(100 116 139);
+        }
+
+        .nav-link.active .icon {
+            color: rgb(79 70 229);
         }
 
         .mobile-nav-link {
             display: block;
-            border: 1px solid rgb(226 232 240);
-            border-radius: 0.75rem;
-            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            padding: 0.625rem 0.875rem;
             font-size: 0.875rem;
             font-weight: 500;
-            color: rgb(100 116 139);
+            color: rgb(71 85 105);
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem;
         }
 
         .mobile-nav-link:hover {
-            background-color: rgb(238 242 255);
-            color: rgb(79 70 229);
+            background-color: rgb(241 245 249);
+            color: rgb(15 23 42);
         }
 
         .sidebar {
             width: 16rem;
+            overflow-y: auto;
             overflow-x: hidden;
             transition: width 0.2s ease;
         }
 
-        .sidebar .nav-link {
-            transition: all 0.2s ease;
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 5px;
+        }
+        .sidebar:hover::-webkit-scrollbar-thumb {
+            background: #94a3b8;
         }
 
         .sidebar-brand-icon {
             display: none;
         }
 
+        .section-title {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgb(148 163 184);
+            margin-top: 1.25rem;
+            margin-bottom: 0.375rem;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
         body.sidebar-collapsed .sidebar {
-            width: 5rem;
+            width: 4.5rem;
+        }
+
+        body.sidebar-collapsed .nav-link::before {
+            left: -0.75rem;
         }
 
         body.sidebar-collapsed .sidebar .sidebar-brand {
@@ -102,16 +164,40 @@
         body.sidebar-collapsed .sidebar .section-title,
         body.sidebar-collapsed .sidebar .sidebar-description,
         body.sidebar-collapsed .sidebar .sidebar-brand-text,
-        body.sidebar-collapsed .sidebar .sidebar-footer {
+        body.sidebar-collapsed .sidebar .sidebar-brand-text-container,
+        body.sidebar-collapsed .sidebar .sidebar-footer,
+        body.sidebar-collapsed .sidebar .chevron {
             display: none;
         }
 
         body.sidebar-collapsed .sidebar .nav-link .icon {
             font-size: 1.25rem;
+            color: rgb(100 116 139);
         }
 
         body.sidebar-collapsed .layout-content {
             margin-left: 0;
+        }
+
+        body.sidebar-collapsed .sidebar .nav-link {
+            position: relative;
+        }
+        
+        body.sidebar-collapsed .sidebar:hover .nav-link:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 0.75rem;
+            background: rgb(30 41 59);
+            color: white;
+            padding: 0.375rem 0.625rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 50;
+            pointer-events: none;
         }
     </style>
     @stack('styles')
@@ -126,148 +212,161 @@
             }
             $roleLabel = $currentUser ? $currentUser->roles->pluck('display_name')->join(', ') : null;
         @endphp
-        <aside id="sidebar" class="sidebar hidden md:flex md:flex-col bg-white border-r border-slate-200">
-            <div class="px-4 py-4 border-b border-slate-200 flex items-center gap-3 sidebar-brand">
+        <aside id="sidebar" class="sidebar hidden md:flex md:flex-col bg-[#fafafa] border-r border-slate-200/80 shadow-[2px_0_8px_rgba(0,0,0,0.01)] relative z-20">
+            <div class="px-5 py-5 flex items-center gap-3 sidebar-brand">
                 @if(isset($settings['store_logo']))
-                    <img src="{{ Storage::url($settings['store_logo']) }}" alt="Logo" class="h-8 w-auto object-contain">
+                    <img src="{{ Storage::url($settings['store_logo']) }}" alt="Logo" class="h-7 w-auto object-contain sidebar-brand-icon-img">
                 @else
-                    <div class="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center text-xl">
-                        🛒
+                    <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm sidebar-brand-icon shadow-sm">
+                        K
                     </div>
                 @endif
-                <div class="flex flex-col sidebar-brand-text-container">
-                    <span
-                        class="text-sm font-bold text-indigo-600 truncate sidebar-brand-text">{{ $settings['store_name'] ?? 'Kasir Modern' }}</span>
+                <div class="flex flex-col sidebar-brand-text-container overflow-hidden">
+                    <span class="text-[15px] font-bold text-slate-900 truncate sidebar-brand-text">{{ $settings['store_name'] ?? 'Kasir Modern' }}</span>
                 </div>
             </div>
-            <nav class="flex-1 px-4 py-6 space-y-1">
+            
+            <nav class="flex-1 px-4 py-2 space-y-0.5">
                 @can('manage_dashboard')
                     <a href="{{ route('dashboard') }}" class="nav-link" title="Dashboard">
-                        <span class="icon">📊</span> <span class="label">Dashboard</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg></span>
+                        <span class="label">Dashboard</span>
                     </a>
                 @endcan
 
                 @canany(['manage_products', 'manage_categories'])
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Inventaris</p>
+                    <p class="section-title">Inventaris</p>
 
                     {{-- Dropdown Toggle --}}
-                    <button type="button" class="nav-link w-full flex items-center justify-between group select-none"
-                        onclick="$(this).next().slideToggle(200); $(this).find('.chevron').toggleClass('rotate-180')">
-                        <div class="flex items-center gap-2">
-                            <span class="icon">📦</span> <span class="label">Produk & Stok</span>
+                    <button type="button" class="nav-link w-full justify-between group select-none"
+                        onclick="$(this).next().slideToggle(150); $(this).find('.chevron').toggleClass('rotate-180')">
+                        <div class="flex items-center gap-3">
+                            <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg></span>
+                            <span class="label">Produk &amp; Stok</span>
                         </div>
-                        <span class="chevron text-xs text-slate-400 transition-transform duration-200">▼</span>
+                        <span class="chevron text-[10px] text-slate-400 transition-transform duration-200"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></span>
                     </button>
 
                     {{-- Dropdown Menu --}}
-                    <div class="pl-4 space-y-1 mt-1 hidden" id="product-menu">
-                        @can('manage_products')
-                            <a href="{{ route('products.index') }}" class="nav-link text-sm" title="Daftar Produk">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
-                                    class="label">Daftar Produk</span>
-                            </a>
-                            <a href="{{ route('finishings.index') }}" class="nav-link text-sm" title="Finishing">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
-                                    class="label">Finishing</span>
-                            </a>
-                        @endcan
-                        @can('manage_categories')
-                            <a href="{{ route('categories.index') }}" class="nav-link text-sm" title="Kategori">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span> <span
-                                    class="label">Kategori</span>
-                            </a>
-                        @endcan
+                    <div class="pl-[1.75rem] space-y-0.5 mt-0.5 hidden overflow-hidden" id="product-menu">
+                        <div class="border-l border-slate-200/80 ml-1.5 pl-2 my-1">
+                            @can('manage_products')
+                                <a href="{{ route('products.index') }}" class="nav-link !py-1.5 hover:!bg-transparent hover:!text-indigo-600" title="Daftar Produk">
+                                    <span class="text-[13px] label">Daftar Produk</span>
+                                </a>
+                                <a href="{{ route('finishings.index') }}" class="nav-link !py-1.5 hover:!bg-transparent hover:!text-indigo-600" title="Finishing">
+                                    <span class="text-[13px] label">Finishing</span>
+                                </a>
+                            @endcan
+                            @can('manage_categories')
+                                <a href="{{ route('categories.index') }}" class="nav-link !py-1.5 hover:!bg-transparent hover:!text-indigo-600" title="Kategori">
+                                    <span class="text-[13px] label">Kategori</span>
+                                </a>
+                            @endcan
+                        </div>
                     </div>
                 @endcanany
 
                 @can('view_customers')
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pelanggan</p>
+                    <p class="section-title">Pelanggan</p>
                     <a href="{{ route('customers.index') }}" class="nav-link" title="Pelanggan">
-                        <span class="icon">🧑‍🤝‍🧑</span> <span class="label">Pelanggan</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg></span>
+                        <span class="label">Pelanggan</span>
                     </a>
                 @endcan
 
                 @can('manage_transactions')
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Transaksi</p>
+                    <p class="section-title">Transaksi</p>
                     <a href="{{ route('transactions.create') }}" class="nav-link" title="Transaksi Baru">
-                        <span class="icon">➕</span> <span class="label">Transaksi Baru</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg></span>
+                        <span class="label">Transaksi Baru</span>
                     </a>
                     <a href="{{ route('transactions.index') }}" class="nav-link" title="Transaksi">
-                        <span class="icon">🧾</span> <span class="label">Transaksi</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 15.75h3.75M18 19.5V4.5a2.25 2.25 0 00-2.25-2.25H8.25A2.25 2.25 0 006 4.5v15a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 19.5z" /></svg></span>
+                        <span class="label">Transaksi</span>
                     </a>
 
                     {{-- Expense Management --}}
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pengeluaran</p>
+                    <p class="section-title">Pengeluaran</p>
                     <a href="{{ route('expenses.index') }}" class="nav-link" title="Pengeluaran">
-                        <span class="icon">💸</span> <span class="label">Pengeluaran</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg></span>
+                        <span class="label">Pengeluaran</span>
                     </a>
                     <a href="{{ route('expense-categories.index') }}" class="nav-link" title="Kategori Pengeluaran">
-                        <span class="icon">🏷️</span> <span class="label">Kategori</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /></svg></span>
+                        <span class="label">Kategori</span>
                     </a>
                 @endcan
 
                 @can('manage_salary')
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Penggajian</p>
+                    <p class="section-title">Penggajian</p>
 
                     {{-- Dropdown Toggle --}}
-                    <button type="button" class="nav-link w-full flex items-center justify-between group select-none"
-                        onclick="$(this).next().slideToggle(200); $(this).find('.chevron').toggleClass('rotate-180')">
-                        <div class="flex items-center gap-2">
-                            <span class="icon">💸</span> <span class="label">Penggajian</span>
+                    <button type="button" class="nav-link w-full justify-between group select-none"
+                        onclick="$(this).next().slideToggle(150); $(this).find('.chevron').toggleClass('rotate-180')">
+                        <div class="flex items-center gap-3">
+                            <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" /></svg></span>
+                            <span class="label">Penggajian</span>
                         </div>
-                        <span class="chevron text-xs text-slate-400 transition-transform duration-200">▼</span>
+                        <span class="chevron text-[10px] text-slate-400 transition-transform duration-200"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></span>
                     </button>
 
                     {{-- Dropdown Menu --}}
-                    <div class="pl-4 space-y-1 mt-1 hidden" id="payroll-menu">
-                        @can('view_employees')
-                            <a href="{{ route('employees.index') }}" class="nav-link text-sm" title="Pegawai">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span>
-                                <span class="label">Pegawai</span>
-                            </a>
-                        @endcan
-                        @can('view_payrolls')
-                            <a href="{{ route('payrolls.index') }}" class="nav-link text-sm" title="Slip Gaji">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-2 group-hover:bg-indigo-400"></span>
-                                <span class="label">Slip Gaji</span>
-                            </a>
-                        @endcan
+                    <div class="pl-[1.75rem] space-y-0.5 mt-0.5 hidden overflow-hidden" id="payroll-menu">
+                        <div class="border-l border-slate-200/80 ml-1.5 pl-2 my-1">
+                            @can('view_employees')
+                                <a href="{{ route('employees.index') }}" class="nav-link text-sm !py-1.5 hover:!bg-transparent hover:!text-indigo-600" title="Pegawai">
+                                    <span class="text-[13px] label">Pegawai</span>
+                                </a>
+                            @endcan
+                            @can('view_payrolls')
+                                <a href="{{ route('payrolls.index') }}" class="nav-link text-sm !py-1.5 hover:!bg-transparent hover:!text-indigo-600" title="Slip Gaji">
+                                    <span class="text-[13px] label">Slip Gaji</span>
+                                </a>
+                            @endcan
+                        </div>
                     </div>
                 @endcan
 
                 @canany(['manage_users', 'manage_roles'])
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Kendali Akses</p>
+                    <p class="section-title">Kendali Akses</p>
                     @can('manage_users')
                         <a href="{{ route('users.index') }}" class="nav-link" title="Pengguna">
-                            <span class="icon">👥</span> <span class="label">Pengguna</span>
+                            <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg></span>
+                            <span class="label">Pengguna</span>
                         </a>
                     @endcan
                     @can('manage_roles')
                         <a href="{{ route('roles.index') }}" class="nav-link" title="Role &amp; Izin">
-                            <span class="icon">🔐</span> <span class="label">Role &amp; Izin</span>
+                            <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg></span>
+                            <span class="label">Role &amp; Izin</span>
                         </a>
                     @endcan
                 @endcanany
 
                 @can('view_reports')
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Laporan</p>
+                    <p class="section-title">Laporan</p>
                     <a href="{{ route('reports.sales') }}" class="nav-link" title="Laporan Penjualan">
-                        <span class="icon">💰</span> <span class="label">Penjualan</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span>
+                        <span class="label">Penjualan</span>
                     </a>
                     <a href="{{ route('reports.profit') }}" class="nav-link" title="Laporan Profit">
-                        <span class="icon">📈</span> <span class="label">Profit</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22M12 3h9v9" /></svg></span>
+                        <span class="label">Profit</span>
                     </a>
                 @endcan
 
                 {{-- Settings --}}
                 @can('manage_settings')
-                    <p class="text-xs uppercase text-slate-400 mt-6 mb-2 px-2 section-title">Pengaturan</p>
+                    <div class="h-4"></div>
                     <a href="{{ route('settings.index') }}" class="nav-link" title="Pengaturan Toko">
-                        <span class="icon">⚙️</span> <span class="label">Pengaturan Toko</span>
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></span>
+                        <span class="label">Pengaturan Toko</span>
                     </a>
                 @endcan
+                <div class="h-6"></div>
             </nav>
-            <div class="px-6 py-6 border-t border-slate-200 text-sm text-slate-500 sidebar-footer">
+            <div class="px-5 py-4 border-t border-slate-100/60 text-xs font-medium text-slate-400 sidebar-footer shrink-0 relative bg-[#fafafa]">
                 &copy; {{ date('Y') }} {{ $settings['store_name'] ?? 'Kasir Modern' }}
             </div>
         </aside>
