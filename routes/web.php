@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Payments
         Route::post('transactions/{transaction}/pay', [TransactionController::class, 'storePayment'])->name('transactions.payments.store');
+        Route::post('transactions/{transaction}/reject', [TransactionController::class, 'reject'])->name('transactions.reject');
 
         Route::resource('transactions', TransactionController::class);
     });
@@ -68,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:view_reports')->group(function () {
         Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('reports/sales/export', [ReportController::class, 'exportSalesExcel'])->name('reports.sales.export');
+        Route::get('reports/sales/spk-export', [ReportController::class, 'exportSpkExcel'])->name('reports.sales.spk-export');
         Route::get('reports/profit', [App\Http\Controllers\ProfitReportController::class, 'index'])->name('reports.profit');
         Route::get('reports/profit/export', [App\Http\Controllers\ProfitReportController::class, 'export'])->name('reports.profit.export');
     });

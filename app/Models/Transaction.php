@@ -50,6 +50,7 @@ class Transaction extends Model
         'completed_at',
         'delivered_at',
         'notes',
+        'reject_reason',
         'created_at',
     ];
 

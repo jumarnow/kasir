@@ -238,8 +238,6 @@ class TransactionController extends Controller
     {
         $this->authorize('delete_transactions');
 
-
-
         // Restore stock
         foreach ($transaction->items as $item) {
             if ($item->product) {
@@ -253,9 +251,25 @@ class TransactionController extends Controller
             ->with('success', 'Transaksi berhasil dibatalkan dan stok dikembalikan.');
     }
 
+    public function reject(Request $request, Transaction $transaction)
+    {
+        $this->authorize('delete_transactions');
+
+        $request->validate([
+            'reject_reason' => 'required|string|max:255'
+        ]);
+
+        $transaction->status = 'rejected';
+        $transaction->reject_reason = $request->reject_reason;
+        $transaction->save();
+        
+        return redirect()->route('transactions.index')
+            ->with('success', 'Status transaksi berhasil diubah menjadi reject.');
+    }
+
     private function filteredTransactionsQuery(array $filters)
     {
-        return Transaction::with(['customer', 'user', 'items.product'])
+        return Transaction::with(['customer', 'user', 'items.product'])->withTrashed()
             ->when($filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '<=', $date))
             ->when($filters['customer'] ?? null, fn($query, $term) => $query->whereHas('customer', fn($q) => $q->where('name', 'like', '%' . $term . '%')))

@@ -78,7 +78,9 @@
                     <tr>
                         <td class="px-6 py-4">
                             @php
+                                $isRejectedOrCanceled = $transaction->trashed() || $transaction->status === 'rejected';
                                 $paymentLabel = match (true) {
+                                    $isRejectedOrCanceled => 'Reject',
                                     $transaction->payment_status === 'paid' => 'Paid (Lunas)',
                                     $transaction->payment_method === 'cod_kurir' => 'COD Kurir',
                                     $transaction->payment_status === 'dp' => 'DP (Kurang Bayar)',
@@ -87,6 +89,7 @@
                                 };
 
                                 $paymentClass = match (true) {
+                                    $isRejectedOrCanceled => 'text-red-700 bg-red-50 px-2 py-0.5 rounded',
                                     $transaction->payment_status === 'paid' => 'text-green-600',
                                     $transaction->payment_method === 'cod_kurir' => 'text-sky-500',
                                     in_array($transaction->payment_status, ['dp', 'unpaid']) => 'text-red-600',
@@ -94,9 +97,12 @@
                                 };
                             @endphp
                             <p class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</p>
-                            <p class="text-xs text-slate-500">Status: 
+                            <p class="text-xs text-slate-500 mt-1">Status: 
                                 <span class="font-bold {{ $paymentClass }}">{{ $paymentLabel }}</span></p>
-                            @if(in_array($transaction->payment_status, ['dp', 'unpaid']) && $transaction->due_date)
+                            @if($isRejectedOrCanceled && $transaction->reject_reason)
+                                <p class="mt-1.5 text-[11px] text-red-600 italic bg-red-50/50 p-1.5 rounded-md border border-red-100/50">"{{ $transaction->reject_reason }}"</p>
+                            @endif
+                            @if(in_array($transaction->payment_status, ['dp', 'unpaid']) && $transaction->due_date && !$isRejectedOrCanceled)
                                 <p class="mt-1 text-xs font-medium text-red-600">
                                     Jatuh Tempo: {{ $transaction->due_date->format('d M Y') }}
                                 </p>
@@ -142,21 +148,25 @@
                                     class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-emerald-200 hover:text-emerald-600">
                                     SPK
                                 </a>
-                                @can('edit_transactions')
-                                <a href="{{ route('transactions.edit', $transaction) }}"
-                                    class="rounded-full border border-amber-200 px-3 py-1 text-xs text-amber-600 hover:bg-amber-50">
-                                    Edit
-                                </a>
-                                @endcan
-                                @can('delete_transactions')
-                                <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini? Stok akan dikembalikan.')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50">
-                                        Hapus
-                                    </button>
-                                </form>
-                                @endcan
+                                @if(!$isRejectedOrCanceled)
+                                    @can('edit_transactions')
+                                    <a href="{{ route('transactions.edit', $transaction) }}"
+                                        class="rounded-full border border-amber-200 px-3 py-1 text-xs text-amber-600 hover:bg-amber-50">
+                                        Edit
+                                    </a>
+                                    @endcan
+                                    @can('delete_transactions')
+                                    <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini? Stok akan dikembalikan.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                    @endcan
+                                @else
+                                    <span class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-400 bg-red-50/50">Dibatalkan</span>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -175,18 +185,22 @@
     <div class="mt-6 md:hidden space-y-4">
         @forelse ($transactions as $transaction)
             <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                @php $isRejectedOrCanceled = $transaction->trashed() || $transaction->status === 'rejected'; @endphp
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <h3 class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</h3>
                         <p class="text-xs text-slate-500 mt-1">{{ $transaction->created_at->format('d M Y, H:i') }}</p>
-                        @if(in_array($transaction->payment_status, ['dp', 'unpaid']) && $transaction->due_date)
+                        @if(in_array($transaction->payment_status, ['dp', 'unpaid']) && $transaction->due_date && !$isRejectedOrCanceled)
                             <p class="mt-1 text-xs font-medium text-red-600">
                                 Jatuh Tempo: {{ $transaction->due_date->format('d M Y') }}
                             </p>
                         @endif
+                        @if($isRejectedOrCanceled && $transaction->reject_reason)
+                            <p class="mt-2 text-[11px] text-red-600 italic bg-red-50/50 p-1.5 rounded-md border border-red-100/50">"{{ $transaction->reject_reason }}"</p>
+                        @endif
                     </div>
-                    <span class="rounded-full px-3 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600">
-                        {{ ucfirst($transaction->status) }}
+                    <span class="rounded-full px-3 py-1 text-[11px] font-semibold {{ $isRejectedOrCanceled ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100' }}">
+                        {{ $isRejectedOrCanceled ? 'Dibatalkan / Reject' : ucfirst($transaction->status) }}
                     </span>
                 </div>
 
@@ -238,21 +252,23 @@
                         class="flex-1 min-w-[80px] rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-medium text-emerald-600 hover:bg-emerald-100">
                         SPK
                     </a>
-                    @can('edit_transactions')
-                    <a href="{{ route('transactions.edit', $transaction) }}"
-                        class="flex-1 min-w-[80px] rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-600 hover:bg-amber-100">
-                        Edit
-                    </a>
-                    @endcan
-                    @can('delete_transactions')
-                    <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="flex-1 min-w-[80px]" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600 hover:bg-red-100">
-                            Hapus
-                        </button>
-                    </form>
-                    @endcan
+                    @if(!$isRejectedOrCanceled)
+                        @can('edit_transactions')
+                        <a href="{{ route('transactions.edit', $transaction) }}"
+                            class="flex-1 min-w-[80px] rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-600 hover:bg-amber-100">
+                            Edit
+                        </a>
+                        @endcan
+                        @can('delete_transactions')
+                        <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="flex-1 min-w-[80px]" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600 hover:bg-red-100">
+                                Hapus
+                            </button>
+                        </form>
+                        @endcan
+                    @endif
                 </div>
             </div>
         @empty

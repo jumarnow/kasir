@@ -188,7 +188,8 @@
                 </div>
 
                 <div class="mt-8 flex flex-col gap-3">
-                    @if($transaction->remaining_amount > 0)
+                    @php $isRejectedOrCanceled = $transaction->trashed() || $transaction->status === 'rejected'; @endphp
+                    @if($transaction->remaining_amount > 0 && !$isRejectedOrCanceled)
                         <button type="button" onclick="document.getElementById('payment-modal').classList.remove('hidden')" 
                             class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2">
                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -209,12 +210,30 @@
                             Cetak Invoice
                         </a>
                     @endif
-                    
-                    <a href="{{ route('transactions.spk', $transaction) }}" target="_blank"
+                                   <a href="{{ route('transactions.spk', $transaction) }}" target="_blank"
                         class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
                         <svg class="w-4 h-4 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                         Cetak SPK
                     </a>
+                    
+                    @if(!$isRejectedOrCanceled)
+                        @can('delete_transactions')
+                        <button type="button" onclick="document.getElementById('reject-modal').classList.remove('hidden')" 
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 transition-all shadow-sm">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z" />
+                            </svg>
+                            Reject Transaksi
+                        </button>
+                        @endcan
+                    @else
+                        <div class="inline-flex w-full flex-col items-center justify-center gap-1.5 rounded-xl bg-red-50/80 px-4 py-3 text-sm border border-red-100">
+                            <span class="font-bold text-red-600">Status: {{ $transaction->status === 'rejected' ? 'Reject' : 'Dibatalkan' }}</span>
+                            @if($transaction->reject_reason)
+                                <span class="text-xs text-red-500 text-center italic">"{{ $transaction->reject_reason }}"</span>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -301,6 +320,50 @@
             </div>
         </div>
     </div>
+    @endif
+    
+    {{-- Reject Modal --}}
+    @php $isRejectedOrCanceled = $transaction->trashed() || $transaction->status === 'rejected'; @endphp
+    @if(!$isRejectedOrCanceled && auth()->user()->can('delete_transactions'))
+    <div id="reject-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="document.getElementById('reject-modal').classList.add('hidden')"></div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div class="inline-block align-bottom bg-white rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-6 border border-slate-100">
+                <div class="flex items-start gap-4">
+                    <div class="mx-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="mt-1 sm:mt-0 text-left w-full">
+                        <h3 class="text-base font-bold leading-6 text-slate-900" id="modal-title">Reject Transaksi</h3>
+                        <div class="mt-2 text-sm text-slate-500">
+                            <p>Tindakan ini akan mengubah status transaksi menjadi reject. Alasan reject akan ditampilkan di histori transaksi.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ route('transactions.reject', $transaction) }}" method="POST" class="mt-5 sm:ml-14 sm:mt-4 sm:pl-0">
+                    @csrf
+                    <div>
+                        <label for="reject_reason" class="block text-sm font-medium text-slate-700">Keterangan Reject</label>
+                        <div class="mt-2">
+                            <textarea id="reject_reason" name="reject_reason" rows="3" class="block w-full rounded-xl border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6" required placeholder="Tuliskan alasan membatalkan transaksi ini..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse sm:gap-2">
+                        <button type="submit" class="inline-flex w-full justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:w-auto">Reject Transaksi</button>
+                        <button type="button" onclick="document.getElementById('reject-modal').classList.add('hidden')" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto">Kembali</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
     
     @push('scripts')
     <script>
@@ -320,5 +383,4 @@
         });
     </script>
     @endpush
-    @endif
 @endsection

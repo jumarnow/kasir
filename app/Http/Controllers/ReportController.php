@@ -97,6 +97,27 @@ class ReportController extends Controller
         );
     }
 
+    public function exportSpkExcel(ReportFilterRequest $request)
+    {
+        $filters = $request->validated();
+
+        if (!empty($filters['month'])) {
+            $monthCarbon = \Carbon\Carbon::parse($filters['month'] . '-01');
+            $filters['start_date'] = $monthCarbon->copy()->startOfMonth()->toDateString();
+            $filters['end_date'] = $monthCarbon->copy()->endOfMonth()->toDateString();
+        }
+
+        $startDate = $filters['start_date'] ?? null;
+        $endDate = $filters['end_date'] ?? null;
+
+        $filename = 'performa-pegawai-spk-' . ($startDate ?? now()->format('Y-m-d')) . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\SpkPerformancesExport($startDate, $endDate),
+            $filename
+        );
+    }
+
     public function profit(ReportFilterRequest $request)
     {
         if (!auth()->user()->hasPermission('view_profit')) {
