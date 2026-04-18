@@ -14,8 +14,9 @@
     <style>
         html,
         body {
-            overflow-x: hidden;
+            overflow: hidden;
             width: 100%;
+            height: 100%;
             position: relative;
         }
 
@@ -204,7 +205,7 @@
 </head>
 
 <body class="bg-slate-100 font-[Inter] text-slate-800">
-    <div class="min-h-screen flex">
+    <div class="h-screen flex overflow-hidden">
         @php
             $currentUser = auth()->user();
             if ($currentUser) {
@@ -212,7 +213,7 @@
             }
             $roleLabel = $currentUser ? $currentUser->roles->pluck('display_name')->join(', ') : null;
         @endphp
-        <aside id="sidebar" class="sidebar hidden md:flex md:flex-col bg-[#fafafa] border-r border-slate-200/80 shadow-[2px_0_8px_rgba(0,0,0,0.01)] relative z-20">
+        <aside id="sidebar" class="sidebar hidden md:flex md:flex-col bg-[#fafafa] border-r border-slate-200/80 shadow-[2px_0_8px_rgba(0,0,0,0.01)] relative z-20 h-full">
             <div class="px-5 py-5 flex items-center gap-3 sidebar-brand">
                 @if(isset($settings['store_logo']))
                     <img src="{{ Storage::url($settings['store_logo']) }}" alt="Logo" class="h-7 w-auto object-contain sidebar-brand-icon-img">
@@ -371,7 +372,7 @@
             </div>
         </aside>
 
-        <div class="flex-1 flex flex-col layout-content transition-all duration-200">
+        <div class="flex-1 flex flex-col layout-content transition-all duration-200 h-full overflow-hidden">
             <header class="bg-white border-b border-slate-200 px-5 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <button id="mobile-nav-toggle"
@@ -416,7 +417,7 @@
                     </form>
                 </div>
             </header>
-            <main class="px-3 md:px-5 py-6">
+            <main class="px-3 md:px-5 py-6 flex-1 overflow-y-auto">
                 @if (session('success'))
                     <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                         {{ session('success') }}

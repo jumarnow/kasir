@@ -107,10 +107,10 @@ class ReportController extends Controller
             $filters['end_date'] = $monthCarbon->copy()->endOfMonth()->toDateString();
         }
 
-        $startDate = $filters['start_date'] ?? null;
-        $endDate = $filters['end_date'] ?? null;
+        $startDate = $filters['start_date'] ?? \Carbon\Carbon::now()->startOfMonth()->toDateString();
+        $endDate = $filters['end_date'] ?? \Carbon\Carbon::now()->endOfMonth()->toDateString();
 
-        $filename = 'performa-pegawai-spk-' . ($startDate ?? now()->format('Y-m-d')) . '.xlsx';
+        $filename = 'performa-pegawai-spk-' . \Carbon\Carbon::parse($startDate)->format('Y-m-d') . '.xlsx';
 
         return \Maatwebsite\Excel\Facades\Excel::download(
             new \App\Exports\SpkPerformancesExport($startDate, $endDate),

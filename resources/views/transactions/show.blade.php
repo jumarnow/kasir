@@ -223,7 +223,7 @@
                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z" />
                             </svg>
-                            Reject Transaksi
+                            Tambah Keterangan Transaksi
                         </button>
                         @endcan
                     @else
@@ -339,9 +339,9 @@
                         </svg>
                     </div>
                     <div class="mt-1 sm:mt-0 text-left w-full">
-                        <h3 class="text-base font-bold leading-6 text-slate-900" id="modal-title">Reject Transaksi</h3>
+                        <h3 class="text-base font-bold leading-6 text-slate-900" id="modal-title">Tambah Keterangan Transaksi</h3>
                         <div class="mt-2 text-sm text-slate-500">
-                            <p>Tindakan ini akan mengubah status transaksi menjadi reject. Alasan reject akan ditampilkan di histori transaksi.</p>
+                            <p>Tindakan ini akan menambah keterangan transaksi. Keterangan akan ditampilkan di histori transaksi.</p>
                         </div>
                     </div>
                 </div>
@@ -351,12 +351,12 @@
                     <div>
                         <label for="reject_reason" class="block text-sm font-medium text-slate-700">Keterangan Reject</label>
                         <div class="mt-2">
-                            <textarea id="reject_reason" name="reject_reason" rows="3" class="block w-full rounded-xl border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6" required placeholder="Tuliskan alasan membatalkan transaksi ini..."></textarea>
+                            <textarea id="reject_reason" name="reject_reason" rows="3" class="block w-full rounded-xl border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6" required placeholder="Tuliskan keterangan transaksi ini..."></textarea>
                         </div>
                     </div>
 
                     <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse sm:gap-2">
-                        <button type="submit" class="inline-flex w-full justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:w-auto">Reject Transaksi</button>
+                        <button type="submit" class="inline-flex w-full justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:w-auto">Simpan</button>
                         <button type="button" onclick="document.getElementById('reject-modal').classList.add('hidden')" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto">Kembali</button>
                     </div>
                 </form>

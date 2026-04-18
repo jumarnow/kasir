@@ -15,8 +15,8 @@ class SpkPerformancesExport implements FromView, ShouldAutoSize
 
     public function __construct(?string $startDate, ?string $endDate)
     {
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
+        $this->startDate = $startDate ?? \Carbon\Carbon::now()->startOfMonth()->toDateString();
+        $this->endDate = $endDate ?? \Carbon\Carbon::now()->endOfMonth()->toDateString();
     }
 
     public function view(): View
