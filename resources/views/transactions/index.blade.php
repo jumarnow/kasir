@@ -153,13 +153,11 @@
                                 </a>
                                 @endcan
                                 @can('delete_transactions')
-                                <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini? Stok akan dikembalikan.')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50">
-                                        Hapus
-                                    </button>
-                                </form>
+                                <button type="button"
+                                    onclick="openDeleteModal('{{ route('transactions.destroy', $transaction) }}', '{{ $transaction->invoice_number }}')"
+                                    class="rounded-full border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50">
+                                    Hapus
+                                </button>
                                 @endcan
                             </div>
                         </td>
@@ -254,13 +252,11 @@
                         </a>
                         @endcan
                         @can('delete_transactions')
-                        <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="flex-1 min-w-[80px]" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600 hover:bg-red-100">
-                                Hapus
-                            </button>
-                        </form>
+                        <button type="button"
+                            onclick="openDeleteModal('{{ route('transactions.destroy', $transaction) }}', '{{ $transaction->invoice_number }}')"
+                            class="flex-1 min-w-[80px] rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600 hover:bg-red-100">
+                            Hapus
+                        </button>
                         @endcan
                     @endif
                 </div>
@@ -316,6 +312,45 @@
             </div>
         </div>
     </div>
+
+    {{-- Delete Confirmation Modal --}}
+    <div id="delete-confirm-modal"
+        class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/60 px-4 backdrop-blur-sm transition-all duration-300">
+        <div id="delete-confirm-box"
+            class="w-full max-w-md transform rounded-2xl bg-white p-6 shadow-2xl transition-all duration-300 scale-95 opacity-0">
+            <div class="flex flex-col items-center text-center">
+                {{-- Warning Icon --}}
+                <div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+
+                <h3 class="mt-4 text-lg font-bold text-slate-800">Hapus Transaksi?</h3>
+                <p class="mt-2 text-sm text-slate-500">
+                    Transaksi <span id="delete-invoice-label" class="font-semibold text-slate-700"></span>
+                    akan dihapus dan stok produk akan dikembalikan.
+                </p>
+                <p class="mt-1 text-xs text-red-500 font-medium">Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+
+            <div class="mt-6 flex gap-3">
+                <button type="button" onclick="closeDeleteModal()"
+                    class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50">
+                    Batal
+                </button>
+                <form id="delete-confirm-form" method="POST" class="flex-1">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                        class="w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-all hover:bg-red-500 hover:shadow-red-300">
+                        Ya, Hapus
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -368,10 +403,55 @@
             });
 
             document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape' && !previewModal.classList.contains('hidden')) {
-                    closePreview();
+                if (event.key === 'Escape') {
+                    if (!previewModal.classList.contains('hidden')) {
+                        closePreview();
+                    }
+                    closeDeleteModal();
                 }
             });
         });
+
+        // Delete Confirmation Modal
+        function openDeleteModal(actionUrl, invoiceNumber) {
+            const modal = document.getElementById('delete-confirm-modal');
+            const box = document.getElementById('delete-confirm-box');
+            const form = document.getElementById('delete-confirm-form');
+            const label = document.getElementById('delete-invoice-label');
+
+            form.action = actionUrl;
+            label.textContent = invoiceNumber;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+
+            // Animate in
+            requestAnimationFrame(() => {
+                box.classList.remove('scale-95', 'opacity-0');
+                box.classList.add('scale-100', 'opacity-100');
+            });
+
+            // Close on backdrop click
+            modal.onclick = function (e) {
+                if (e.target === modal) closeDeleteModal();
+            };
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('delete-confirm-modal');
+            const box = document.getElementById('delete-confirm-box');
+
+            if (!modal || modal.classList.contains('hidden')) return;
+
+            box.classList.remove('scale-100', 'opacity-100');
+            box.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            }, 200);
+        }
     </script>
 @endpush

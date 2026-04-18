@@ -269,7 +269,7 @@ class TransactionController extends Controller
 
     private function filteredTransactionsQuery(array $filters)
     {
-        return Transaction::with(['customer', 'user', 'items.product'])->withTrashed()
+        return Transaction::with(['customer', 'user', 'items.product'])
             ->when($filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '<=', $date))
             ->when($filters['customer'] ?? null, fn($query, $term) => $query->whereHas('customer', fn($q) => $q->where('name', 'like', '%' . $term . '%')))
