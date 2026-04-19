@@ -35,7 +35,7 @@ class SpkPerformancesExport implements FromView, ShouldAutoSize
                 ->get();
 
             foreach ($designTransactions as $tx) {
-                $productNames = $tx->items->map(fn($item) => $item->product?->name ?? 'Item')->implode(', ');
+                $productNames = $tx->items->map(fn($item) => $item->product?->name ?? $item->custom_name ?? 'Item')->implode(', ');
                 $data->push([
                     'employee' => $employee->name,
                     'type' => 'Design',
@@ -58,7 +58,7 @@ class SpkPerformancesExport implements FromView, ShouldAutoSize
                 ->get();
 
             foreach ($produksiTransactions as $tx) {
-                $productNames = $tx->items->map(fn($item) => $item->product?->name ?? 'Item')->implode(', ');
+                $productNames = $tx->items->map(fn($item) => $item->product?->name ?? $item->custom_name ?? 'Item')->implode(', ');
                 $data->push([
                     'employee' => $employee->name,
                     'type' => 'Produksi',
