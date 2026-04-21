@@ -7,7 +7,7 @@
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
             <h2 class="text-lg font-semibold text-slate-800">Riwayat Transaksi</h2>
-            <p class="text-sm text-slate-500">Filter transaksi berdasarkan tanggal dan invoice</p>
+            <p class="text-sm text-slate-500">Filter dan cari transaksi</p>
         </div>
         <div class="flex flex-col gap-2 sm:flex-row">
             <a href="{{ route('transactions.export', request()->query()) }}"
@@ -21,42 +21,42 @@
         </div>
     </div>
 
-    <form method="GET" action="{{ route('transactions.index') }}" class="mt-6 grid gap-4 md:grid-cols-6">
-        <div>
-            <label class="text-xs uppercase text-slate-500">Tanggal Mulai</label>
-            <input type="date" name="start_date" value="{{ $filters['start_date'] ?? '' }}"
-                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-        </div>
-        <div>
-            <label class="text-xs uppercase text-slate-500">Tanggal Akhir</label>
-            <input type="date" name="end_date" value="{{ $filters['end_date'] ?? '' }}"
-                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-        </div>
-        <div>
-            <label class="text-xs uppercase text-slate-500">Pelanggan</label>
-
-            <input type="text" name="customer" value="{{ $filters['customer'] ?? '' }}" placeholder="Cari pelanggan..."
-                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-        </div>
-        <div>
-            <label class="text-xs uppercase text-slate-500">Status Pembayaran</label>
-            <select name="payment_status" 
-                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                <option value="">Semua Status</option>
-                <option value="paid" {{ ($filters['payment_status'] ?? '') == 'paid' ? 'selected' : '' }}>Lunas</option>
-                <option value="dp" {{ ($filters['payment_status'] ?? '') == 'dp' ? 'selected' : '' }}>DP (Kurang Bayar)</option>
-                <option value="unpaid" {{ ($filters['payment_status'] ?? '') == 'unpaid' ? 'selected' : '' }}>Unpaid (Belum Dibayar)</option>
-                <option value="cod_kurir" {{ ($filters['payment_status'] ?? '') == 'cod_kurir' ? 'selected' : '' }}>COD Kurir</option>
-            </select>
-        </div>
-        <div>
-            <label class="text-xs uppercase text-slate-500">Invoice</label>
-            <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Cari invoice..."
-                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-        </div>
-        <div class="flex items-end">
-            <button type="submit"
-                class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Filter</button>
+    <form method="GET" action="{{ route('transactions.index') }}" class="mt-6">
+        <div class="grid gap-4 grid-cols-2 md:grid-cols-6">
+            <div>
+                <label class="text-xs uppercase font-semibold text-slate-500">Pencarian Umum</label>
+                <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Cari invoice, pelanggan, produk..."
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            </div>
+            <div>
+                <label class="text-xs uppercase font-semibold text-slate-500">Tanggal Mulai</label>
+                <input type="date" name="start_date" value="{{ $filters['start_date'] ?? '' }}"
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            </div>
+            <div>
+                <label class="text-xs uppercase font-semibold text-slate-500">Tanggal Akhir</label>
+                <input type="date" name="end_date" value="{{ $filters['end_date'] ?? '' }}"
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            </div>
+            <div>
+                <label class="text-xs uppercase font-semibold text-slate-500">Status Pembayaran</label>
+                <select name="payment_status"
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                    <option value="">Semua Status</option>
+                    <option value="paid" {{ ($filters['payment_status'] ?? '') == 'paid' ? 'selected' : '' }}>Lunas</option>
+                    <option value="dp" {{ ($filters['payment_status'] ?? '') == 'dp' ? 'selected' : '' }}>DP (Kurang Bayar)</option>
+                    <option value="unpaid" {{ ($filters['payment_status'] ?? '') == 'unpaid' ? 'selected' : '' }}>Unpaid (Belum Dibayar)</option>
+                    <option value="cod_kurir" {{ ($filters['payment_status'] ?? '') == 'cod_kurir' ? 'selected' : '' }}>COD Kurir</option>
+                </select>
+            </div>
+            <div class="col-span-2 md:col-span-1 flex items-end gap-2">
+                <button type="submit"
+                    class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Filter</button>
+                <a href="{{ route('transactions.index') }}"
+                    class="shrink-0 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-50" title="Reset Filter">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </a>
+            </div>
         </div>
     </form>
 
@@ -78,7 +78,7 @@
                     <tr>
                         <td class="px-6 py-4">
                             @php
-                                $isRejectedOrCanceled = $transaction->trashed() || $transaction->status === 'rejected';
+                                $isRejectedOrCanceled = $transaction->status === 'rejected';
                                 $paymentLabel = match (true) {
                                     $transaction->payment_status === 'paid' => 'Paid (Lunas)',
                                     $transaction->payment_method === 'cod_kurir' => 'COD Kurir',

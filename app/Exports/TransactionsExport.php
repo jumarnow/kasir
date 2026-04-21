@@ -29,7 +29,16 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
         return Transaction::with(['customer', 'user', 'items.product'])
             ->when($this->filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($this->filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '<=', $date))
-            ->when($this->filters['customer'] ?? null, fn($query, $term) => $query->whereHas('customer', fn($q) => $q->where('name', 'like', '%' . $term . '%')))
+            ->when($this->filters['search'] ?? null, function ($query, $term) {
+                $query->where(function ($q) use ($term) {
+                    $q->where('invoice_number', 'like', '%' . $term . '%')
+                      ->orWhereHas('customer', fn($cq) => $cq->where('name', 'like', '%' . $term . '%'))
+                      ->orWhereHas('items', function ($iq) use ($term) {
+                          $iq->where('custom_name', 'like', '%' . $term . '%')
+                             ->orWhereHas('product', fn($pq) => $pq->where('name', 'like', '%' . $term . '%'));
+                      });
+                });
+            })
             ->when($this->filters['payment_status'] ?? null, function ($query, $status) {
                 if ($status === 'cod_kurir') {
                     return $query->where('payment_method', 'cod_kurir');
@@ -38,7 +47,14 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
                 return $query->where('payment_status', $status)
                     ->where('payment_method', '!=', 'cod_kurir');
             })
-            ->when($this->filters['q'] ?? null, fn($query, $term) => $query->where('invoice_number', 'like', '%' . $term . '%'))
+            ->when($this->filters['order_status'] ?? null, fn($query, $status) => $query->where('order_status', $status))
+            ->when($this->filters['delivery_method'] ?? null, function ($query, $method) {
+                if ($method === 'none') {
+                    return $query->whereNull('delivery_method')->orWhere('delivery_method', '');
+                }
+                return $query->where('delivery_method', $method);
+            })
+            ->when($this->filters['user_id'] ?? null, fn($query, $userId) => $query->where('user_id', $userId))
             ->orderByDesc('created_at')
             ->get();
     }
