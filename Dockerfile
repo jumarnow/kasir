@@ -15,7 +15,14 @@ RUN npm run build
 # ============================================
 # Stage 2: Install PHP dependencies (Composer)
 # ============================================
-FROM composer:2 AS composer-builder
+FROM php:8.2-cli-alpine AS composer-builder
+
+# Install composer from official image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Install system deps needed by composer packages (zip/unzip for archives, git for VCS)
+RUN apk add --no-cache zip unzip git libzip-dev libpng-dev \
+    && docker-php-ext-install zip gd
 
 WORKDIR /app
 
