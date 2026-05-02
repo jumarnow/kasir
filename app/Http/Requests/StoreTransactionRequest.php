@@ -43,6 +43,7 @@ class StoreTransactionRequest extends FormRequest
             'items.*.material_id' => ['nullable', 'exists:materials,id'],
             'items.*.width' => ['nullable', 'numeric', 'min:0'],
             'items.*.length' => ['nullable', 'numeric', 'min:0'],
+            'items.*.notes' => ['nullable', 'string'],
             'due_date' => [
                 'nullable',
                 'date',

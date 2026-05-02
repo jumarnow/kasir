@@ -190,6 +190,10 @@ const Cart = {
                 detailsText += `<div class="text-xs text-slate-500 mt-1">${extras.join(' | ')}</div>`;
             }
 
+            if (item.notes) {
+                detailsText += `<div class="text-xs text-slate-500 italic mt-1 bg-slate-50 p-1 rounded border border-slate-100">Catatan: ${item.notes}</div>`;
+            }
+
             // Determine badge and stock display
             const isCustom = item.is_custom;
             const stockText = isCustom ? '<span class="text-emerald-500">Manual</span>' : `Stok: ${item.stock}`;
@@ -228,6 +232,11 @@ const Cart = {
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex justify-end gap-2">
+                            <button type="button" class="bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-note-item" data-index="${index}" title="Tambah Catatan">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
                             ${editBtnHtml}
                             <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 rounded-md px-2 py-1 text-xs font-medium transition-colors remove-item" data-index="${index}">Hapus</button>
                         </div>
@@ -262,7 +271,8 @@ const Cart = {
                             <p class="font-medium text-slate-700">${item.name}</p>
                             ${detailsText}
                         </div>
-                        <div class="flex gap-3">
+                        <div class="flex gap-2">
+                            <button type="button" class="text-xs text-amber-600 font-medium btn-note-item" data-index="${index}">Catatan</button>
                             ${mobileEditBtnHtml}
                             <button type="button" class="remove-item text-xs text-red-500 font-medium" data-index="${index}">Hapus</button>
                         </div>
@@ -297,6 +307,7 @@ const Cart = {
                     <input type="hidden" name="items[${index}][cost_price]" value="${item.cost_price}">
                     <input type="hidden" name="items[${index}][width]" value="0">
                     <input type="hidden" name="items[${index}][length]" value="0">
+                    <input type="hidden" name="items[${index}][notes]" value="${item.notes || ''}">
                 `);
             } else {
                 inputsWrapper.append(`
@@ -311,6 +322,7 @@ const Cart = {
                     <input type="hidden" name="items[${index}][material_price_tier]" value="${item.material_price_tier || '1'}">
                     <input type="hidden" name="items[${index}][product_price_tier]" value="${item.product_price_tier || '1'}">
                     <input type="hidden" name="items[${index}][display_id]" value="${item.display_id || ''}">
+                    <input type="hidden" name="items[${index}][notes]" value="${item.notes || ''}">
                 `);
             }
         });
@@ -359,7 +371,8 @@ const Cart = {
             material_id: null,
             material_price_tier: '1',
             product_price_tier: '1',
-            display_id: null
+            display_id: null,
+            notes: null
         });
 
         if (stockAlert > 0 && (product.stock - 1) <= stockAlert) {
@@ -747,6 +760,50 @@ const ItemDetailModal = {
 };
 
 // =========================================
+// Note Modal
+// =========================================
+const NoteModal = {
+    init() {
+        const app = TransactionApp;
+
+        app.$elements.$closeNoteModal.on('click', () => this.close());
+        app.$elements.$cancelNoteModal.on('click', () => this.close());
+        app.$elements.$noteForm.on('submit', (e) => this.handleSubmit(e));
+    },
+
+    open(index) {
+        const app = TransactionApp;
+        const item = app.cart[index];
+        if (!item) return;
+
+        $('#note-item-index').val(index);
+        $('#modal-note-text').val(item.notes || '');
+        
+        app.$elements.$noteModal.removeClass('hidden').addClass('flex');
+        $('#modal-note-text').focus();
+    },
+
+    close() {
+        const app = TransactionApp;
+        app.$elements.$noteModal.addClass('hidden').removeClass('flex');
+        app.$elements.$noteForm[0].reset();
+    },
+
+    handleSubmit(e) {
+        e.preventDefault();
+        const app = TransactionApp;
+        const index = $('#note-item-index').val();
+        const item = app.cart[index];
+        if (!item) return;
+
+        item.notes = $('#modal-note-text').val();
+        
+        Cart.render();
+        this.close();
+    }
+};
+
+// =========================================
 // Print Modal
 // =========================================
 const PrintModal = {
@@ -883,6 +940,11 @@ const FormHandler = {
         $('#cart-items, #cart-items-mobile').on('click', '.btn-edit-custom', function () {
             const index = $(this).data('index');
             FormHandler.editCustomItem(index);
+        });
+
+        $('#cart-items, #cart-items-mobile').on('click', '.btn-note-item', function () {
+            const index = $(this).data('index');
+            NoteModal.open(index);
         });
 
         $('#cart-items, #cart-items-mobile').on('click', '.remove-item', function () {
@@ -1184,7 +1246,11 @@ function initTransactionApp(config) {
         $itemDetailModal: $('#item-detail-modal'),
         $closeItemDetail: $('#close-item-detail'),
         $cancelItemDetail: $('#cancel-item-detail'),
-        $itemDetailForm: $('#item-detail-form')
+        $itemDetailForm: $('#item-detail-form'),
+        $noteModal: $('#note-modal'),
+        $closeNoteModal: $('#close-note-modal'),
+        $cancelNoteModal: $('#cancel-note-modal'),
+        $noteForm: $('#note-form')
     };
 
     // Initialize Slim Select
@@ -1216,6 +1282,7 @@ function initTransactionApp(config) {
     // Initialize modules
     QuickCustomerModal.init();
     ItemDetailModal.init();
+    NoteModal.init();
     PrintModal.init();
     FormHandler.init();
 

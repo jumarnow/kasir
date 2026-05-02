@@ -227,3 +227,33 @@
         </form>
     </div>
 </div>
+
+{{-- Note Modal --}}
+<div id="note-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4">
+    <div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        <div class="flex items-start justify-between gap-4 mb-4">
+            <h3 class="text-lg font-semibold text-slate-800">Catatan Item</h3>
+            <button type="button" id="close-note-modal" class="text-slate-400 hover:text-slate-600">
+                <span class="sr-only">Tutup</span>
+                &times;
+            </button>
+        </div>
+        <form id="note-form">
+            <input type="hidden" id="note-item-index">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-700">Catatan Khusus</label>
+                    <textarea id="modal-note-text" rows="3"
+                        class="mt-1 block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
+                        placeholder="Contoh: Warna merah, Jangan dilipat, dll"></textarea>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" id="cancel-note-modal"
+                    class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                <button type="submit"
+                    class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 shadow-sm">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
