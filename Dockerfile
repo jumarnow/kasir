@@ -19,10 +19,17 @@ RUN set -eux; \
         curl \
         libzip \
         libzip-dev \
-        oniguruma-dev; \
-    docker-php-ext-install bcmath pdo_mysql zip; \
+        oniguruma-dev \
+        libpng \
+        libpng-dev \
+        libjpeg-turbo \
+        libjpeg-turbo-dev \
+        freetype \
+        freetype-dev; \
+    docker-php-ext-configure gd --with-freetype --with-jpeg; \
+    docker-php-ext-install bcmath pdo_mysql zip gd; \
     docker-php-ext-enable opcache; \
-    apk del --no-cache libzip-dev oniguruma-dev
+    apk del --no-cache libzip-dev oniguruma-dev libpng-dev libjpeg-turbo-dev freetype-dev
 
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
