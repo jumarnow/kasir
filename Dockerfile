@@ -1,67 +1,108 @@
-# syntax=docker/dockerfile:1.6
+# =============================================================================
+# Stage 1: Node – Build frontend assets (Vite)
+# =============================================================================
+FROM node:20-alpine AS node-builder
 
-FROM node:20-alpine AS frontend
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci --prefer-offline
 
-COPY resources ./resources
+COPY resources/ resources/
 COPY vite.config.js ./
+COPY public/ public/
+
 RUN npm run build
 
-FROM php:8.2-fpm-alpine AS php_base
-WORKDIR /var/www/html
+# =============================================================================
+# Stage 2: Composer – Install PHP dependencies
+# =============================================================================
+FROM composer:2.7 AS composer-builder
 
-RUN set -eux; \
-    apk add --no-cache \
-        git \
-        curl \
-        libzip \
-        libzip-dev \
-        oniguruma-dev \
-        libpng \
-        libpng-dev \
-        libjpeg-turbo \
-        libjpeg-turbo-dev \
-        freetype \
-        freetype-dev; \
-    docker-php-ext-configure gd --with-freetype --with-jpeg; \
-    docker-php-ext-install bcmath pdo_mysql zip gd; \
-    docker-php-ext-enable opcache; \
-    apk del --no-cache libzip-dev oniguruma-dev libpng-dev libjpeg-turbo-dev freetype-dev
-
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
-
-FROM php_base AS builder
-
-ENV APP_ENV=production \
-    APP_DEBUG=false \
-    APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= \
-    LOG_CHANNEL=stderr \
-    CACHE_DRIVER=array \
-    SESSION_DRIVER=array \
-    QUEUE_CONNECTION=sync
+WORKDIR /app
 
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --no-scripts \
+    --prefer-dist \
+    --optimize-autoloader
 
-COPY . .
-RUN cp .env.example .env || touch .env
-COPY --from=frontend /app/public/build ./public/build
+# =============================================================================
+# Stage 3: Final – PHP 8.2 FPM + Nginx
+# =============================================================================
+FROM php:8.2-fpm-alpine AS final
 
-RUN composer install --no-dev --prefer-dist --no-progress --no-interaction \
+# ── System dependencies ──────────────────────────────────────────────────────
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    curl \
+    bash \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    libxml2-dev \
+    oniguruma-dev \
+    icu-dev \
+    zip \
+    unzip \
+    && rm -rf /var/cache/apk/*
+
+# ── PHP extensions ───────────────────────────────────────────────────────────
+RUN docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd \
+        zip \
+        xml \
+        intl \
+        opcache
+
+# ── PHP production config ─────────────────────────────────────────────────────
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+COPY docker/php/opcache.ini "$PHP_INI_DIR/conf.d/opcache.ini"
+
+# ── Nginx config ─────────────────────────────────────────────────────────────
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+
+# ── Supervisor config ─────────────────────────────────────────────────────────
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# ── App source ───────────────────────────────────────────────────────────────
+WORKDIR /var/www/html
+
+COPY --chown=www-data:www-data . .
+
+# Copy built assets from node stage
+COPY --chown=www-data:www-data --from=node-builder /app/public/build public/build
+
+# Copy vendor from composer stage
+COPY --chown=www-data:www-data --from=composer-builder /app/vendor vendor/
+
+# ── Storage & cache directories ───────────────────────────────────────────────
+RUN mkdir -p \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
-    && find storage -type d -exec chmod 775 {} \; \
-    && find storage -type f -exec chmod 664 {} \; \
-    && chmod -R ug+rwx bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache
 
-FROM php_base AS production
+# ── Entrypoint ────────────────────────────────────────────────────────────────
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-ENV APP_ENV=production \
-    APP_DEBUG=false
+EXPOSE 80
 
-COPY --from=builder /var/www/html /var/www/html
-
-EXPOSE 9000
-CMD ["php-fpm", "-F"]
+ENTRYPOINT ["/entrypoint.sh"]
