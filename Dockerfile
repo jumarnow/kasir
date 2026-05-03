@@ -27,7 +27,8 @@ RUN composer install \
     --no-interaction \
     --no-scripts \
     --prefer-dist \
-    --optimize-autoloader
+    --optimize-autoloader \
+    --ignore-platform-reqs
 
 # =============================================================================
 # Stage 3: Final – PHP 8.2 FPM + Nginx
