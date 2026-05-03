@@ -47,6 +47,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts
 
 COPY . .
+RUN cp .env.example .env || touch .env
 COPY --from=frontend /app/public/build ./public/build
 
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction \
