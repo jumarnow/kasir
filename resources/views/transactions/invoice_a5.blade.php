@@ -227,7 +227,7 @@
                                 </div>
                             @endif
                             @if($item->notes)
-                                <div style="color: #64748b; font-size: 9px; font-style: italic;">"{{ $item->notes }}"</div>
+                                <div style="font-weight: 400; font-style: italic;">"{{ $item->notes }}"</div>
                             @endif
                         </td>
                         <td class="text-center">{{ $item->quantity }}</td>

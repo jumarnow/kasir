@@ -116,10 +116,10 @@
                                     <div class="text-xs">
                                         <div class="text-slate-600">
                                             {{ $item->custom_name ?? $item->product?->name ?? 'Produk terhapus' }}
+                                            @if($item->notes)
+                                                <span class="text-slate-400 italic">"{{ $item->notes }}"</span>
+                                            @endif
                                         </div>
-                                        @if(!$item->custom_name && $item->product?->sku)
-                                            <!-- <div class="text-[10px] text-slate-400">SKU: {{ $item->product?->sku }}</div> -->
-                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -209,8 +209,8 @@
                                 @foreach($transaction->items as $item)
                                     <div class="text-xs text-slate-500">
                                         {{ $item->custom_name ?? $item->product?->name ?? 'Produk terhapus' }}
-                                        @if(!$item->custom_name && $item->product?->sku)
-                                            <span class="text-slate-400">({{ $item->product?->sku }})</span>
+                                        @if($item->notes)
+                                            <span class="text-slate-400 italic">"{{ $item->notes }}"</span>
                                         @endif
                                     </div>
                                 @endforeach

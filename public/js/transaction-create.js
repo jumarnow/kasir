@@ -191,7 +191,7 @@ const Cart = {
             }
 
             if (item.notes) {
-                detailsText += `<div class="text-xs text-slate-500 italic mt-1 bg-slate-50 p-1 rounded border border-slate-100">Catatan: ${item.notes}</div>`;
+                detailsText += `<div class="text-xs text-slate-500 italic mt-1 bg-slate-50 p-1 rounded border border-slate-100">Deskripsi: ${item.notes}</div>`;
             }
 
             // Determine badge and stock display
@@ -232,11 +232,6 @@ const Cart = {
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex justify-end gap-2">
-                            <button type="button" class="bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-md px-2 py-1 text-xs font-medium transition-colors btn-note-item" data-index="${index}" title="Tambah Catatan">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
                             ${editBtnHtml}
                             <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 rounded-md px-2 py-1 text-xs font-medium transition-colors remove-item" data-index="${index}">Hapus</button>
                         </div>
@@ -272,7 +267,6 @@ const Cart = {
                             ${detailsText}
                         </div>
                         <div class="flex gap-2">
-                            <button type="button" class="text-xs text-amber-600 font-medium btn-note-item" data-index="${index}">Catatan</button>
                             ${mobileEditBtnHtml}
                             <button type="button" class="remove-item text-xs text-red-500 font-medium" data-index="${index}">Hapus</button>
                         </div>
@@ -350,6 +344,9 @@ const Cart = {
             selectedPrice = 0;
         }
 
+        // Get description from input
+        const productDescription = $('#product-description-input').val().trim() || null;
+
         app.cart.push({
             id: product.id,
             name: product.name,
@@ -372,8 +369,11 @@ const Cart = {
             material_price_tier: '1',
             product_price_tier: '1',
             display_id: null,
-            notes: null
+            notes: productDescription
         });
+
+        // Clear description input after adding
+        $('#product-description-input').val('');
 
         if (stockAlert > 0 && (product.stock - 1) <= stockAlert) {
             Swal.fire({
@@ -940,11 +940,6 @@ const FormHandler = {
         $('#cart-items, #cart-items-mobile').on('click', '.btn-edit-custom', function () {
             const index = $(this).data('index');
             FormHandler.editCustomItem(index);
-        });
-
-        $('#cart-items, #cart-items-mobile').on('click', '.btn-note-item', function () {
-            const index = $(this).data('index');
-            NoteModal.open(index);
         });
 
         $('#cart-items, #cart-items-mobile').on('click', '.remove-item', function () {
