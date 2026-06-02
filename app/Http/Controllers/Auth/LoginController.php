@@ -43,4 +43,13 @@ class LoginController extends Controller
     {
         return 'username';
     }
+
+    protected function authenticated(\Illuminate\Http\Request $request, $user)
+    {
+        if ($user->hasRole('designer') || $user->hasRole('operator')) {
+            return redirect()->route('monitoring.track-in');
+        }
+
+        return redirect()->intended($this->redirectPath());
+    }
 }

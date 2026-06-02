@@ -14,8 +14,10 @@ class Transaction extends Model
 
     // Order Status Constants
     const ORDER_STATUS_PENDING = 'pending';
+    const ORDER_STATUS_DESIGNING = 'designing';
     const ORDER_STATUS_PRODUCTION = 'production';
     const ORDER_STATUS_COMPLETED = 'completed';
+    const ORDER_STATUS_FINISHED = 'finished';
     const ORDER_STATUS_DELIVERED = 'delivered';
 
     // Payment Status Constants
@@ -49,6 +51,10 @@ class Transaction extends Model
         'production_started_at',
         'completed_at',
         'delivered_at',
+        'pickup_method',
+        'picked_up_at',
+        'picked_up_notes',
+        'checked_by',
         'notes',
         'reject_reason',
         'created_at',
@@ -69,6 +75,7 @@ class Transaction extends Model
         'production_started_at' => 'datetime',
         'completed_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'picked_up_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -164,6 +171,16 @@ class Transaction extends Model
         return $this->hasMany(OrderFile::class);
     }
 
+    public function trackings()
+    {
+        return $this->hasMany(ProductionTracking::class);
+    }
+
+    public function checkedBy()
+    {
+        return $this->belongsTo(User::class, 'checked_by');
+    }
+
     // Scopes
     public function scopeBetweenDates($query, $start, $end)
     {
@@ -205,6 +222,28 @@ class Transaction extends Model
     }
 
     // Status Workflow Methods
+    public function updateStatusFromItems(): void
+    {
+        $items = $this->items()->get();
+        if ($items->isEmpty()) return;
+
+        if ($items->every(fn($item) => $item->status === 'finished')) {
+            $this->order_status = self::ORDER_STATUS_FINISHED;
+        } elseif ($items->every(fn($item) => in_array($item->status, ['completed', 'finished']))) {
+            $this->order_status = self::ORDER_STATUS_COMPLETED;
+            if (!$this->completed_at) $this->completed_at = now();
+        } elseif ($items->contains(fn($item) => $item->status === 'production')) {
+            $this->order_status = self::ORDER_STATUS_PRODUCTION;
+            if (!$this->production_started_at) $this->production_started_at = now();
+        } elseif ($items->contains(fn($item) => $item->status === 'designing')) {
+            $this->order_status = self::ORDER_STATUS_DESIGNING;
+        } else {
+            $this->order_status = self::ORDER_STATUS_PENDING;
+        }
+
+        $this->save();
+    }
+
     public function startProduction(): void
     {
         $this->order_status = self::ORDER_STATUS_PRODUCTION;
@@ -274,8 +313,10 @@ class Transaction extends Model
     {
         return [
             self::ORDER_STATUS_PENDING => 'Pending',
+            self::ORDER_STATUS_DESIGNING => 'Desain',
             self::ORDER_STATUS_PRODUCTION => 'Produksi',
             self::ORDER_STATUS_COMPLETED => 'Selesai',
+            self::ORDER_STATUS_FINISHED => 'Menunggu Diambil',
             self::ORDER_STATUS_DELIVERED => 'Terkirim',
         ];
     }

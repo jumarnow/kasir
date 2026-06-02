@@ -25,6 +25,11 @@ class TransactionItem extends Model
         'finishing_id',
         'display_id',
         'material_id',
+        'status',
+        'pickup_method',
+        'picked_up_at',
+        'picked_up_notes',
+        'checked_by',
     ];
 
     protected $casts = [
@@ -36,6 +41,7 @@ class TransactionItem extends Model
         'cost_price' => 'decimal:2',
         'total' => 'decimal:2',
         'profit' => 'decimal:2',
+        'picked_up_at' => 'datetime',
     ];
 
     protected $touches = ['transaction'];
@@ -88,6 +94,16 @@ class TransactionItem extends Model
     public function material()
     {
         return $this->belongsTo(Material::class);
+    }
+
+    public function trackings()
+    {
+        return $this->hasMany(ProductionTracking::class);
+    }
+
+    public function checkedBy()
+    {
+        return $this->belongsTo(User::class, 'checked_by');
     }
 
     /**

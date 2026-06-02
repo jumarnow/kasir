@@ -93,6 +93,7 @@
         <div class="title">SPK PRODUKSI</div>
         <div>{{ $transaction->created_at->format('d/m/Y H:i') }}</div>
         <div>{{ $transaction->invoice_number }}</div>
+        <div id="qrcode" style="display: flex; justify-content: center; margin-top: 10px; margin-bottom: 5px;"></div>
     </div>
 
     <div class="meta">
@@ -151,8 +152,21 @@
         --- Internal Use Only ---
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        window.print();
+        new QRCode(document.getElementById("qrcode"), {
+            text: "{{ $transaction->invoice_number }}",
+            width: 80,
+            height: 80,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.M
+        });
+
+        // Tunggu QR Code dirender sebelum diprint
+        setTimeout(() => {
+            window.print();
+        }, 300);
     </script>
 </body>
 

@@ -11,7 +11,16 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/dashboard');
+Route::get('/', function () {
+    if (auth()->check()) {
+        $user = auth()->user();
+        if ($user->hasRole('designer') || $user->hasRole('operator')) {
+            return redirect()->route('monitoring.track-in');
+        }
+        return redirect('/dashboard');
+    }
+    return redirect('/login');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -86,6 +95,20 @@ Route::middleware(['auth'])->group(function () {
         Route::post('payrolls/{payroll}/mark-paid', [App\Http\Controllers\PayrollController::class, 'markPaid'])->name('payrolls.mark-paid');
         Route::get('payrolls/{payroll}/print', [App\Http\Controllers\PayrollController::class, 'print'])->name('payrolls.print');
         Route::resource('payrolls', App\Http\Controllers\PayrollController::class);
+    });
+
+    // Monitoring Process
+    Route::middleware('permission:monitoring_process')->prefix('monitoring')->group(function () {
+        Route::get('track-in', [App\Http\Controllers\MonitoringController::class, 'trackIn'])->name('monitoring.track-in');
+        Route::post('track-in', [App\Http\Controllers\MonitoringController::class, 'storeTrackIn'])->name('monitoring.track-in.store');
+        Route::get('track-out', [App\Http\Controllers\MonitoringController::class, 'trackOut'])->name('monitoring.track-out');
+        Route::post('track-out', [App\Http\Controllers\MonitoringController::class, 'storeTrackOut'])->name('monitoring.track-out.store');
+        
+        Route::get('status', [App\Http\Controllers\MonitoringController::class, 'statusOrder'])
+            ->name('monitoring.status')
+            ->middleware('permission:monitoring_status');
+            
+        Route::get('lookup', [App\Http\Controllers\MonitoringController::class, 'lookupTransaction'])->name('monitoring.lookup');
     });
 });
 
