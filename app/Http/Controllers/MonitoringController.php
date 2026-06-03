@@ -113,17 +113,31 @@ class MonitoringController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                  ->orWhereHas('customer', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
                   });
+            });
         }
 
         if ($request->filled('customer_id')) {
             $query->where('customer_id', $request->customer_id);
         }
 
-        $transactions = $query->paginate(20);
+        if ($request->filled('status')) {
+            $query->where('order_status', $request->status);
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $transactions = $query->paginate(20)->withQueryString();
         $customers = \App\Models\Customer::orderBy('name')->get();
 
         return view('monitoring.status', compact('transactions', 'customers'));
