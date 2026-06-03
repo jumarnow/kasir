@@ -96,8 +96,11 @@
         <div id="qrcode" style="display: flex; justify-content: center; margin-top: 10px; margin-bottom: 5px;"></div>
     </div>
 
+    <div style="text-align: center; font-size: 20px; margin-bottom: 10px;">
+        <strong>{{ $transaction->customer->name ?? 'Pelanggan Umum' }}</strong>
+    </div>
+
     <div class="meta">
-        <strong>Customer:</strong> {{ $transaction->customer->name ?? 'Pelanggan Umum' }}<br>
         <strong>CS:</strong> {{ $transaction->user->name ?? '-' }}<br>
         <strong>Eksekutor:</strong> {{ $transaction->eksekutor->name ?? '-' }}
         @if($transaction->eksekutorTwo)

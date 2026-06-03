@@ -188,8 +188,11 @@
                 </div>
 
                 <div class="mt-8 flex flex-col gap-3">
-                    @php $isRejectedOrCanceled = $transaction->trashed() || $transaction->status === 'rejected'; @endphp
-                    @if($transaction->remaining_amount > 0 && !$isRejectedOrCanceled)
+                    @php 
+                        $isCanceled = $transaction->trashed(); 
+                        $isRejected = $transaction->status === 'rejected'; 
+                    @endphp
+                    @if($transaction->remaining_amount > 0 && !$isCanceled)
                         <button type="button" onclick="document.getElementById('payment-modal').classList.remove('hidden')" 
                             class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2">
                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -210,13 +213,13 @@
                             Cetak Invoice
                         </a>
                     @endif
-                                   <a href="{{ route('transactions.spk', $transaction) }}" target="_blank"
+                    <a href="{{ route('transactions.spk', $transaction) }}" target="_blank"
                         class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
                         <svg class="w-4 h-4 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                         Cetak SPK
                     </a>
                     
-                    @if(!$isRejectedOrCanceled)
+                    @if(!$isCanceled && !$isRejected)
                         @can('delete_transactions')
                         <button type="button" onclick="document.getElementById('reject-modal').classList.remove('hidden')" 
                             class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 transition-all shadow-sm">
@@ -226,11 +229,15 @@
                             Tambah Keterangan Transaksi
                         </button>
                         @endcan
-                    @else
+                    @elseif($isCanceled)
                         <div class="inline-flex w-full flex-col items-center justify-center gap-1.5 rounded-xl bg-red-50/80 px-4 py-3 text-sm border border-red-100">
-                            <span class="font-bold text-red-600">Status: {{ $transaction->status === 'rejected' ? 'Reject' : 'Dibatalkan' }}</span>
+                            <span class="font-bold text-red-600">Status: Dibatalkan</span>
+                        </div>
+                    @elseif($isRejected)
+                        <div class="inline-flex w-full flex-col items-center justify-center gap-1.5 rounded-xl bg-orange-50/80 px-4 py-3 text-sm border border-orange-100">
+                            <span class="font-bold text-orange-600">Catatan Masalah (Reject)</span>
                             @if($transaction->reject_reason)
-                                <span class="text-xs text-red-500 text-center italic">"{{ $transaction->reject_reason }}"</span>
+                                <span class="text-xs text-orange-600 text-center italic">"{{ $transaction->reject_reason }}"</span>
                             @endif
                         </div>
                     @endif

@@ -72,16 +72,12 @@
                 <tr class="bg-slate-50 border-y border-slate-200">
                     <th class="px-4 py-3 text-sm font-bold text-slate-800">Nama Customer</th>
                     <th class="px-4 py-3 text-sm font-bold text-slate-800">Deskripsi Produk</th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Tanggal Pembuatan<br>
-                    </th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Tanggal Design<br>
-                    </th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Tanggal Produksi<br>
-                    </th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Tanggal Selesai<br>
-                    </th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">STATUS<br>
-                    </th>
+                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Tanggal Pembuatan</th>
+                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Start Design</th>
+                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Finish Design</th>
+                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Start Production</th>
+                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Finish Production</th>
+                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Status</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -89,6 +85,7 @@
                     @foreach($trx->items as $item)
                         @php
                             $designIn = $item->trackings->where('type', \App\Models\ProductionTracking::TYPE_DESIGN_IN)->last();
+                            $designOut = $item->trackings->where('type', \App\Models\ProductionTracking::TYPE_DESIGN_OUT)->last();
                             $productionIn = $item->trackings->where('type', \App\Models\ProductionTracking::TYPE_PRODUCTION_IN)->last();
                             $productionOut = $item->trackings->where('type', \App\Models\ProductionTracking::TYPE_PRODUCTION_OUT)->last();
                             $adminOut = $item->trackings->where('type', \App\Models\ProductionTracking::TYPE_ADMIN_OUT)->last();
@@ -101,8 +98,7 @@
                             </td>
                             @endif
                             <td class="px-4 py-4 align-top">
-                                <div class="text-sm text-indigo-600 font-medium">{{ $item->product?->name ?? 'Produk Tidak Diketahui' }}</div>
-                                @if($item->custom_name) <div class="text-xs text-slate-500">{{ $item->custom_name }}</div> @endif
+                                <div class="text-sm text-indigo-600 font-medium">{{ $item->product?->name ?? $item->custom_name }}</div>
                                 <div class="text-xs text-slate-500 mt-1">Qty: {{ $item->quantity }}</div>
                             </td>
                             <td class="px-4 py-4 align-top text-sm">
@@ -112,6 +108,14 @@
                                 @if($designIn)
                                     <div class="text-slate-700 font-medium">{{ $designIn->tracked_at->format('d M Y, H:i') }}</div>
                                     <div class="text-xs text-slate-500 mt-1">{{ $designIn->user->name ?? 'Designer' }}</div>
+                                @else
+                                    <span class="text-slate-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-4 align-top text-sm">
+                                @if($designOut)
+                                    <div class="text-slate-700 font-medium">{{ $designOut->tracked_at->format('d M Y, H:i') }}</div>
+                                    <div class="text-xs text-slate-500 mt-1">{{ $designOut->user->name ?? 'Designer' }}</div>
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif
@@ -167,7 +171,7 @@
                     @endforeach
                 @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-8 text-center text-slate-500">
+                        <td colspan="8" class="px-4 py-8 text-center text-slate-500">
                             Tidak ada data orderan.
                         </td>
                     </tr>

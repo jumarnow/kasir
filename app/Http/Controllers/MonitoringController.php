@@ -20,6 +20,7 @@ class MonitoringController extends Controller
             'invoice_number' => 'required|string|exists:transactions,invoice_number',
             'item_ids' => 'required|array|min:1',
             'item_ids.*' => 'exists:transaction_items,id',
+            'track_type' => 'required|in:design,production',
         ]);
 
         $transaction = Transaction::where('invoice_number', $request->invoice_number)->firstOrFail();
@@ -28,12 +29,14 @@ class MonitoringController extends Controller
         $items = $transaction->items()->whereIn('id', $request->item_ids)->get();
 
         foreach ($items as $item) {
-            if ($user->hasRole('designer')) {
+            if ($request->track_type === 'design') {
                 $item->status = 'designing';
                 $type = ProductionTracking::TYPE_DESIGN_IN;
+                $notes = 'Track In Design by ' . $user->name;
             } else {
                 $item->status = 'production';
                 $type = ProductionTracking::TYPE_PRODUCTION_IN;
+                $notes = 'Track In Produksi by ' . $user->name;
             }
             $item->save();
 
@@ -43,7 +46,7 @@ class MonitoringController extends Controller
                 'user_id' => $user->id,
                 'type' => $type,
                 'tracked_at' => now(),
-                'notes' => 'Track In by ' . $user->name,
+                'notes' => $notes,
             ]);
         }
 
@@ -63,7 +66,8 @@ class MonitoringController extends Controller
             'invoice_number' => 'required|string|exists:transactions,invoice_number',
             'item_ids' => 'required|array|min:1',
             'item_ids.*' => 'exists:transaction_items,id',
-            'pickup_method' => 'nullable|string|in:customer,kurir,diantar',
+            'track_type' => 'required|in:design,production,admin',
+            'pickup_method' => 'required_if:track_type,admin|nullable|string|in:customer,kurir,diantar',
         ]);
 
         $transaction = Transaction::where('invoice_number', $request->invoice_number)->firstOrFail();
@@ -72,11 +76,13 @@ class MonitoringController extends Controller
         $items = $transaction->items()->whereIn('id', $request->item_ids)->get();
 
         foreach ($items as $item) {
-            if ($user->hasRole('designer')) {
+            if ($request->track_type === 'design') {
                 $type = ProductionTracking::TYPE_DESIGN_OUT;
-            } elseif ($user->hasRole('operator')) {
+                $notes = 'Track Out Design by ' . $user->name;
+            } elseif ($request->track_type === 'production') {
                 $item->status = 'completed';
                 $type = ProductionTracking::TYPE_PRODUCTION_OUT;
+                $notes = 'Track Out Produksi by ' . $user->name;
             } else {
                 // Admin final track out
                 $item->status = 'finished';
@@ -84,6 +90,7 @@ class MonitoringController extends Controller
                 $item->picked_up_at = now();
                 $item->checked_by = $user->id;
                 $type = ProductionTracking::TYPE_ADMIN_OUT;
+                $notes = 'Track Out Admin by ' . $user->name;
             }
             $item->save();
 
@@ -93,7 +100,7 @@ class MonitoringController extends Controller
                 'user_id' => $user->id,
                 'type' => $type,
                 'tracked_at' => now(),
-                'notes' => 'Track Out by ' . $user->name,
+                'notes' => $notes,
             ]);
         }
 
@@ -156,11 +163,9 @@ class MonitoringController extends Controller
         }
 
         $user = Auth::user();
-        $isDesigner = $user->hasRole('designer');
-        $isOperator = $user->hasRole('operator');
         $isAdmin = $user->can('monitoring_admin_out');
 
-        $itemsData = $transaction->items->map(function($item) use ($isDesigner, $isOperator, $isAdmin, $request) {
+        $itemsData = $transaction->items->map(function($item) use ($isAdmin, $request) {
             $trackings = collect($item->trackings);
             $hasDesignIn = $trackings->contains('type', ProductionTracking::TYPE_DESIGN_IN);
             $hasDesignOut = $trackings->contains('type', ProductionTracking::TYPE_DESIGN_OUT);
@@ -168,19 +173,13 @@ class MonitoringController extends Controller
             $hasProdOut = $trackings->contains('type', ProductionTracking::TYPE_PRODUCTION_OUT);
             $hasAdminOut = $trackings->contains('type', ProductionTracking::TYPE_ADMIN_OUT);
 
-            $canTrackIn = false;
-            $canTrackOut = false;
             $statusLabel = $item->status;
 
-            if ($isDesigner) {
-                $canTrackIn = !$hasDesignIn && !$hasProdIn && !$hasAdminOut;
-                $canTrackOut = $hasDesignIn && !$hasDesignOut && !$hasProdIn && !$hasAdminOut;
-            } elseif ($isOperator) {
-                $canTrackIn = !$hasProdIn && !$hasAdminOut;
-                $canTrackOut = $hasProdIn && !$hasProdOut && !$hasAdminOut;
-            } elseif ($isAdmin) {
-                $canTrackOut = !$hasAdminOut; // admin final out
-            }
+            $canDesignIn = !$hasDesignIn && !$hasProdIn && !$hasAdminOut;
+            $canDesignOut = $hasDesignIn && !$hasDesignOut && !$hasProdIn && !$hasAdminOut;
+            $canProductionIn = !$hasProdIn && !$hasAdminOut;
+            $canProductionOut = $hasProdIn && !$hasProdOut && !$hasAdminOut;
+            $canAdminOut = $isAdmin && !$hasAdminOut;
 
             return [
                 'id' => $item->id,
@@ -189,8 +188,11 @@ class MonitoringController extends Controller
                 'qty' => $item->quantity,
                 'dimensions' => $item->dimensions,
                 'status' => $statusLabel,
-                'can_track_in' => $canTrackIn,
-                'can_track_out' => $canTrackOut,
+                'can_design_in' => $canDesignIn,
+                'can_design_out' => $canDesignOut,
+                'can_production_in' => $canProductionIn,
+                'can_production_out' => $canProductionOut,
+                'can_admin_out' => $canAdminOut,
             ];
         });
 
