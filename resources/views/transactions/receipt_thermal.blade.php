@@ -67,6 +67,7 @@
 
 <body>
     <div class="header">
+        <img src="{{ asset('logo_hitam_putih.png') }}" alt="Logo" style="max-width: 150px; margin-bottom: 5px;">
         <div class="store-name">{{ $settings['store_name'] ?? 'Kasir Percetakan' }}</div>
         <div>{{ $settings['store_address'] ?? 'Alamat Toko' }}</div>
         <div>{{ $settings['store_phone'] ?? '08123456789' }}</div>
