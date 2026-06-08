@@ -70,7 +70,6 @@
         <img src="{{ asset('logo_hitam_putih.png') }}" alt="Logo" style="max-width: 150px; margin-bottom: 5px;">
         <div class="store-name">{{ $settings['store_name'] ?? 'Kasir Percetakan' }}</div>
         <div>{{ $settings['store_address'] ?? 'Alamat Toko' }}</div>
-        <div>IG: @arjunaprint_indonesia</div>
         <div>0878 3871 6684 / 0856 6847 5244</div>
     </div>
 
