@@ -139,7 +139,8 @@
                                 </a>
                                 <button type="button"
                                     class="invoice-preview-trigger rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600"
-                                    data-preview-url="{{ route('transactions.invoice_a5', $transaction) }}">
+                                    data-preview-url="{{ route('transactions.invoice_a5', $transaction) }}"
+                                    data-spk-url="{{ route('transactions.spk', $transaction) }}">
                                     Invoice
                                 </button>
                                 <a target="_blank" href="{{ route('transactions.spk', $transaction) }}"
@@ -237,7 +238,8 @@
                     </a>
                     <button type="button"
                         class="invoice-preview-trigger flex-1 min-w-[80px] rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 hover:bg-slate-50"
-                        data-preview-url="{{ route('transactions.invoice_a5', $transaction) }}">
+                        data-preview-url="{{ route('transactions.invoice_a5', $transaction) }}"
+                        data-spk-url="{{ route('transactions.spk', $transaction) }}">
                         Invoice
                     </button>
                     <a target="_blank" href="{{ route('transactions.spk', $transaction) }}"
@@ -296,6 +298,10 @@
                 <iframe id="print-preview-frame" class="h-full w-full border-0" src=""></iframe>
             </div>
             <div class="flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-4">
+                <button type="button" id="print-spk-action"
+                    class="hidden rounded-lg border border-slate-800 px-6 py-2.5 text-sm font-bold text-slate-800 transition-colors hover:bg-slate-100">
+                    CETAK SPK
+                </button>
                 <button type="button" id="print-preview-action"
                     class="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-500 hover:shadow-indigo-300">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,13 +367,20 @@
             const closeButton = document.getElementById('close-print-preview');
             const closeSecondaryButton = document.getElementById('close-print-preview-secondary');
             const printButton = document.getElementById('print-preview-action');
+            const printSpkButton = document.getElementById('print-spk-action');
 
             if (!previewModal || !previewFrame) {
                 return;
             }
 
-            const openPreview = (url) => {
+            const openPreview = (url, spkUrl) => {
                 previewFrame.src = url;
+                if (printSpkButton && spkUrl) {
+                    printSpkButton.dataset.spkUrl = spkUrl;
+                    printSpkButton.classList.remove('hidden');
+                } else if (printSpkButton) {
+                    printSpkButton.classList.add('hidden');
+                }
                 previewModal.classList.remove('hidden');
                 previewModal.classList.add('flex');
                 document.body.classList.add('overflow-hidden');
@@ -383,8 +396,9 @@
             document.querySelectorAll('.invoice-preview-trigger').forEach((trigger) => {
                 trigger.addEventListener('click', function () {
                     const url = this.dataset.previewUrl;
+                    const spkUrl = this.dataset.spkUrl;
                     if (url) {
-                        openPreview(url);
+                        openPreview(url, spkUrl);
                     }
                 });
             });
@@ -394,6 +408,13 @@
 
             printButton?.addEventListener('click', function () {
                 previewFrame.contentWindow?.print();
+            });
+
+            printSpkButton?.addEventListener('click', function () {
+                const spkUrl = this.dataset.spkUrl;
+                if (spkUrl) {
+                    window.open(spkUrl, '_blank');
+                }
             });
 
             previewModal.addEventListener('click', function (event) {
