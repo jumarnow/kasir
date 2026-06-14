@@ -103,6 +103,10 @@
             <iframe id="print-preview-frame" class="w-full h-full border-0" src=""></iframe>
         </div>
         <div class="border-t border-slate-200 px-6 py-4 bg-white flex justify-end gap-3">
+            <button type="button" id="print-spk-action"
+                class="hidden rounded-lg border border-slate-800 px-6 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-50 transition-colors">
+                CETAK SPK
+            </button>
             <button type="button" onclick="document.getElementById('print-preview-frame').contentWindow.print()"
                 class="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-500 hover:shadow-indigo-300 transition-all flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

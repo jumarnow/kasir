@@ -970,6 +970,13 @@ const FormHandler = {
             window.location.reload();
         });
 
+        $('#print-spk-action').on('click', function() {
+            const spkUrl = $(this).data('spk-url');
+            if (spkUrl) {
+                window.open(spkUrl, '_blank');
+            }
+        });
+
         // Initial triggers
         $('#payment-method').trigger('change');
         Summary.update();
@@ -1178,6 +1185,9 @@ const FormHandler = {
                     } else {
                         printUrl = `/transactions/${txId}/invoice-a5`;
                     }
+
+                    const spkUrl = `/transactions/${txId}/spk`;
+                    $('#print-spk-action').data('spk-url', spkUrl).removeClass('hidden');
 
                     $('#print-preview-frame').attr('src', printUrl);
                     $('#print-preview-modal').removeClass('hidden').addClass('flex');
