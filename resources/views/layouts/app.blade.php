@@ -365,6 +365,10 @@
 
                 @can('view_reports')
                     <p class="section-title">Laporan</p>
+                    <a href="{{ route('reports.performance') }}" class="nav-link" title="Dashboard Performa">
+                        <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" /></svg></span>
+                        <span class="label">Dashboard Performa</span>
+                    </a>
                     <a href="{{ route('reports.sales') }}" class="nav-link" title="Laporan Penjualan">
                         <span class="icon"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span>
                         <span class="label">Penjualan</span>
@@ -518,6 +522,7 @@
                     <a href="{{ route('roles.index') }}" class="mobile-nav-link">Role &amp; Izin</a>
                 @endcan
                 @can('view_reports')
+                    <a href="{{ route('reports.performance') }}" class="mobile-nav-link">Dashboard Performa</a>
                     <a href="{{ route('reports.sales') }}" class="mobile-nav-link">Laporan Penjualan</a>
                     @can('view_profit')
                         <a href="{{ route('reports.profit') }}" class="mobile-nav-link">Laporan Profit</a>

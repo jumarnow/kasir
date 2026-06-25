@@ -76,6 +76,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware('permission:view_reports')->group(function () {
+        Route::get('reports/performance', [App\Http\Controllers\PerformanceDashboardController::class, 'index'])->name('reports.performance');
         Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('reports/sales/export', [ReportController::class, 'exportSalesExcel'])->name('reports.sales.export');
         Route::get('reports/sales/spk-export', [ReportController::class, 'exportSpkExcel'])->name('reports.sales.spk-export');
