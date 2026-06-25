@@ -25,7 +25,7 @@
         <div class="grid gap-4 grid-cols-2 md:grid-cols-6">
             <div>
                 <label class="text-xs uppercase font-semibold text-slate-500">Pencarian Umum</label>
-                <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Cari invoice, pelanggan, produk..."
+                <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Cari invoice, pelanggan, produk..." autofocus
                     class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
             </div>
             <div>

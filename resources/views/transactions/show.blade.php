@@ -301,17 +301,47 @@
 
                 <form action="{{ route('transactions.payments.store', $transaction) }}" method="POST" class="mt-4">
                     @csrf
-                    <div>
-                        <label for="amount" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran</label>
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">Rp</span>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="amount" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">Rp</span>
+                                </div>
+                                <input type="text" name="amount" id="payment-amount" 
+                                    class="currency-input focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2" 
+                                    placeholder="0" 
+                                    value="{{ old('amount', number_format($transaction->remaining_amount, 0, ',', '.')) }}"
+                                    required>
                             </div>
-                            <input type="text" name="amount" id="payment-amount" 
-                                class="currency-input focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2" 
-                                placeholder="0" 
-                                value="{{ old('amount', number_format($transaction->remaining_amount, 0, ',', '.')) }}"
-                                required>
+                        </div>
+
+                        <div>
+                            <label for="cash_received" class="block text-sm font-medium text-gray-700">Uang yang Dibayarkan (Opsional)</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">Rp</span>
+                                </div>
+                                <input type="text" id="payment-cash-received" 
+                                    class="currency-input focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2" 
+                                    placeholder="0">
+                            </div>
+                        </div>
+
+                        <div id="payment-change-container" class="hidden rounded-md bg-emerald-50 p-3 border border-emerald-200">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-emerald-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-emerald-800">Kembalian</h3>
+                                    <div class="mt-1 text-lg font-bold text-emerald-900" id="payment-change-amount">
+                                        Rp 0
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -376,15 +406,46 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Currency formatter for modal input
-            const input = document.getElementById('payment-amount');
-            if (input) {
-                input.addEventListener('input', function(e) {
-                    let value = this.value.replace(/\D/g, '');
-                    if (value === '') {
-                        this.value = '';
-                        return;
-                    }
-                    this.value = new Intl.NumberFormat('id-ID').format(value);
+            const amountInput = document.getElementById('payment-amount');
+            const cashInput = document.getElementById('payment-cash-received');
+            const changeContainer = document.getElementById('payment-change-container');
+            const changeAmountDisplay = document.getElementById('payment-change-amount');
+
+            function formatCurrency(input) {
+                let value = input.value.replace(/\D/g, '');
+                if (value === '') {
+                    input.value = '';
+                    calculateChange();
+                    return;
+                }
+                input.value = new Intl.NumberFormat('id-ID').format(value);
+                calculateChange();
+            }
+
+            function calculateChange() {
+                if (!amountInput || !cashInput || !changeContainer || !changeAmountDisplay) return;
+
+                const amount = parseInt(amountInput.value.replace(/\D/g, '')) || 0;
+                const cash = parseInt(cashInput.value.replace(/\D/g, '')) || 0;
+
+                if (cash > 0 && cash >= amount) {
+                    const change = cash - amount;
+                    changeAmountDisplay.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(change);
+                    changeContainer.classList.remove('hidden');
+                } else {
+                    changeContainer.classList.add('hidden');
+                }
+            }
+
+            if (amountInput) {
+                amountInput.addEventListener('input', function(e) {
+                    formatCurrency(this);
+                });
+            }
+
+            if (cashInput) {
+                cashInput.addEventListener('input', function(e) {
+                    formatCurrency(this);
                 });
             }
         });
