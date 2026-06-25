@@ -35,7 +35,7 @@
 
         <!-- Employee Performance Chart -->
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 class="text-base font-semibold text-slate-800 mb-4">Performa Karyawan (30 Hari Terakhir)</h3>
+            <h3 class="text-base font-semibold text-slate-800 mb-4">Performa Karyawan (Berdasarkan Filter)</h3>
             <div class="relative h-[300px] w-full">
                 <canvas id="employeePerformanceChart"></canvas>
             </div>
@@ -44,9 +44,17 @@
 
     <!-- Employee Trans Count Chart -->
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 class="text-base font-semibold text-slate-800 mb-4">Jumlah Transaksi Karyawan (30 Hari Terakhir)</h3>
+        <h3 class="text-base font-semibold text-slate-800 mb-4">Jumlah Transaksi Karyawan (Berdasarkan Filter)</h3>
         <div class="relative h-[300px] w-full">
             <canvas id="employeeTransChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Employee SPK Performance Chart -->
+    <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="text-base font-semibold text-slate-800 mb-4">Performa Pegawai (SPK - Design & Produksi)</h3>
+        <div class="relative h-[300px] w-full">
+            <canvas id="employeeSpkChart"></canvas>
         </div>
     </div>
 @endsection
@@ -194,6 +202,53 @@
                 }
             }
         });
+
+        // Data for Employee SPK Performance
+        const spkLabels = {!! json_encode($spkLabels ?? []) !!};
+        const spkDesignData = {!! json_encode($spkDesignData ?? []) !!};
+        const spkProduksiData = {!! json_encode($spkProduksiData ?? []) !!};
+
+        if (document.getElementById('employeeSpkChart')) {
+            const ctx4 = document.getElementById('employeeSpkChart').getContext('2d');
+            new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: spkLabels,
+                    datasets: [
+                        {
+                            label: 'Design',
+                            data: spkDesignData,
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)', // Amber-500
+                            borderColor: 'rgb(217, 119, 6)', // Amber-600
+                            borderWidth: 1,
+                        },
+                        {
+                            label: 'Produksi',
+                            data: spkProduksiData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)', // Blue-500
+                            borderColor: 'rgb(37, 99, 235)', // Blue-600
+                            borderWidth: 1,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 @endpush

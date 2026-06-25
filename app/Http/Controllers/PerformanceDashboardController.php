@@ -141,9 +141,12 @@ class PerformanceDashboardController extends Controller
             }
         }
 
-        // Employee Performance (Current month by default, or all time depending on period, let's use last 30 days for relevance)
-        $perfStartDate = $now->copy()->subDays(30)->startOfDay();
+        // Employee Performance (Match the period's start date)
+        $perfStartDate = isset($startDate) ? $startDate : $now->copy()->subDays(30)->startOfDay();
+        $perfEndDate = isset($endDate) ? $endDate : $now->copy()->endOfDay();
+
         $employeePerformance = Transaction::where('created_at', '>=', $perfStartDate)
+            ->where('created_at', '<=', $perfEndDate)
             ->whereNotNull('user_id')
             ->whereIn('status', ['completed', 'pending'])
             ->select('user_id', DB::raw('COUNT(id) as total_transactions'), DB::raw('SUM(total) as total_sales'))
@@ -161,6 +164,36 @@ class PerformanceDashboardController extends Controller
             $empTransData[] = $emp->total_transactions;
         }
 
+        // SPK Employee Performance
+        $spkEmployees = \App\Models\Employee::select('employees.*')
+            ->addSelect([
+                'design_count' => \App\Models\Transaction::selectRaw('count(*)')
+                    ->whereColumn('desainer_id', 'employees.id')
+                    ->whereDate('created_at', '>=', $perfStartDate)
+                    ->whereDate('created_at', '<=', $perfEndDate),
+
+                'produksi_count' => \App\Models\Transaction::selectRaw('count(*)')
+                    ->where(function ($query) {
+                        $query->whereColumn('eksekutor_id', 'employees.id')
+                            ->orWhereColumn('eksekutor_2_id', 'employees.id');
+                    })
+                    ->whereDate('created_at', '>=', $perfStartDate)
+                    ->whereDate('created_at', '<=', $perfEndDate),
+            ])
+            ->havingRaw('(design_count + produksi_count) > 0')
+            ->orderByRaw('(design_count + produksi_count) DESC')
+            ->get();
+
+        $spkLabels = [];
+        $spkDesignData = [];
+        $spkProduksiData = [];
+
+        foreach ($spkEmployees as $emp) {
+            $spkLabels[] = $emp->name;
+            $spkDesignData[] = $emp->design_count;
+            $spkProduksiData[] = $emp->produksi_count;
+        }
+
         return view('reports.performance', compact(
             'period', 
             'labels', 
@@ -168,7 +201,10 @@ class PerformanceDashboardController extends Controller
             'expenseData',
             'empLabels',
             'empSalesData',
-            'empTransData'
+            'empTransData',
+            'spkLabels',
+            'spkDesignData',
+            'spkProduksiData'
         ));
     }
 }
