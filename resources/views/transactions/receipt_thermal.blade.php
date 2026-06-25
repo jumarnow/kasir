@@ -100,32 +100,39 @@
     <div class="total-section">
         <div class="row">
             <span>Subtotal</span>
-            <span>{{ number_format($transaction->subtotal, 0, ',', '.') }}</span>
+            <span>Rp. {{ number_format($transaction->subtotal, 0, ',', '.') }}</span>
         </div>
         @if($transaction->discount_amount > 0)
             <div class="row">
                 <span>Diskon</span>
-                <span>-{{ number_format($transaction->discount_amount, 0, ',', '.') }}</span>
+                <span>-Rp. {{ number_format($transaction->discount_amount, 0, ',', '.') }}</span>
             </div>
         @endif
         @if($transaction->shipping_cost > 0)
             <div class="row">
                 <span>Ongkir</span>
-                <span>{{ number_format($transaction->shipping_cost, 0, ',', '.') }}</span>
+                <span>Rp. {{ number_format($transaction->shipping_cost, 0, ',', '.') }}</span>
             </div>
         @endif
         <div class="row" style="font-weight: bold; margin-top: 5px;">
-            <span>TOTAL</span>
-            <span>{{ number_format($transaction->total, 0, ',', '.') }}</span>
+            <span>Total Belanja</span>
+            <span>Rp. {{ number_format($transaction->total, 0, ',', '.') }}</span>
         </div>
-        <div class="row" style="margin-top: 5px;">
-            <span>Bayar</span>
-            <span>{{ number_format($transaction->amount_paid, 0, ',', '.') }}</span>
-        </div>
-        <!-- <div class="row">
-            <span>Kembali</span>
-            <span>{{ number_format($transaction->change_due, 0, ',', '.') }}</span>
-        </div> -->
+        @if(strtolower($transaction->payment_type) == 'tunai' || empty($transaction->payment_type))
+            <div class="row" style="margin-top: 5px;">
+                <span>Tunai</span>
+                <span>Rp. {{ number_format($transaction->amount_paid, 0, ',', '.') }}</span>
+            </div>
+            <div class="row">
+                <span>Kembali</span>
+                <span>Rp. {{ number_format($transaction->change_due, 0, ',', '.') }}</span>
+            </div>
+        @else
+            <div class="row" style="margin-top: 5px;">
+                <span>Non Tunai</span>
+                <span>Rp. {{ number_format($transaction->amount_paid, 0, ',', '.') }}</span>
+            </div>
+        @endif
     </div>
 
     <div class="footer">

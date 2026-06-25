@@ -431,11 +431,22 @@ const Summary = {
         let amountPaid = results.amountPaid;
 
         const paymentMethod = $('select[name="payment_method"]').val();
+        const paymentType = $('select[name="payment_type"]').val();
+        const isAmountPaidFocused = $('#amount-paid').is(':focus');
 
-        // Auto-fill amount_paid if lunas
+        // Auto-fill amount_paid
         if (paymentMethod === 'lunas') {
-            $('#amount-paid').val(Utils.formatCurrency(total));
-            amountPaid = total;
+            if (paymentType === 'tunai') {
+                if (!isAmountPaidFocused && amountPaid < total) {
+                    $('#amount-paid').val(Utils.formatCurrency(total));
+                    amountPaid = total;
+                }
+            } else {
+                if (!isAmountPaidFocused || amountPaid !== total) {
+                    $('#amount-paid').val(Utils.formatCurrency(total));
+                    amountPaid = total;
+                }
+            }
         } else if (paymentMethod === 'pending' || paymentMethod === 'cod_kurir') {
             $('#amount-paid').val(Utils.formatCurrency(0));
             amountPaid = 0;
@@ -954,8 +965,9 @@ const FormHandler = {
             raf(() => Summary.update());
         });
 
-        // Payment method change
+        // Payment method and type change
         $('#payment-method').on('change', () => this.handlePaymentMethodChange());
+        $('#payment-type').on('change', () => Summary.update());
 
         // Customer change
         $('#customer-select').on('change', () => this.handleCustomerChange());

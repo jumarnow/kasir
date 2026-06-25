@@ -31,6 +31,7 @@ class StoreTransactionRequest extends FormRequest
             'shipping_cost' => ['nullable', 'numeric', 'min:0'],
             'amount_paid' => ['required', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'max:50'],
+            'payment_type' => ['nullable', 'string', 'in:tunai,qris,transfer'],
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['nullable', 'exists:products,id'],

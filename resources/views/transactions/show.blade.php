@@ -315,6 +315,15 @@
                                     required>
                             </div>
                         </div>
+                        
+                        <div>
+                            <label for="payment_type_modal" class="block text-sm font-medium text-gray-700">Tipe Pembayaran</label>
+                            <select name="payment_type" id="payment_type_modal" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <option value="tunai" {{ (old('payment_type', $transaction->payment_type) == 'tunai') ? 'selected' : '' }}>Tunai</option>
+                                <option value="qris" {{ (old('payment_type', $transaction->payment_type) == 'qris') ? 'selected' : '' }}>QRIS</option>
+                                <option value="transfer" {{ (old('payment_type', $transaction->payment_type) == 'transfer') ? 'selected' : '' }}>Transfer</option>
+                            </select>
+                        </div>
 
                         <div>
                             <label for="cash_received" class="block text-sm font-medium text-gray-700">Uang yang Dibayarkan (Opsional)</label>
@@ -322,7 +331,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 sm:text-sm">Rp</span>
                                 </div>
-                                <input type="text" id="payment-cash-received" 
+                                <input type="text" name="cash_received" id="payment-cash-received" 
                                     class="currency-input focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2" 
                                     placeholder="0">
                             </div>

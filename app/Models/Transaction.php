@@ -42,6 +42,7 @@ class Transaction extends Model
         'change_due',
         'profit',
         'payment_method',
+        'payment_type',
         'status',
         'order_status',
         'payment_status',

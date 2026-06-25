@@ -64,6 +64,15 @@
                 </select>
             </div>
             <div>
+                <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Tipe Pembayaran</label>
+                <select name="payment_type" id="payment-type"
+                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                    <option value="tunai" {{ old('payment_type', $transaction->payment_type ?? '') === 'tunai' ? 'selected' : '' }}>Tunai</option>
+                    <option value="qris" {{ old('payment_type', $transaction->payment_type ?? '') === 'qris' ? 'selected' : '' }}>QRIS</option>
+                    <option value="transfer" {{ old('payment_type', $transaction->payment_type ?? '') === 'transfer' ? 'selected' : '' }}>Transfer</option>
+                </select>
+            </div>
+            <div class="sm:col-span-2">
                 <label class="text-[10px] md:text-xs uppercase font-bold text-slate-400">Dibayar (Rp)</label>
                 <input type="text" name="amount_paid" id="amount-paid" value="{{ old('amount_paid', 0) }}"
                     class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-600 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">

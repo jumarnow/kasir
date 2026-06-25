@@ -166,6 +166,7 @@ class TransactionController extends Controller
     public function storePayment(Request $request, Transaction $transaction)
     {
         $amount = toNumeric($request->input('amount', 0));
+        $cashReceived = toNumeric($request->input('cash_received', 0));
 
         if ($amount <= 0) {
             return back()->with('error', 'Jumlah pembayaran tidak valid.');
@@ -175,8 +176,20 @@ class TransactionController extends Controller
             return back()->with('error', 'Jumlah pembayaran melebihi sisa tagihan.');
         }
 
+        $paymentType = $request->input('payment_type', $transaction->payment_type);
+        if ($paymentType === 'tunai' && $cashReceived > $amount) {
+            $actualPaid = $cashReceived;
+        } else {
+            $actualPaid = $amount;
+        }
+
         // Record payment
-        $transaction->amount_paid += $amount;
+        $transaction->amount_paid += $actualPaid;
+        $transaction->change_due = max(0, $transaction->amount_paid - $transaction->total);
+
+        if ($request->has('payment_type')) {
+            $transaction->payment_type = $request->input('payment_type');
+        }
         $transaction->save(); // Model's saving event will handle status update and remaining amount calculation
 
         return redirect()->route('transactions.show', $transaction)
