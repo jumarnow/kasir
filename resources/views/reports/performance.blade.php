@@ -66,6 +66,7 @@
         const labels = {!! json_encode($labels) !!};
         const salesData = {!! json_encode($salesData) !!};
         const expenseData = {!! json_encode($expenseData) !!};
+        const transCountData = {!! json_encode($transCountData) !!};
 
         const ctx1 = document.getElementById('salesExpenseChart').getContext('2d');
         new Chart(ctx1, {
@@ -79,7 +80,8 @@
                         backgroundColor: 'rgba(99, 102, 241, 0.8)', // Indigo-500
                         borderColor: 'rgb(79, 70, 229)', // Indigo-600
                         borderWidth: 1,
-                        borderRadius: 4
+                        borderRadius: 4,
+                        yAxisID: 'y'
                     },
                     {
                         label: 'Pengeluaran',
@@ -87,7 +89,18 @@
                         backgroundColor: 'rgba(239, 68, 68, 0.8)', // Red-500
                         borderColor: 'rgb(220, 38, 38)', // Red-600
                         borderWidth: 1,
-                        borderRadius: 4
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: 'Jumlah Transaksi',
+                        data: transCountData,
+                        backgroundColor: '#10b981', // emerald-500
+                        borderColor: '#059669', // emerald-600
+                        borderWidth: 2,
+                        tension: 0.1,
+                        yAxisID: 'y1'
                     }
                 ]
             },
@@ -96,6 +109,9 @@
                 maintainAspectRatio: false,
                 scales: {
                     y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
@@ -104,6 +120,15 @@
                                     compactDisplay: "short"
                                 }).format(value);
                             }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
                         }
                     }
                 },
@@ -116,7 +141,11 @@
                                     label += ': ';
                                 }
                                 if (context.parsed.y !== null) {
-                                    label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(context.parsed.y);
+                                    if (context.dataset.label === 'Jumlah Transaksi') {
+                                        label += context.parsed.y;
+                                    } else {
+                                        label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(context.parsed.y);
+                                    }
                                 }
                                 return label;
                             }

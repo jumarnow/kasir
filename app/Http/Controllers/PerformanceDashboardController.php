@@ -17,6 +17,7 @@ class PerformanceDashboardController extends Controller
 
         $salesData = [];
         $expenseData = [];
+        $transCountData = [];
         $labels = [];
 
         $now = Carbon::now();
@@ -28,7 +29,7 @@ class PerformanceDashboardController extends Controller
 
             $transactions = Transaction::whereBetween('created_at', [$startDate, $endDate])
                 ->whereIn('status', ['completed', 'pending'])
-                ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total) as total'))
+                ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total) as total'), DB::raw('COUNT(*) as count'))
                 ->groupBy('date')
                 ->get()
                 ->keyBy('date');
@@ -39,11 +40,22 @@ class PerformanceDashboardController extends Controller
                 ->get()
                 ->keyBy('date');
 
+            $payrolls = \App\Models\Payroll::whereBetween('paid_at', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                ->where('status', 'paid')
+                ->select(DB::raw('DATE(paid_at) as date'), DB::raw('SUM(net_salary) as total'))
+                ->groupBy('date')
+                ->get()
+                ->keyBy('date');
+
             for ($i = 0; $i < 30; $i++) {
                 $date = $startDate->copy()->addDays($i)->format('Y-m-d');
                 $labels[] = Carbon::parse($date)->format('d M');
                 $salesData[] = $transactions->has($date) ? $transactions[$date]->total : 0;
-                $expenseData[] = $expenses->has($date) ? $expenses[$date]->total : 0;
+                
+                $expenseTotal = $expenses->has($date) ? $expenses[$date]->total : 0;
+                $payrollTotal = $payrolls->has($date) ? $payrolls[$date]->total : 0;
+                $expenseData[] = $expenseTotal + $payrollTotal;
+                $transCountData[] = $transactions->has($date) ? $transactions[$date]->count : 0;
             }
 
         } elseif ($period == 'quadmester') {
@@ -55,16 +67,21 @@ class PerformanceDashboardController extends Controller
                 ->get();
                 
             $expenses = Expense::where('expense_date', '>=', $startDate->format('Y-m-d'))->get();
+            $payrolls = \App\Models\Payroll::where('paid_at', '>=', $startDate->format('Y-m-d'))
+                ->where('status', 'paid')
+                ->get();
 
             $groupedSales = [];
             $groupedExpenses = [];
+            $groupedTransCount = [];
 
             for ($y = $startDate->year; $y <= $now->year; $y++) {
-                for ($q = 1; $q <= 3; $q++) { // 3 quadmesters in a year (4 months each)
+                for ($q = 1; $q <= 3; $q++) { // 3 quadmester in a year (4 months each)
                     $key = $y . '-Q' . $q;
                     $labels[] = 'Q' . $q . ' ' . $y . ' (Bln ' . (($q-1)*4 + 1) . '-' . ($q*4) . ')';
                     $groupedSales[$key] = 0;
                     $groupedExpenses[$key] = 0;
+                    $groupedTransCount[$key] = 0;
                 }
             }
 
@@ -74,6 +91,7 @@ class PerformanceDashboardController extends Controller
                 $key = $y . '-Q' . $q;
                 if (isset($groupedSales[$key])) {
                     $groupedSales[$key] += $t->total;
+                    $groupedTransCount[$key]++;
                 }
             }
 
@@ -87,8 +105,19 @@ class PerformanceDashboardController extends Controller
                 }
             }
 
+            foreach ($payrolls as $p) {
+                $date = Carbon::parse($p->paid_at);
+                $y = $date->year;
+                $q = ceil($date->month / 4);
+                $key = $y . '-Q' . $q;
+                if (isset($groupedExpenses[$key])) {
+                    $groupedExpenses[$key] += $p->net_salary;
+                }
+            }
+
             $salesData = array_values($groupedSales);
             $expenseData = array_values($groupedExpenses);
+            $transCountData = array_values($groupedTransCount);
 
         } elseif ($period == 'yearly') {
             // Last 5 years
@@ -96,7 +125,7 @@ class PerformanceDashboardController extends Controller
             
             $transactions = Transaction::where('created_at', '>=', $startDate)
                 ->whereIn('status', ['completed', 'pending'])
-                ->select(DB::raw('YEAR(created_at) as year'), DB::raw('SUM(total) as total'))
+                ->select(DB::raw('YEAR(created_at) as year'), DB::raw('SUM(total) as total'), DB::raw('COUNT(*) as count'))
                 ->groupBy('year')
                 ->get()
                 ->keyBy('year');
@@ -107,11 +136,22 @@ class PerformanceDashboardController extends Controller
                 ->get()
                 ->keyBy('year');
 
+            $payrolls = \App\Models\Payroll::where('paid_at', '>=', $startDate->format('Y-m-d'))
+                ->where('status', 'paid')
+                ->select(DB::raw('YEAR(paid_at) as year'), DB::raw('SUM(net_salary) as total'))
+                ->groupBy('year')
+                ->get()
+                ->keyBy('year');
+
             for ($i = 0; $i < 5; $i++) {
                 $year = $startDate->copy()->addYears($i)->year;
                 $labels[] = $year;
                 $salesData[] = $transactions->has($year) ? $transactions[$year]->total : 0;
-                $expenseData[] = $expenses->has($year) ? $expenses[$year]->total : 0;
+                
+                $expenseTotal = $expenses->has($year) ? $expenses[$year]->total : 0;
+                $payrollTotal = $payrolls->has($year) ? $payrolls[$year]->total : 0;
+                $expenseData[] = $expenseTotal + $payrollTotal;
+                $transCountData[] = $transactions->has($year) ? $transactions[$year]->count : 0;
             }
 
         } else {
@@ -121,7 +161,7 @@ class PerformanceDashboardController extends Controller
 
             $transactions = Transaction::whereBetween('created_at', [$startDate, $endDate])
                 ->whereIn('status', ['completed', 'pending'])
-                ->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'), DB::raw('SUM(total) as total'))
+                ->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'), DB::raw('SUM(total) as total'), DB::raw('COUNT(*) as count'))
                 ->groupBy('month')
                 ->get()
                 ->keyBy('month');
@@ -132,12 +172,23 @@ class PerformanceDashboardController extends Controller
                 ->get()
                 ->keyBy('month');
 
+            $payrolls = \App\Models\Payroll::whereBetween('paid_at', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                ->where('status', 'paid')
+                ->select(DB::raw('DATE_FORMAT(paid_at, "%Y-%m") as month'), DB::raw('SUM(net_salary) as total'))
+                ->groupBy('month')
+                ->get()
+                ->keyBy('month');
+
             for ($i = 0; $i < 12; $i++) {
                 $date = $startDate->copy()->addMonths($i);
                 $monthKey = $date->format('Y-m');
                 $labels[] = $date->format('M Y');
                 $salesData[] = $transactions->has($monthKey) ? $transactions[$monthKey]->total : 0;
-                $expenseData[] = $expenses->has($monthKey) ? $expenses[$monthKey]->total : 0;
+                
+                $expenseTotal = $expenses->has($monthKey) ? $expenses[$monthKey]->total : 0;
+                $payrollTotal = $payrolls->has($monthKey) ? $payrolls[$monthKey]->total : 0;
+                $expenseData[] = $expenseTotal + $payrollTotal;
+                $transCountData[] = $transactions->has($monthKey) ? $transactions[$monthKey]->count : 0;
             }
         }
 
@@ -199,6 +250,7 @@ class PerformanceDashboardController extends Controller
             'labels', 
             'salesData', 
             'expenseData',
+            'transCountData',
             'empLabels',
             'empSalesData',
             'empTransData',
