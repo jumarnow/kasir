@@ -67,42 +67,58 @@
         const salesData = {!! json_encode($salesData) !!};
         const expenseData = {!! json_encode($expenseData) !!};
         const transCountData = {!! json_encode($transCountData) !!};
+        const nettProfitData = {!! json_encode($nettProfitData ?? []) !!};
+
+        const datasets = [
+            {
+                label: 'Penjualan',
+                data: salesData,
+                backgroundColor: 'rgba(99, 102, 241, 0.8)', // Indigo-500
+                borderColor: 'rgb(79, 70, 229)', // Indigo-600
+                borderWidth: 1,
+                borderRadius: 4,
+                yAxisID: 'y'
+            },
+            {
+                label: 'Pengeluaran',
+                data: expenseData,
+                backgroundColor: 'rgba(239, 68, 68, 0.8)', // Red-500
+                borderColor: 'rgb(220, 38, 38)', // Red-600
+                borderWidth: 1,
+                borderRadius: 4,
+                yAxisID: 'y'
+            },
+            {
+                type: 'line',
+                label: 'Jumlah Transaksi',
+                data: transCountData,
+                backgroundColor: '#10b981', // emerald-500
+                borderColor: '#059669', // emerald-600
+                borderWidth: 2,
+                tension: 0.1,
+                yAxisID: 'y1'
+            }
+        ];
+
+        @if($period !== 'daily')
+        datasets.push({
+            type: 'line',
+            label: 'Nett Income',
+            data: nettProfitData,
+            backgroundColor: 'rgba(234, 179, 8, 0.8)', // Yellow-500
+            borderColor: 'rgb(202, 138, 4)', // Yellow-600
+            borderWidth: 3,
+            tension: 0.3,
+            yAxisID: 'y'
+        });
+        @endif
 
         const ctx1 = document.getElementById('salesExpenseChart').getContext('2d');
         new Chart(ctx1, {
             type: 'bar',
             data: {
                 labels: labels,
-                datasets: [
-                    {
-                        label: 'Penjualan',
-                        data: salesData,
-                        backgroundColor: 'rgba(99, 102, 241, 0.8)', // Indigo-500
-                        borderColor: 'rgb(79, 70, 229)', // Indigo-600
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Pengeluaran',
-                        data: expenseData,
-                        backgroundColor: 'rgba(239, 68, 68, 0.8)', // Red-500
-                        borderColor: 'rgb(220, 38, 38)', // Red-600
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        yAxisID: 'y'
-                    },
-                    {
-                        type: 'line',
-                        label: 'Jumlah Transaksi',
-                        data: transCountData,
-                        backgroundColor: '#10b981', // emerald-500
-                        borderColor: '#059669', // emerald-600
-                        borderWidth: 2,
-                        tension: 0.1,
-                        yAxisID: 'y1'
-                    }
-                ]
+                datasets: datasets
             },
             options: {
                 responsive: true,
