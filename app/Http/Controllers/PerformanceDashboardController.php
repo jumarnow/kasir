@@ -57,7 +57,7 @@ class PerformanceDashboardController extends Controller
                 $payrollTotal = $payrolls->has($date) ? $payrolls[$date]->total : 0;
                 $expenseData[] = $expenseTotal + $payrollTotal;
                 $transCountData[] = $transactions->has($date) ? $transactions[$date]->count : 0;
-                $nettProfitData[] = $transactions->has($date) ? $transactions[$date]->profit : 0;
+                $nettProfitData[] = ($transactions->has($date) ? $transactions[$date]->total : 0) - $expenseTotal - $payrollTotal;
             }
 
         } elseif ($period == 'quadmester') {
@@ -96,7 +96,7 @@ class PerformanceDashboardController extends Controller
                 if (isset($groupedSales[$key])) {
                     $groupedSales[$key] += $t->total;
                     $groupedTransCount[$key]++;
-                    $groupedProfit[$key] += $t->profit;
+                    $groupedProfit[$key] += $t->total;
                 }
             }
 
@@ -107,6 +107,7 @@ class PerformanceDashboardController extends Controller
                 $key = $y . '-Q' . $q;
                 if (isset($groupedExpenses[$key])) {
                     $groupedExpenses[$key] += $e->amount;
+                    $groupedProfit[$key] -= $e->amount;
                 }
             }
 
@@ -117,6 +118,7 @@ class PerformanceDashboardController extends Controller
                 $key = $y . '-Q' . $q;
                 if (isset($groupedExpenses[$key])) {
                     $groupedExpenses[$key] += $p->net_salary;
+                    $groupedProfit[$key] -= $p->net_salary;
                 }
             }
 
@@ -158,7 +160,7 @@ class PerformanceDashboardController extends Controller
                 $payrollTotal = $payrolls->has($year) ? $payrolls[$year]->total : 0;
                 $expenseData[] = $expenseTotal + $payrollTotal;
                 $transCountData[] = $transactions->has($year) ? $transactions[$year]->count : 0;
-                $nettProfitData[] = $transactions->has($year) ? $transactions[$year]->profit : 0;
+                $nettProfitData[] = ($transactions->has($year) ? $transactions[$year]->total : 0) - $expenseTotal - $payrollTotal;
             }
 
         } else {
@@ -196,7 +198,7 @@ class PerformanceDashboardController extends Controller
                 $payrollTotal = $payrolls->has($monthKey) ? $payrolls[$monthKey]->total : 0;
                 $expenseData[] = $expenseTotal + $payrollTotal;
                 $transCountData[] = $transactions->has($monthKey) ? $transactions[$monthKey]->count : 0;
-                $nettProfitData[] = $transactions->has($monthKey) ? $transactions[$monthKey]->profit : 0;
+                $nettProfitData[] = ($transactions->has($monthKey) ? $transactions[$monthKey]->total : 0) - $expenseTotal - $payrollTotal;
             }
         }
 
