@@ -135,6 +135,12 @@
         @endif
     </div>
 
+    @if($transaction->isPaid())
+        <div style="text-align: center; margin-top: 15px; margin-bottom: 5px;">
+            <span style="font-size: 22px; font-weight: bold; border: 2px dashed black; padding: 5px 15px; display: inline-block; letter-spacing: 2px;">LUNAS</span>
+        </div>
+    @endif
+
     <div class="footer">
         Terima kasih atas kunjungan Anda.<br>
         Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.
