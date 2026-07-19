@@ -109,6 +109,10 @@ Route::middleware(['auth'])->group(function () {
             ->name('monitoring.status')
             ->middleware('permission:monitoring_status');
             
+        Route::get('status/export', [App\Http\Controllers\MonitoringController::class, 'exportStatusOrder'])
+            ->name('monitoring.status.export')
+            ->middleware('permission:monitoring_status');
+            
         Route::get('lookup', [App\Http\Controllers\MonitoringController::class, 'lookupTransaction'])->name('monitoring.lookup');
     });
 });

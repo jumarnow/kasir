@@ -6,9 +6,18 @@
 @section('content')
 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
     <div class="p-6">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 uppercase tracking-wider">Monitoring Order</h2>
-        <p class="text-sm text-slate-500 mb-6">Scan barcode, pilih produk, atau cari secara manual</p>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800 mb-1 uppercase tracking-wider">Monitoring Order</h2>
+                <p class="text-sm text-slate-500">Scan barcode, pilih produk, atau cari secara manual</p>
+            </div>
+            <a href="{{ route('monitoring.status.export', request()->query()) }}" class="mt-4 sm:mt-0 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export Excel
+            </a>
+        </div>
         
+
         <form action="{{ route('monitoring.status') }}" method="GET" class="mb-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                 <div class="md:col-span-3">

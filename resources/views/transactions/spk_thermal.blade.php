@@ -96,7 +96,7 @@
         <div id="qrcode" style="display: flex; justify-content: center; margin-top: 10px; margin-bottom: 5px;"></div>
     </div>
 
-    <div style="text-align: center; font-size: 20px; margin-bottom: 10px;">
+    <div style="text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px;">
         <strong>{{ $transaction->customer->name ?? 'Pelanggan Umum' }}</strong>
     </div>
 

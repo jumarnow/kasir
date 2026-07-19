@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MonitoringStatusExport;
 use App\Models\ProductionTracking;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MonitoringController extends Controller
 {
@@ -148,6 +150,46 @@ class MonitoringController extends Controller
         $customers = \App\Models\Customer::orderBy('name')->get();
 
         return view('monitoring.status', compact('transactions', 'customers'));
+    }
+
+    public function exportStatusOrder(Request $request)
+    {
+        $query = Transaction::with([
+            'customer', 
+            'items', 
+            'trackings.user',
+            'checkedBy'
+        ])->orderBy('created_at', 'desc');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                  ->orWhereHas('customer', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('order_status', $request->status);
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $transactions = $query->get();
+
+        return Excel::download(new MonitoringStatusExport($transactions), 'monitoring_status_' . now()->format('Ymd_His') . '.xlsx');
     }
 
     public function lookupTransaction(Request $request)
