@@ -164,14 +164,29 @@
 
                     <!-- Unit Price Fields (Toggled) -->
                     <div id="unit-price-fields" class="{{ old('pricing_type', $isEdit ? $product->pricing_type : 'per_unit') == 'per_unit' ? '' : 'hidden' }}">
-                        <label class="text-sm font-medium text-slate-600">Harga Jual Satuan</label>
-                        <input
-                            type="text"
-                            min="0"
-                            name="price"
-                            value="{{ old('price', $isEdit ? formatNumber($product->price) : '') }}"
-                            class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                        >
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-slate-600">Harga Jual Satuan</label>
+                                <input
+                                    type="text"
+                                    min="0"
+                                    name="price"
+                                    value="{{ old('price', $isEdit ? formatNumber($product->price) : '') }}"
+                                    class="currency-input mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                >
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-slate-600">Min. Qty</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    name="min_qty"
+                                    value="{{ old('min_qty', $isEdit ? $product->min_qty : '') }}"
+                                    class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                    placeholder="Opsional"
+                                >
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">

@@ -79,14 +79,14 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-y border-slate-200">
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Nama Customer</th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Deskripsi Produk</th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Tanggal Pembuatan</th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Start Design</th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Finish Design</th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Start Production</th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Finish Production</th>
-                    <th class="px-4 py-3 text-sm font-bold text-slate-800">Status</th>
+                    <th class="px-3 py-1 text-xs leading-tight font-bold text-slate-800">Nama Customer</th>
+                    <th class="px-3 py-1 text-xs leading-tight font-bold text-slate-800">Deskripsi Produk</th>
+                    <th class="px-3 py-1 text-xs leading-tight font-bold text-slate-800">Tanggal Pembuatan</th>
+                    <th class="px-3 py-1 text-xs leading-tight font-bold text-slate-800">Start Design</th>
+                    <th class="px-3 py-1 text-xs leading-tight font-bold text-slate-800">Finish Design</th>
+                    <th class="px-3 py-1 text-xs leading-tight font-bold text-slate-800">Start Production</th>
+                    <th class="px-3 py-1 text-xs leading-tight font-bold text-slate-800">Finish Production</th>
+                    <th class="px-3 py-1 text-xs leading-tight font-bold text-slate-800">Status</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -101,53 +101,53 @@
                         @endphp
                         <tr class="hover:bg-slate-50 transition-colors group {{ !$loop->first ? 'border-t border-slate-100/50' : '' }}">
                             @if($loop->first)
-                            <td class="px-4 py-4 align-top bg-white border-b border-slate-200" rowspan="{{ count($trx->items) }}">
-                                <div class="font-bold text-slate-800">{{ $trx->customer ? $trx->customer->name : 'Walk-in Customer' }}</div>
-                                <div class="text-xs text-slate-500 mt-1">{{ $trx->invoice_number }}</div>
+                            <td class="px-3 py-1 align-top bg-white border-b border-slate-200" rowspan="{{ count($trx->items) }}">
+                                <div class="font-bold text-slate-800 text-xs leading-tight">{{ $trx->customer ? $trx->customer->name : 'Walk-in Customer' }}</div>
+                                <div class="text-[10px] text-slate-500 leading-tight">{{ $trx->invoice_number }}</div>
                             </td>
                             @endif
-                            <td class="px-4 py-4 align-top">
-                                <div class="text-sm text-indigo-600 font-medium">{{ $item->product?->name ?? $item->custom_name }}</div>
-                                <div class="text-xs text-slate-500 mt-1">Qty: {{ $item->quantity }}</div>
+                            <td class="px-3 py-1 align-top">
+                                <div class="text-xs text-indigo-600 font-medium leading-tight">{{ $item->product?->name ?? $item->custom_name }}</div>
+                                <div class="text-[10px] text-slate-500 leading-tight">Qty: {{ $item->quantity }}</div>
                             </td>
-                            <td class="px-4 py-4 align-top text-sm">
+                            <td class="px-3 py-1 align-top text-xs leading-tight">
                                 <div class="text-slate-700">{{ $trx->created_at->format('d M Y, H:i') }}</div>
                             </td>
-                            <td class="px-4 py-4 align-top text-sm">
+                            <td class="px-3 py-1 align-top text-xs leading-tight">
                                 @if($designIn)
                                     <div class="text-slate-700 font-medium">{{ $designIn->tracked_at->format('d M Y, H:i') }}</div>
-                                    <div class="text-xs text-slate-500 mt-1">{{ $designIn->user->name ?? 'Designer' }}</div>
+                                    <div class="text-[10px] text-slate-500">{{ $designIn->user->name ?? 'Designer' }}</div>
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-4 align-top text-sm">
+                            <td class="px-3 py-1 align-top text-xs leading-tight">
                                 @if($designOut)
                                     <div class="text-slate-700 font-medium">{{ $designOut->tracked_at->format('d M Y, H:i') }}</div>
-                                    <div class="text-xs text-slate-500 mt-1">{{ $designOut->user->name ?? 'Designer' }}</div>
+                                    <div class="text-[10px] text-slate-500">{{ $designOut->user->name ?? 'Designer' }}</div>
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-4 align-top text-sm">
+                            <td class="px-3 py-1 align-top text-xs leading-tight">
                                 @if($productionIn)
                                     <div class="text-slate-700 font-medium">{{ $productionIn->tracked_at->format('d M Y, H:i') }}</div>
-                                    <div class="text-xs text-slate-500 mt-1">{{ $productionIn->user->name ?? 'Produksi' }}</div>
+                                    <div class="text-[10px] text-slate-500">{{ $productionIn->user->name ?? 'Produksi' }}</div>
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-4 align-top text-sm">
+                            <td class="px-3 py-1 align-top text-xs leading-tight">
                                 @if($productionOut)
                                     <div class="text-slate-700 font-medium">{{ $productionOut->tracked_at->format('d M Y, H:i') }}</div>
-                                    <div class="text-xs text-slate-500 mt-1">{{ $productionOut->user->name ?? 'Produksi' }}</div>
+                                    <div class="text-[10px] text-slate-500">{{ $productionOut->user->name ?? 'Produksi' }}</div>
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-4 align-top">
+                            <td class="px-3 py-1 align-top">
                                 @if($item->status === 'finished' || $item->pickup_method)
-                                    <div class="font-bold text-slate-800 text-sm mb-1">
+                                    <div class="font-bold text-slate-800 text-xs leading-tight mb-0.5">
                                         @if($item->pickup_method === 'customer')
                                             Diambil Customer
                                         @elseif($item->pickup_method === 'kurir')
@@ -159,10 +159,10 @@
                                         @endif
                                     </div>
                                     @if($item->picked_up_at)
-                                        <div class="text-sm text-indigo-600 font-medium">{{ \Carbon\Carbon::parse($item->picked_up_at)->format('d M Y, H:i') }}</div>
+                                        <div class="text-[10px] text-indigo-600 font-medium leading-tight">{{ \Carbon\Carbon::parse($item->picked_up_at)->format('d M Y, H:i') }}</div>
                                     @endif
                                     @if($item->checked_by)
-                                        <div class="text-xs text-slate-500 mt-1">Oleh: {{ $item->checkedBy->name ?? '' }}</div>
+                                        <div class="text-[10px] text-slate-500 leading-tight">Oleh: {{ $item->checkedBy->name ?? '' }}</div>
                                     @endif
                                 @else
                                     @php
@@ -171,7 +171,7 @@
                                         elseif ($item->status === 'designing' || $item->status === 'production') $statusClass = 'bg-blue-50 text-blue-700 border-blue-200';
                                         elseif ($item->status === 'completed') $statusClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                                     @endphp
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border {{ $statusClass }}">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border {{ $statusClass }}">
                                         {{ ucfirst($item->status) }}
                                     </span>
                                 @endif

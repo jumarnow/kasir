@@ -50,7 +50,7 @@ class TransactionController extends Controller
         $customers = Customer::orderBy('name')->get(['id', 'name', 'price_tier']);
         $products = Product::where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'price_unit', 'min_width', 'min_length']);
+            ->get(['id', 'name', 'sku', 'barcode', 'price', 'price_2', 'price_3', 'cost_price', 'stock', 'stock_alert', 'pricing_type', 'price_per_meter', 'price_unit', 'min_width', 'min_length', 'min_qty']);
 
         $finishings = \App\Models\Finishing::all();
         $displays = \App\Models\Display::all();
@@ -161,6 +161,7 @@ class TransactionController extends Controller
             'price_unit' => $product->price_unit ?? 'per_m2',
             'min_width' => (float) ($product->min_width ?? 0),
             'min_length' => (float) ($product->min_length ?? 0),
+            'min_qty' => (int) ($product->min_qty ?? 1),
         ]);
     }
     public function storePayment(Request $request, Transaction $transaction)

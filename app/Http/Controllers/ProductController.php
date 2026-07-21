@@ -55,6 +55,7 @@ class ProductController extends Controller
         $payload['price_unit'] = $payload['price_unit'] ?? 'per_m2';
         $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;
         $payload['min_length'] = !empty($payload['min_length']) ? toNumeric($payload['min_length']) : null;
+        $payload['min_qty'] = !empty($payload['min_qty']) ? (int) $payload['min_qty'] : null;
         $payload['stock'] = $payload['stock'] ?? 0;
         $payload['stock_alert'] = $payload['stock_alert'] ?? 5;
 
@@ -83,6 +84,7 @@ class ProductController extends Controller
         $payload['price_unit'] = $payload['price_unit'] ?? 'per_m2';
         $payload['min_width'] = !empty($payload['min_width']) ? toNumeric($payload['min_width']) : null;
         $payload['min_length'] = !empty($payload['min_length']) ? toNumeric($payload['min_length']) : null;
+        $payload['min_qty'] = !empty($payload['min_qty']) ? (int) $payload['min_qty'] : null;
 
         $product->update($payload);
 

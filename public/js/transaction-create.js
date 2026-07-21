@@ -361,6 +361,9 @@ const Cart = {
             pricing_type: product.pricing_type,
             price_per_meter: Number(product.price_per_meter || product.price),
             price_unit: product.price_unit || 'per_m2',
+            min_width: Number(product.min_width || 0),
+            min_length: Number(product.min_length || 0),
+            min_qty: Number(product.min_qty || 1),
             width: 0,
             length: 0,
             area: 0,
@@ -610,10 +613,17 @@ const ItemDetailModal = {
         // per_m2: convert cm to m (divide by 100), then calculate m²
         // per_cm2: use cm directly as cm²
         let area;
+        let minArea = 0;
         if (item.price_unit === 'per_cm2') {
             area = w * l; // cm * cm = cm²
+            minArea = (item.min_width || 0) * (item.min_length || 0);
         } else {
             area = (w / 100) * (l / 100); // m * m = m²
+            minArea = ((item.min_width || 0) / 100) * ((item.min_length || 0) / 100);
+        }
+        
+        if (item.pricing_type === 'per_dimension' && minArea > 0) {
+            area = Math.max(area, minArea);
         }
 
         let productPrice = item.price_1;
@@ -679,6 +689,11 @@ const ItemDetailModal = {
             }
         }
 
+        if (item.pricing_type !== 'per_dimension' && item.min_qty > 1 && qty < item.min_qty) {
+            const minTotal = unitPrice * item.min_qty;
+            unitPrice = minTotal / qty;
+        }
+
         const total = Math.round(unitPrice) * qty;
         $('#modal-price-display').text(Utils.formatCurrency(total));
     },
@@ -696,10 +711,17 @@ const ItemDetailModal = {
 
         // Calculate area based on price_unit
         let area;
+        let minArea = 0;
         if (item.price_unit === 'per_cm2') {
             area = w * l; // cm * cm = cm²
+            minArea = (item.min_width || 0) * (item.min_length || 0);
         } else {
             area = (w / 100) * (l / 100); // m * m = m²
+            minArea = ((item.min_width || 0) / 100) * ((item.min_length || 0) / 100);
+        }
+
+        if (item.pricing_type === 'per_dimension' && minArea > 0) {
+            area = Math.max(area, minArea);
         }
 
         // Update basic specs
@@ -761,6 +783,11 @@ const ItemDetailModal = {
                     unitPrice += fPrice;
                 }
             }
+        }
+
+        if (item.pricing_type !== 'per_dimension' && item.min_qty > 1 && qty < item.min_qty) {
+            const minTotal = unitPrice * item.min_qty;
+            unitPrice = minTotal / qty;
         }
 
         item.price = Math.round(unitPrice);
