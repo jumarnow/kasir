@@ -58,6 +58,7 @@ class Transaction extends Model
         'checked_by',
         'notes',
         'reject_reason',
+        'payment_user_id',
         'created_at',
     ];
 
@@ -140,6 +141,11 @@ class Transaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function paymentUser()
+    {
+        return $this->belongsTo(User::class, 'payment_user_id');
     }
 
     public function customer()

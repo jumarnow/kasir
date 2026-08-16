@@ -96,7 +96,11 @@
                             @endphp
                             <p class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</p>
                             <p class="text-xs text-slate-500 mt-1">Status: 
-                                <span class="font-bold {{ $paymentClass }}">{{ $paymentLabel }}</span></p>
+                                <span class="font-bold {{ $paymentClass }}">{{ $paymentLabel }}</span>
+                            </p>
+                            @if($transaction->paymentUser)
+                                <p class="text-[13px] font-medium text-emerald-600 mt-0.5">{{ $transaction->paymentUser->name }}</p>
+                            @endif
                             @if($isRejectedOrCanceled && $transaction->reject_reason)
                                 <p class="mt-1.5 text-[11px] text-red-600 italic bg-red-50/50 p-1.5 rounded-md border border-red-100/50">Problem : <br>"{{ $transaction->reject_reason }}"</p>
                             @endif
@@ -183,6 +187,9 @@
                     <div>
                         <h3 class="font-semibold text-slate-800">{{ $transaction->invoice_number }}</h3>
                         <p class="text-xs text-slate-500 mt-1">{{ $transaction->created_at->format('d M Y, H:i') }}</p>
+                        @if($transaction->paymentUser)
+                            <p class="text-xs font-medium text-emerald-600 mt-1">{{ $transaction->paymentUser->name }}</p>
+                        @endif
                         @if(in_array($transaction->payment_status, ['dp', 'unpaid']) && $transaction->due_date && !$isRejectedOrCanceled)
                             <p class="mt-1 text-xs font-medium text-red-600">
                                 Jatuh Tempo: {{ $transaction->due_date->format('d M Y') }}

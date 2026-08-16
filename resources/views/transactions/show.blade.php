@@ -50,6 +50,12 @@
                                 @endif
                             </div>
                         </div>
+                        @if($transaction->paymentUser)
+                            <div class="flex items-center gap-3 bg-indigo-50/80 px-3 py-2 rounded-xl border border-indigo-100">
+                                <span class="text-[11px] font-semibold uppercase tracking-wider text-indigo-400 w-16">Closing</span>
+                                <span class="text-sm font-medium text-indigo-800">{{ $transaction->paymentUser->name }} ({{ $transaction->paymentUser->roles->first()?->name ?? 'Kasir' }})</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

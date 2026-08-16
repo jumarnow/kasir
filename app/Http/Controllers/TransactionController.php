@@ -89,7 +89,7 @@ class TransactionController extends Controller
 
     public function show(Transaction $transaction)
     {
-        $transaction->load(['items.product', 'items.finishing', 'items.material', 'items.display', 'customer', 'user']);
+        $transaction->load(['items.product', 'items.finishing', 'items.material', 'items.display', 'customer', 'user', 'paymentUser']);
 
         return view('transactions.show', compact('transaction'));
     }
@@ -191,6 +191,7 @@ class TransactionController extends Controller
         if ($request->has('payment_type')) {
             $transaction->payment_type = $request->input('payment_type');
         }
+        $transaction->payment_user_id = $request->user()->id ?? auth()->id();
         $transaction->save(); // Model's saving event will handle status update and remaining amount calculation
 
         return redirect()->route('transactions.show', $transaction)
@@ -285,7 +286,7 @@ class TransactionController extends Controller
 
     private function filteredTransactionsQuery(array $filters)
     {
-        return Transaction::with(['customer', 'user', 'items.product'])
+        return Transaction::with(['customer', 'user', 'items.product', 'paymentUser'])
             ->when($filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '<=', $date))
             ->when($filters['search'] ?? null, function ($query, $term) {
