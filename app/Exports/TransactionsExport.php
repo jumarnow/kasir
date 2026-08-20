@@ -26,7 +26,7 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
 
     public function collection(): Collection
     {
-        return Transaction::with(['customer', 'user', 'items.product'])
+        return Transaction::with(['customer', 'user', 'items.product', 'paymentUser'])
             ->when($this->filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($this->filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('created_at', '<=', $date))
             ->when($this->filters['search'] ?? null, function ($query, $term) {
@@ -65,6 +65,7 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             'Invoice',
             'Tanggal',
             'Kasir',
+            'Closing',
             'Pelanggan',
             'Item',
             'Qty Total',
@@ -93,6 +94,7 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             $transaction->invoice_number,
             $transaction->created_at?->format('d/m/Y H:i'),
             $transaction->user?->name ?? '-',
+            $transaction->paymentUser?->name ?? '-',
             $transaction->customer?->name ?? 'Umum',
             $items,
             $transaction->items->sum('quantity'),
@@ -125,7 +127,7 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
     {
         $highestRow = max(1, $sheet->getHighestRow());
 
-        $sheet->getStyle('A1:O1')->applyFromArray([
+        $sheet->getStyle('A1:P1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -140,7 +142,7 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             ],
         ]);
 
-        $sheet->getStyle('A1:O' . $highestRow)->applyFromArray([
+        $sheet->getStyle('A1:P' . $highestRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -152,15 +154,15 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             ],
         ]);
 
-        $sheet->getStyle('G2:L' . $highestRow)
+        $sheet->getStyle('H2:M' . $highestRow)
             ->getNumberFormat()
             ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 
-        $sheet->getStyle('F2:F' . $highestRow)
+        $sheet->getStyle('G2:G' . $highestRow)
             ->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $sheet->getStyle('G2:L' . $highestRow)
+        $sheet->getStyle('H2:M' . $highestRow)
             ->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
@@ -175,12 +177,12 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
                 $highestRow = max(1, $sheet->getHighestRow());
 
                 $sheet->freezePane('A2');
-                $sheet->setAutoFilter('A1:O' . $highestRow);
+                $sheet->setAutoFilter('A1:P' . $highestRow);
                 $sheet->getRowDimension(1)->setRowHeight(24);
 
                 for ($row = 2; $row <= $highestRow; $row++) {
                     if ($row % 2 === 0) {
-                        $sheet->getStyle('A' . $row . ':O' . $row)->applyFromArray([
+                        $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
                                 'startColor' => ['rgb' => 'F8FAFC'],
@@ -189,7 +191,7 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
                     }
                 }
 
-                $sheet->getStyle('E2:E' . $highestRow)->getAlignment()->setWrapText(true);
+                $sheet->getStyle('F2:F' . $highestRow)->getAlignment()->setWrapText(true);
             },
         ];
     }
@@ -200,18 +202,19 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             'A' => 22,
             'B' => 20,
             'C' => 20,
-            'D' => 24,
-            'E' => 42,
-            'F' => 10,
-            'G' => 16,
+            'D' => 20,
+            'E' => 24,
+            'F' => 42,
+            'G' => 10,
             'H' => 16,
             'I' => 16,
             'J' => 16,
             'K' => 16,
             'L' => 16,
-            'M' => 18,
-            'N' => 16,
-            'O' => 15,
+            'M' => 16,
+            'N' => 18,
+            'O' => 16,
+            'P' => 15,
         ];
     }
 }
