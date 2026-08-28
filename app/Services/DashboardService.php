@@ -111,31 +111,42 @@ class DashboardService
         ];
     }
 
-    public function topProducts(int $limit = 5): array
+    public function dailySpkPerformance(): array
     {
-        $query = Product::select('products.id', 'products.name', 'products.sku', DB::raw('SUM(transaction_items.quantity) as quantity'))
-            ->join('transaction_items', 'transaction_items.product_id', '=', 'products.id')
-            ->join('transactions', 'transactions.id', '=', 'transaction_items.transaction_id')
-            ->where('transactions.created_at', '>=', Carbon::today()->subDays(30));
+        $today = Carbon::today();
+        
+        $employees = \App\Models\Employee::select('employees.id', 'employees.name')
+            ->addSelect([
+                'design_count' => \App\Models\Transaction::selectRaw('count(*)')
+                    ->whereColumn('desainer_id', 'employees.id')
+                    ->whereDate('created_at', $today),
 
-        // Apply user filter to transactions
-        if ($this->shouldFilterByUser()) {
-            $query->where('transactions.user_id', auth()->id());
+                'produksi_count' => \App\Models\Transaction::selectRaw('count(*)')
+                    ->where(function ($query) {
+                        $query->whereColumn('eksekutor_id', 'employees.id')
+                            ->orWhereColumn('eksekutor_2_id', 'employees.id');
+                    })
+                    ->whereDate('created_at', $today),
+            ])
+            ->havingRaw('(design_count + produksi_count) > 0')
+            ->orderByRaw('(design_count + produksi_count) DESC')
+            ->get();
+
+        $labels = [];
+        $designData = [];
+        $produksiData = [];
+
+        foreach ($employees as $employee) {
+            $labels[] = $employee->name;
+            $designData[] = (int) $employee->design_count;
+            $produksiData[] = (int) $employee->produksi_count;
         }
 
-        return $query->groupBy('products.id', 'products.name', 'products.sku')
-            ->orderByDesc('quantity')
-            ->limit($limit)
-            ->get()
-            ->map(static function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'sku' => $product->sku,
-                    'quantity' => (int) $product->quantity,
-                ];
-            })
-            ->all();
+        return [
+            'labels' => $labels,
+            'design' => $designData,
+            'produksi' => $produksiData,
+        ];
     }
 
     public function lowStockProducts(int $limit = 10): array
@@ -162,13 +173,16 @@ class DashboardService
     public function dashboardData(): array
     {
         $stockAlerts = $this->lowStockProducts();
+        $user = auth()->user();
+        $isManager = $user && $user->hasRole('manager');
 
         return [
             'chart' => $this->salesLastSevenDays(),
             'today' => $this->todaySummary(),
-            'top_products' => $this->topProducts(),
             'stock_alerts' => $stockAlerts,
             'low_stock_count' => count($stockAlerts),
+            'spk_chart' => $isManager ? $this->dailySpkPerformance() : null,
+            'is_manager' => $isManager,
         ];
     }
 }

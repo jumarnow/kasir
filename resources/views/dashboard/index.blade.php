@@ -98,7 +98,7 @@
                 <p class="text-xs font-bold uppercase tracking-wider opacity-70">Quick Insight</p>
                 <h2 class="mt-4 text-xl font-bold">Performa Bisnis</h2>
                 <p class="mt-2 text-sm opacity-85 leading-relaxed">
-                    Pantau grafik penjualan, stok produk kritis, dan daftar produk terlaris secara real-time.
+                    Pantau grafik penjualan, stok produk kritis, dan performa SPK harian secara real-time.
                 </p>
                 <div class="mt-6 flex flex-wrap gap-2">
                     <span
@@ -123,8 +123,12 @@
 
     @if ($canViewProfit)
 
-        <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-3">
-            <div class="lg:col-span-2 rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+        @php
+            $gridCols = $data['is_manager'] ? 'lg:grid-cols-3' : 'lg:grid-cols-1';
+            $salesSpan = $data['is_manager'] ? 'lg:col-span-2' : 'lg:col-span-1';
+        @endphp
+        <div class="mt-6 grid gap-3 md:gap-6 {{ $gridCols }}">
+            <div class="{{ $salesSpan }} rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h2 class="text-base font-bold text-slate-800">Grafik Penjualan</h2>
@@ -137,34 +141,17 @@
                 </div>
             </div>
 
+            @if ($data['is_manager'])
             <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
                 <div class="mb-6">
-                    <h2 class="text-base font-bold text-slate-800">Produk Terlaris</h2>
-                    <p class="text-xs text-slate-500">Berdasarkan kuantitas (30 hari)</p>
+                    <h2 class="text-base font-bold text-slate-800">Grafik SPK (Hari Ini)</h2>
+                    <p class="text-xs text-slate-500">Performa Design & Produksi</p>
                 </div>
-                <ul class="space-y-3">
-                    @forelse ($data['top_products'] as $product)
-                        <li
-                            class="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-slate-50 hover:border-slate-200">
-                            <div class="flex-1 min-w-0 mr-4">
-                                <p class="text-sm font-bold text-slate-800 truncate">{{ $product['name'] }}</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">SKU:
-                                    {{ $product['sku'] }}
-                                </p>
-                            </div>
-                            <div class="text-right">
-                                <span
-                                    class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold text-indigo-600 border border-indigo-50 shadow-sm">
-                                    {{ $product['quantity'] }}
-                                </span>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Terjual</p>
-                            </div>
-                        </li>
-                    @empty
-                        <div class="py-8 text-center text-sm text-slate-500 italic">Belum ada data transaksi.</div>
-                    @endforelse
-                </ul>
+                <div class="relative h-[240px] w-full">
+                    <canvas id="spkChart"></canvas>
+                </div>
             </div>
+            @endif
         </div>
 
     @endif
@@ -306,6 +293,43 @@
                 }
             });
         }
+
+        @if ($data['is_manager'] && !empty($data['spk_chart']))
+        const spkData = @json($data['spk_chart']);
+        if (spkData.labels.length) {
+            const spkCtx = document.getElementById('spkChart').getContext('2d');
+            new Chart(spkCtx, {
+                type: 'bar',
+                data: {
+                    labels: spkData.labels,
+                    datasets: [
+                        {
+                            label: 'Design',
+                            data: spkData.design,
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                            borderColor: 'rgb(217, 119, 6)',
+                            borderWidth: 1,
+                        },
+                        {
+                            label: 'Produksi',
+                            data: spkData.produksi,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: 'rgb(37, 99, 235)',
+                            borderWidth: 1,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+        @endif
     </script>
 
     <script>
