@@ -14,7 +14,8 @@ class DashboardController extends Controller
     {
         $data = $this->dashboardService->dashboardData();
         $canViewProfit = auth()->user()->hasPermission('view_profit');
+        $canViewSpkChart = auth()->user()->hasPermission('view_spk_chart');
 
-        return view('dashboard.index', compact('data', 'canViewProfit'));
+        return view('dashboard.index', compact('data', 'canViewProfit', 'canViewSpkChart'));
     }
 }

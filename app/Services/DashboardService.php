@@ -175,13 +175,14 @@ class DashboardService
         $stockAlerts = $this->lowStockProducts();
         $user = auth()->user();
         $isManager = $user && $user->hasRole('manager');
+        $canViewSpkChart = $user && $user->hasPermission('view_spk_chart');
 
         return [
             'chart' => $this->salesLastSevenDays(),
             'today' => $this->todaySummary(),
             'stock_alerts' => $stockAlerts,
             'low_stock_count' => count($stockAlerts),
-            'spk_chart' => $isManager ? $this->dailySpkPerformance() : null,
+            'spk_chart' => $canViewSpkChart ? $this->dailySpkPerformance() : null,
             'is_manager' => $isManager,
         ];
     }

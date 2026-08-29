@@ -124,8 +124,8 @@
     @if ($canViewProfit)
 
         @php
-            $gridCols = $data['is_manager'] ? 'lg:grid-cols-3' : 'lg:grid-cols-1';
-            $salesSpan = $data['is_manager'] ? 'lg:col-span-2' : 'lg:col-span-1';
+            $gridCols = $canViewSpkChart ? 'lg:grid-cols-3' : 'lg:grid-cols-1';
+            $salesSpan = $canViewSpkChart ? 'lg:col-span-2' : 'lg:col-span-1';
         @endphp
         <div class="mt-6 grid gap-3 md:gap-6 {{ $gridCols }}">
             <div class="{{ $salesSpan }} rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
@@ -141,7 +141,7 @@
                 </div>
             </div>
 
-            @if ($data['is_manager'])
+            @if ($canViewSpkChart)
             <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
                 <div class="mb-6">
                     <h2 class="text-base font-bold text-slate-800">Grafik SPK (Hari Ini)</h2>
@@ -294,7 +294,7 @@
             });
         }
 
-        @if ($data['is_manager'] && !empty($data['spk_chart']))
+        @if ($canViewSpkChart && !empty($data['spk_chart']))
         const spkData = @json($data['spk_chart']);
         if (spkData.labels.length) {
             const spkCtx = document.getElementById('spkChart').getContext('2d');
