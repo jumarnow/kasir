@@ -121,13 +121,15 @@
     </div>
 
 
-    @if ($canViewProfit)
+    @if ($canViewProfit || $canViewSpkChart)
 
         @php
-            $gridCols = $canViewSpkChart ? 'lg:grid-cols-3' : 'lg:grid-cols-1';
-            $salesSpan = $canViewSpkChart ? 'lg:col-span-2' : 'lg:col-span-1';
+            $gridCols = ($canViewProfit && $canViewSpkChart) ? 'lg:grid-cols-3' : 'lg:grid-cols-1';
+            $salesSpan = ($canViewProfit && $canViewSpkChart) ? 'lg:col-span-2' : 'lg:col-span-1';
+            $spkSpan = ($canViewProfit && $canViewSpkChart) ? 'lg:col-span-1' : 'lg:col-span-1';
         @endphp
         <div class="mt-6 grid gap-3 md:gap-6 {{ $gridCols }}">
+            @if ($canViewProfit)
             <div class="{{ $salesSpan }} rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
                 <div class="flex items-center justify-between mb-6">
                     <div>
@@ -140,9 +142,10 @@
                     <canvas id="salesChart" height="140"></canvas>
                 </div>
             </div>
+            @endif
 
             @if ($canViewSpkChart)
-            <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+            <div class="{{ $spkSpan }} rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
                 <div class="mb-6">
                     <h2 class="text-base font-bold text-slate-800">Grafik SPK (Hari Ini)</h2>
                     <p class="text-xs text-slate-500">Performa Design & Produksi</p>
@@ -241,6 +244,7 @@
 
 @push('scripts')
     <script>
+        @if ($canViewProfit)
         const salesData = @json($data['chart']);
         if (salesData.length) {
             const ctx = document.getElementById('salesChart').getContext('2d');
@@ -293,6 +297,7 @@
                 }
             });
         }
+        @endif
 
         @if ($canViewSpkChart && !empty($data['spk_chart']))
         const spkData = @json($data['spk_chart']);
