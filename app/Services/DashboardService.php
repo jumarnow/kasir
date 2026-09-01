@@ -170,9 +170,40 @@ class DashboardService
             ->all();
     }
 
+    public function lowStockRawMaterials(int $limit = 10): array
+    {
+        return \App\Models\RawMaterial::select('id', 'name', 'sku', 'unit', 'stock', 'min_stock')
+            ->where('min_stock', '>', 0)
+            ->whereColumn('stock', '<=', 'min_stock')
+            ->orderBy('stock', 'asc')
+            ->limit($limit)
+            ->get()
+            ->map(static function ($material) {
+                return [
+                    'id' => $material->id,
+                    'name' => $material->name,
+                    'sku' => $material->sku,
+                    'unit' => $material->unit,
+                    'stock' => (int) $material->stock,
+                    'min_stock' => (int) $material->min_stock,
+                    'is_low' => true,
+                ];
+            })
+            ->all();
+    }
+
+    public function rawMaterialSummary(): array
+    {
+        return [
+            'total_items' => \App\Models\RawMaterial::count(),
+            'total_stock' => \App\Models\RawMaterial::sum('stock'),
+        ];
+    }
+
     public function dashboardData(): array
     {
         $stockAlerts = $this->lowStockProducts();
+        $rawMaterialAlerts = $this->lowStockRawMaterials();
         $user = auth()->user();
         $isManager = $user && $user->hasRole('manager');
         $canViewSpkChart = $user && $user->hasPermission('view_spk_chart');
@@ -181,9 +212,11 @@ class DashboardService
             'chart' => $this->salesLastSevenDays(),
             'today' => $this->todaySummary(),
             'stock_alerts' => $stockAlerts,
-            'low_stock_count' => count($stockAlerts),
+            'raw_material_alerts' => $rawMaterialAlerts,
+            'low_stock_count' => count($stockAlerts) + count($rawMaterialAlerts),
             'spk_chart' => $canViewSpkChart ? $this->dailySpkPerformance() : null,
             'is_manager' => $isManager,
+            'raw_materials' => $this->rawMaterialSummary(),
         ];
     }
 }

@@ -159,7 +159,7 @@
 
     @endif
 
-    <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-2" id="stock-alerts-section">
+    <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-3" id="stock-alerts-section">
         <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
             <div class="mb-6 flex items-center justify-between">
                 <div>
@@ -194,6 +194,40 @@
             </div>
         </div>
 
+        <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">Stok Bahan Baku</h2>
+                    <p class="text-xs text-slate-500">Pantau bahan baku dengan stok kritis</p>
+                </div>
+                <a href="{{ route('raw-materials.index') }}"
+                    class="text-xs font-bold text-indigo-600 hover:text-indigo-500">Lihat Semua</a>
+            </div>
+            <div class="space-y-3">
+                @forelse ($data['raw_material_alerts'] as $material)
+                    <div
+                        class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-white hover:border-slate-200 hover:shadow-sm">
+                        <div class="flex-1 min-w-0 mr-4">
+                            <p class="text-sm font-bold text-slate-800 truncate">{{ $material['name'] }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">SKU:
+                                {{ $material['sku'] }}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold {{ $material['is_low'] ? 'text-red-500' : 'text-emerald-600' }}">
+                                {{ $material['stock'] }} {{ $material['unit'] }}
+                            </p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+                                Min: {{ $material['min_stock'] ?: '-' }}
+                            </p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="py-8 text-center text-sm text-slate-500 italic">Semua stok bahan baku aman.</div>
+                @endforelse
+            </div>
+        </div>
+
         <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200 relative overflow-hidden">
             <div class="mb-6 relative z-10">
                 <h2 class="text-base font-bold text-slate-800">Aksi & Laporan</h2>
@@ -222,6 +256,13 @@
                     <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">📦</span>
                     <span class="font-bold text-sm text-slate-800">Kelola Produk</span>
                     <span class="text-xs text-slate-500 mt-1">Update harga & stok</span>
+                </a>
+
+                <a href="{{ route('raw-materials.index') }}"
+                    class="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-emerald-100 hover:shadow-md transition-all group">
+                    <span class="text-2xl mb-2 group-hover:scale-110 transition-transform">🏷️</span>
+                    <span class="font-bold text-sm text-slate-800">Bahan Baku</span>
+                    <span class="text-xs text-slate-500 mt-1">Stok: {{ number_format($data['raw_materials']['total_stock'] ?? 0) }} item</span>
                 </a>
 
                 <a href="{{ route('transactions.index') }}"

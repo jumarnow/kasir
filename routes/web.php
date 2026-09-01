@@ -38,6 +38,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('products/{product}/barcode', [ProductController::class, 'barcode'])->name('products.barcode');
         Route::resource('products', ProductController::class)->except('show');
 
+        // Raw Materials
+        Route::post('/raw-materials/scan', [App\Http\Controllers\RawMaterialController::class, 'scan'])->name('raw-materials.scan');
+        Route::post('/raw-materials/{raw_material}/generate-barcode', [App\Http\Controllers\RawMaterialController::class, 'generateBarcode'])->name('raw-materials.generate-barcode');
+        Route::post('/raw-materials/bulk-barcode', [App\Http\Controllers\RawMaterialController::class, 'bulkBarcode'])->name('raw-materials.bulk_barcode');
+        Route::get('/raw-materials/import/template', [App\Http\Controllers\RawMaterialController::class, 'downloadTemplate'])->name('raw-materials.import.template');
+        Route::post('/raw-materials/import', [App\Http\Controllers\RawMaterialController::class, 'import'])->name('raw-materials.import');
+        Route::resource('raw-materials', App\Http\Controllers\RawMaterialController::class)->except('show');
+
         Route::resource('finishings', App\Http\Controllers\FinishingController::class)->except('show');
         // Route::resource('materials', App\Http\Controllers\MaterialController::class)->except('show');
         // Route::resource('displays', App\Http\Controllers\DisplayController::class)->except('show');

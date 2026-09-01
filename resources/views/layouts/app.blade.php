@@ -255,6 +255,9 @@
                                 <a href="{{ route('products.index') }}" class="nav-link !py-1.5 hover:!bg-transparent hover:!text-indigo-600" title="Daftar Produk">
                                     <span class="text-[13px] label">Daftar Produk</span>
                                 </a>
+                                <a href="{{ route('raw-materials.index') }}" class="nav-link !py-1.5 hover:!bg-transparent hover:!text-indigo-600" title="Bahan Baku">
+                                    <span class="text-[13px] label">Bahan Baku</span>
+                                </a>
                                 <a href="{{ route('finishings.index') }}" class="nav-link !py-1.5 hover:!bg-transparent hover:!text-indigo-600" title="Finishing">
                                     <span class="text-[13px] label">Finishing</span>
                                 </a>
@@ -480,6 +483,7 @@
                 @endcan
                 @can('manage_products')
                     <a href="{{ route('products.index') }}" class="mobile-nav-link">Produk</a>
+                    <a href="{{ route('raw-materials.index') }}" class="mobile-nav-link">Bahan Baku</a>
                     <a href="{{ route('finishings.index') }}" class="mobile-nav-link">Finishing</a>
                 @endcan
                 @can('manage_categories')
