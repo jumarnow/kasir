@@ -159,6 +159,20 @@
 
     @endif
 
+    @if ($canViewSpkChart)
+        <div class="mt-6">
+            <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
+                <div class="mb-6">
+                    <h2 class="text-base font-bold text-slate-800">Grafik SPK ( 3 hari Terakhir )</h2>
+                    <p class="text-xs text-slate-500">Total performa karyawan</p>
+                </div>
+                <div class="relative h-[300px] w-full">
+                    <canvas id="spk3DaysChart"></canvas>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="mt-6 grid gap-3 md:gap-6 lg:grid-cols-3" id="stock-alerts-section">
         <div class="rounded-2xl bg-white p-4 md:p-6 shadow-sm border border-slate-200">
             <div class="mb-6 flex items-center justify-between">
@@ -371,6 +385,40 @@
                     scales: {
                         x: { stacked: true },
                         y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+        @endif
+
+        @if ($canViewSpkChart && !empty($data['spk_3_days_chart']))
+        const spk3DaysData = @json($data['spk_3_days_chart']);
+        if (spk3DaysData.labels.length) {
+            const spk3DaysCtx = document.getElementById('spk3DaysChart').getContext('2d');
+            new Chart(spk3DaysCtx, {
+                type: 'bar',
+                data: {
+                    labels: spk3DaysData.labels,
+                    datasets: spk3DaysData.datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false }
+                        },
+                        y: { 
+                            stacked: true,
+                            beginAtZero: true, 
+                            ticks: { stepSize: 1 } 
+                        }
                     }
                 }
             });

@@ -215,8 +215,101 @@ class DashboardService
             'raw_material_alerts' => $rawMaterialAlerts,
             'low_stock_count' => count($stockAlerts) + count($rawMaterialAlerts),
             'spk_chart' => $canViewSpkChart ? $this->dailySpkPerformance() : null,
+            'spk_3_days_chart' => $canViewSpkChart ? $this->lastThreeDaysSpkPerformance() : null,
             'is_manager' => $isManager,
             'raw_materials' => $this->rawMaterialSummary(),
+        ];
+    }
+
+    public function lastThreeDaysSpkPerformance(): array
+    {
+        $dates = [
+            Carbon::today()->subDays(2),
+            Carbon::today()->subDays(1),
+            Carbon::today()
+        ];
+        
+        $dateLabels = [];
+        $dateStrings = [];
+        foreach ($dates as $index => $date) {
+            $dayNum = $index + 1;
+            $dateLabels[] = 'HARI ' . $dayNum . ' (' . $date->format('d M') . ')';
+            $dateStrings[] = $date->format('Y-m-d');
+        }
+
+        $transactions = \App\Models\Transaction::select('desainer_id', 'eksekutor_id', 'eksekutor_2_id', 'created_at')
+            ->where('created_at', '>=', Carbon::today()->subDays(2)->startOfDay())
+            ->get();
+
+        $employees = \App\Models\Employee::select('id', 'name')->get();
+        $employeeData = [];
+        
+        $colors = ['#0ea5e9', '#f59e0b', '#ec4899', '#1d4ed8', '#eab308', '#9333ea', '#14b8a6', '#f43f5e', '#8b5cf6'];
+        $colorIndex = 0;
+
+        foreach ($employees as $employee) {
+            $designData = [];
+            $produksiData = [];
+            $hasData = false;
+
+            foreach ($dateStrings as $dateStr) {
+                // Filter transactions for this date
+                $dailyTrans = $transactions->filter(function($t) use ($dateStr) {
+                    return Carbon::parse($t->created_at)->format('Y-m-d') === $dateStr;
+                });
+
+                $designCount = $dailyTrans->where('desainer_id', $employee->id)->count();
+                $produksiCount = $dailyTrans->filter(function($t) use ($employee) {
+                    return $t->eksekutor_id === $employee->id || $t->eksekutor_2_id === $employee->id;
+                })->count();
+
+                if ($designCount > 0 || $produksiCount > 0) $hasData = true;
+                
+                $designData[] = $designCount;
+                $produksiData[] = $produksiCount;
+            }
+
+            if ($hasData) {
+                // Ambil nama depan saja
+                $firstName = explode(' ', trim($employee->name))[0];
+
+                $baseColor = $colors[$colorIndex % count($colors)];
+                // Convert hex to rgb to apply opacity
+                $hex = ltrim($baseColor, '#');
+                $r = hexdec(substr($hex, 0, 2));
+                $g = hexdec(substr($hex, 2, 2));
+                $b = hexdec(substr($hex, 4, 2));
+                
+                $designColor = "rgba($r, $g, $b, 1)";
+                $produksiColor = "rgba($r, $g, $b, 0.4)";
+
+                // Add Design Dataset
+                $employeeData[] = [
+                    'label' => $firstName . ' (Design)',
+                    'data' => $designData,
+                    'backgroundColor' => $designColor,
+                    'borderColor' => $designColor,
+                    'borderWidth' => 1,
+                    'stack' => $firstName, // Same stack for the same employee
+                ];
+
+                // Add Produksi Dataset
+                $employeeData[] = [
+                    'label' => $firstName . ' (Produksi)',
+                    'data' => $produksiData,
+                    'backgroundColor' => $produksiColor,
+                    'borderColor' => $designColor,
+                    'borderWidth' => 1,
+                    'stack' => $firstName, // Same stack for the same employee
+                ];
+
+                $colorIndex++;
+            }
+        }
+
+        return [
+            'labels' => $dateLabels,
+            'datasets' => array_values($employeeData),
         ];
     }
 }
