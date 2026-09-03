@@ -224,16 +224,19 @@ class DashboardService
     public function lastThreeDaysSpkPerformance(): array
     {
         $dates = [
-            Carbon::today()->subDays(2),
+            Carbon::today(),
             Carbon::today()->subDays(1),
-            Carbon::today()
+            Carbon::today()->subDays(2)
         ];
         
         $dateLabels = [];
         $dateStrings = [];
-        foreach ($dates as $index => $date) {
-            $dayNum = $index + 1;
-            $dateLabels[] = 'HARI ' . $dayNum . ' (' . $date->format('d M') . ')';
+        foreach ($dates as $date) {
+            if ($date->isToday()) {
+                $dateLabels[] = 'Hari Ini (' . $date->format('d M') . ')';
+            } else {
+                $dateLabels[] = $date->format('d M');
+            }
             $dateStrings[] = $date->format('Y-m-d');
         }
 

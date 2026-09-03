@@ -341,6 +341,9 @@
                         legend: {
                             display: false
                         },
+                        datalabels: {
+                            display: false
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function (context) {
@@ -382,6 +385,11 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            display: false
+                        }
+                    },
                     scales: {
                         x: { stacked: true },
                         y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
@@ -401,12 +409,33 @@
                     labels: spk3DaysData.labels,
                     datasets: spk3DaysData.datasets
                 },
+                plugins: [ChartDataLabels],
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            display: false
+                        },
+                        datalabels: {
+                            color: 'white',
+                            textStrokeColor: 'rgba(0, 0, 0, 0.4)',
+                            textStrokeWidth: 2,
+                            textShadowColor: 'rgba(0, 0, 0, 0.4)',
+                            textShadowBlur: 4,
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
+                            align: 'center',
+                            anchor: 'center',
+                            formatter: function(value, context) {
+                                if (value > 0) {
+                                    let name = context.dataset.label.split(' (')[0];
+                                    return [name, value];
+                                }
+                                return '';
+                            }
                         }
                     },
                     scales: {
