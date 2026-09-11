@@ -197,6 +197,7 @@
                 <div style="font-weight: 600; color: #475569; font-size: 9px;">DITAGIHKAN KEPADA:</div>
                 <div style="font-weight: 700;">{{ $transaction->customer->name ?? 'Pelanggan Umum' }}</div>
                 <div style="color: #64748b;">{{ $transaction->customer->phone ?? '-' }}</div>
+                <div style="color: #64748b; margin-top: 4px;">{{ $transaction->customer->address ?? '' }}</div>
             </div>
             @if($transaction->due_date && $transaction->payment_status != 'paid')
                 <div style="text-align: right;">
