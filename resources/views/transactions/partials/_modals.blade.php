@@ -141,6 +141,13 @@
             <input type="hidden" id="modal-item-index">
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Deskripsi Produk <span class="text-red-500">*</span></label>
+                    <input type="text" id="modal-description" required
+                        class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Deskripsi / catatan produk...">
+                </div>
+
+                <div class="col-span-2">
                     <label class="block text-xs font-medium text-slate-700 mb-1">Quantity</label>
                     <input type="number" id="modal-qty" min="1"
                         class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">

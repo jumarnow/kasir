@@ -344,9 +344,6 @@ const Cart = {
             selectedPrice = 0;
         }
 
-        // Get description from input
-        const productDescription = $('#product-description-input').val().trim() || null;
-
         app.cart.push({
             id: product.id,
             name: product.name,
@@ -372,11 +369,8 @@ const Cart = {
             material_price_tier: '1',
             product_price_tier: '1',
             display_id: null,
-            notes: productDescription
+            notes: null
         });
-
-        // Clear description input after adding
-        $('#product-description-input').val('');
 
         if (stockAlert > 0 && (product.stock - 1) <= stockAlert) {
             Swal.fire({
@@ -497,6 +491,7 @@ const ItemDetailModal = {
 
         $('#modal-item-index').val(index);
         $('#modal-item-name').text(item.name);
+        $('#modal-description').val(item.notes || '');
         $('#modal-qty').val(item.quantity);
         $('#modal-length').val(item.length || 0);
         $('#modal-width').val(item.width || 0);
@@ -704,6 +699,8 @@ const ItemDetailModal = {
         const index = $('#modal-item-index').val();
         const item = app.cart[index];
         if (!item) return;
+
+        item.notes = $('#modal-description').val().trim() || null;
 
         const qty = parseInt($('#modal-qty').val()) || 1;
         const w = parseFloat($('#modal-length').val()) || 0;
