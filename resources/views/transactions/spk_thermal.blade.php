@@ -40,8 +40,8 @@
         }
 
         .item-header {
-            font-weight: bold;
-            font-size: 14px;
+            font-weight: 900;
+            font-size: 16px;
         }
 
         .item-meta {
@@ -112,10 +112,21 @@
 
     <hr style="border-top: 1px dashed black;">
 
+    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 5px;">
+        <div style="flex: 1;">DESKRIPSI</div>
+        <div style="width: 50px; text-align: center;">QTY</div>
+    </div>
+    <hr style="border-top: 1px dashed black; margin-top: 0;">
+
     @foreach($transaction->items as $item)
         <div class="item">
-            <div class="item-header">
-                {{ $item->custom_name ?? $item->product?->name ?? '-' }} (x{{ $item->quantity }})
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="item-header" style="flex: 1; padding-right: 10px;">
+                    <strong>{{ $item->custom_name ?? $item->product?->name ?? '-' }}</strong>
+                </div>
+                <div class="item-header" style="width: 50px; text-align: center;">
+                    <strong>{{ $item->quantity }}</strong>
+                </div>
             </div>
             <div class="item-meta">
                 @if($item->product?->pricing_type == 'per_dimension')
